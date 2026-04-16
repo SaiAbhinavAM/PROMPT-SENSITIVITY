@@ -1,0 +1,13 @@
+# Environments & Configs
+.env
+
+# Dependencies
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Experiment Files
+results/
+cache/
