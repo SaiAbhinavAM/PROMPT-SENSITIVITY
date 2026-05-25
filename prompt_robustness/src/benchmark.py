@@ -133,6 +133,8 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
         for r in results:
             row = {
                 "PRI": r.get("pri", 0),
+                "ORI": r.get("ori_score", 0),
+                "IFI": r.get("ifi_score", 0),
                 "CS": r.get("cs", 0),
                 "HS": r.get("hs_score", 0),
                 "Consistency": r.get("consistency", 0),
@@ -215,6 +217,8 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
         agg = {
             "Model": m,
             "PRI": sum(r.get("pri", 0) for r in model_runs) / len(model_runs),
+            "ORI": sum(r.get("ori_score", 0) for r in model_runs) / len(model_runs),
+            "IFI": sum(r.get("ifi_score", 0) for r in model_runs) / len(model_runs),
             "CS": sum(r.get("cs", 0) for r in model_runs) / len(model_runs),
             "HS": sum(r.get("hs_score", 0) for r in model_runs) / len(model_runs),
             "Consistency": sum(r.get("consistency", 0) for r in model_runs) / len(model_runs),

@@ -1,0 +1,9 @@
+2026-05-23 02:11:06,751 [INFO] gensens.summarization — Logging to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/.claude/worktrees/condescending-booth-22dd9b/gensens/logs/generation_summarization_20260523_021106.log
+2026-05-23 02:11:06,751 [INFO] gensens.summarization — GenSens generation started. tasks=['summarization']
+2026-05-23 02:11:09,907 [INFO] gensens.summarization — Initialising ParaphraseGenerator (backend=local) …
+2026-05-23 02:11:21,854 [INFO] gensens.summarization — ParaphraseGenerator ready.
+2026-05-23 02:11:21,896 [INFO] gensens.summarization — Logging to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/.claude/worktrees/condescending-booth-22dd9b/gensens/logs/generation_summarization_20260523_021121.log
+2026-05-23 02:11:21,911 [INFO] gensens.summarization — [summarization] Loading source instances (n=5) …
+2026-05-23 02:11:32,358 [INFO] gensens.summarization — [summarization] Resuming from checkpoint: 0 instances already done.
+2026-05-23 02:12:47,298 [INFO] gensens.summarization — [summarization] summ_0001 → n_variants=7, mean_sim=0.8722, time=74.9s
+2026-05-23 02:14:06,476 [INFO] gensens.summarization — [summarization] summ_0002 → n_variants=7, mean_sim=0.8808, time=79.2s

@@ -1,0 +1,11 @@
+2026-05-23 19:21:03,415 [INFO] root: Logging to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/logs/generation_all_20260523_192103.log
+2026-05-23 19:21:03,415 [INFO] __main__: ============================================================
+2026-05-23 19:21:03,415 [INFO] __main__: GenSens Dataset Generation Pipeline
+2026-05-23 19:21:03,415 [INFO] __main__:   Task:             all
+2026-05-23 19:21:03,415 [INFO] __main__:   Instances/task:   200
+2026-05-23 19:21:03,415 [INFO] __main__:   Variants/inst:    8
+2026-05-23 19:21:03,415 [INFO] __main__:   Seed:             42
+2026-05-23 19:21:03,415 [INFO] __main__:   Checkpoint every: 20
+2026-05-23 19:21:03,415 [INFO] __main__: ============================================================
+2026-05-23 19:21:03,415 [INFO] __main__: Initializing ParaphraseGenerator...
+2026-05-23 19:21:03,415 [INFO] paraphrase_generator: Loading LLaMA model: meta-llama/Meta-Llama-3-8B-Instruct

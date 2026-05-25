@@ -1,0 +1,14 @@
+torch
+transformers
+datasets
+sentence-transformers
+accelerate
+tqdm
+numpy
+pandas
+rouge-score
+bert-score
+nltk
+huggingface-hub
+bitsandbytes
+scipy

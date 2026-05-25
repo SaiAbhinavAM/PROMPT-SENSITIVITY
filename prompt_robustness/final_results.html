@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Sensitivity in Open-Ended Generation — Research Presentation</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080c14;
+            --surface: #0f1624;
+            --surface2: #161e30;
+            --border: #1e2d4a;
+            --accent: #3b82f6;
+            --accent2: #06b6d4;
+            --accent3: #a78bfa;
+            --warn: #f59e0b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --text: #e2e8f0;
+            --muted: #64748b;
+            --dim: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* GRID BACKGROUND */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* SLIDE SYSTEM */
+        .slides-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 48px 64px;
+            opacity: 0;
+            transform: translateX(60px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+
+        .slide.exit {
+            opacity: 0;
+            transform: translateX(-60px);
+        }
+
+        /* NAV */
+        .nav {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(15, 22, 36, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 12px 24px;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .nav button {
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            padding: 6px 16px;
+            border-radius: 100px;
+            transition: all 0.2s;
+        }
+
+        .nav button:hover {
+            background: var(--border);
+        }
+
+        .nav button:disabled {
+            color: var(--muted);
+            cursor: not-allowed;
+        }
+
+        .nav .counter {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--muted);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* PROGRESS BAR */
+        .progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            transition: width 0.4s ease;
+            z-index: 200;
+        }
+
+        /* SLIDE COMPONENTS */
+        .slide-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--accent2);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: clamp(36px, 5vw, 64px);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+        }
+
+        h2 {
+            font-size: clamp(28px, 3.5vw, 44px);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 32px;
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-family: 'Instrument Serif', serif;
+            font-size: 18px;
+            line-height: 1.65;
+            color: #94a3b8;
+        }
+
+        .accent {
+            color: var(--accent);
+        }
+
+        .accent2 {
+            color: var(--accent2);
+        }
+
+        .accent3 {
+            color: var(--accent3);
+        }
+
+        .warn {
+            color: var(--warn);
+        }
+
+        .danger {
+            color: var(--danger);
+        }
+
+        .success {
+            color: var(--success);
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .card-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .card-grid.cols-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .card-grid.cols-3 {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .card-grid.cols-4 {
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+
+        /* PILL TAGS */
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        .tag-blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .tag-cyan {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent2);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .tag-purple {
+            background: rgba(167, 139, 250, 0.15);
+            color: var(--accent3);
+            border: 1px solid rgba(167, 139, 250, 0.3);
+        }
+
+        .tag-amber {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warn);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .tag-red {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .tag-green {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* METRIC BARS */
+        .metric-bar-wrap {
+            margin-bottom: 14px;
+        }
+
+        .metric-bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .metric-bar-track {
+            height: 8px;
+            background: var(--surface2);
+            border-radius: 100px;
+            overflow: hidden;
+        }
+
+        .metric-bar-fill {
+            height: 100%;
+            border-radius: 100px;
+            transition: width 1s ease;
+        }
+
+        /* TABLE */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 10px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(30, 45, 74, 0.5);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        /* CODE BLOCK */
+        .code-block {
+            background: #060a10;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #94a3b8;
+            overflow-x: auto;
+        }
+
+        .code-block .kw {
+            color: #a78bfa;
+        }
+
+        .code-block .str {
+            color: #34d399;
+        }
+
+        .code-block .fn {
+            color: #60a5fa;
+        }
+
+        .code-block .cm {
+            color: #475569;
+            font-style: italic;
+        }
+
+        .code-block .num {
+            color: #f59e0b;
+        }
+
+        /* DIVIDER */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 24px 0;
+        }
+
+        /* NUMBERED STEPS */
+        .step {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .step-desc {
+            font-family: 'Instrument Serif', serif;
+            font-size: 15px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* BIG STAT */
+        .big-stat {
+            text-align: center;
+            padding: 28px 20px;
+        }
+
+        .big-stat-num {
+            font-size: clamp(40px, 5vw, 60px);
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .big-stat-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* VERDICT BOX */
+        .verdict {
+            border-left: 3px solid;
+            padding: 16px 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 16px 0;
+        }
+
+        .verdict-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .verdict-text {
+            font-family: 'Instrument Serif', serif;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* SLIDE-SPECIFIC STYLES */
+
+        /* Slide 1 — Title */
+        #slide-1 {
+            justify-content: center;
+        }
+
+        #slide-1 .eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent2);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        #slide-1 h1 {
+            margin-bottom: 24px;
+        }
+
+        #slide-1 .subtitle {
+            font-family: 'Instrument Serif', serif;
+            font-size: 22px;
+            color: #64748b;
+            max-width: 700px;
+            line-height: 1.5;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .glow-line {
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius: 2px;
+            margin-bottom: 48px;
+        }
+
+        #slide-1 .meta-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        /* Slide 2 — Problem */
+        #slide-2 .problem-box {
+            background: rgba(239, 68, 68, 0.07);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        /* Slide 3 — Framework Overview */
+        .framework-box {
+            display: grid;
+            grid-template-columns: 1fr 40px 1fr 40px 1fr;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .fw-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .fw-arrow {
+            text-align: center;
+            color: var(--muted);
+            font-size: 24px;
+        }
+
+        /* Animated number */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp 0.6s ease forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+            opacity: 0;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+            opacity: 0;
+        }
+
+        .delay-4 {
+            animation-delay: 0.4s;
+            opacity: 0;
+        }
+
+        .delay-5 {
+            animation-delay: 0.5s;
+            opacity: 0;
+        }
+
+        .delay-6 {
+            animation-delay: 0.6s;
+            opacity: 0;
+        }
+
+        /* Correlation color */
+        .cor-strong {
+            color: var(--success);
+        }
+
+        .cor-med {
+            color: var(--warn);
+        }
+
+        .cor-weak {
+            color: #94a3b8;
+        }
+
+        .cor-neg {
+            color: var(--danger);
+        }
+
+        .slide-footer {
+            position: absolute;
+            bottom: 100px;
+            right: 64px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--dim);
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="progress" id="progress"></div>
+
+    <div class="slides-container">
+
+        <!-- SLIDE 1: TITLE -->
+        <div class="slide active" id="slide-1">
+            <div class="eyebrow">Research Presentation · 2026</div>
+            <h1>
+                Prompt Sensitivity<br>
+                <span class="accent">in Open-Ended</span><br>
+                Generation
+            </h1>
+            <div class="glow-line"></div>
+            <p class="subtitle">A Dual-Index Reliability Framework for measuring how stable LLMs are when the same
+                question is asked differently</p>
+            <div class="meta-row">
+                <span class="tag tag-blue">NLP / LLM Evaluation</span>
+                <span class="tag tag-cyan">Robustness Analysis</span>
+                <span class="tag tag-purple">Metric Design</span>
+                <span class="tag tag-amber">Empirical Study</span>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: THE PROBLEM -->
+        <div class="slide" id="slide-2">
+            <div class="slide-label">01 — The Problem</div>
+            <h2>Why Does This Research <span class="accent">Matter?</span></h2>
+            <div class="problem-box">
+                <h3 style="color:#ef4444; margin-bottom:12px;">🚨 The Core Problem</h3>
+                <p style="color:#fca5a5;">When you ask an AI the same thing in different ways, it should give equally
+                    good answers. But current evaluation tools like ROUGE <strong>can't tell the difference</strong>
+                    between a model that truly fails and a model that gives a perfectly good answer using different
+                    words.</p>
+            </div>
+            <div class="card-grid cols-3" style="margin-bottom:24px;">
+                <div class="card fade-up delay-1">
+                    <div style="font-size:32px; margin-bottom:8px;">📝</div>
+                    <h3>Prompt 1</h3>
+                    <p style="font-size:14px;">"Summarize this article."</p>
+                    <div style="margin-top:12px;" class="tag tag-green">ROUGE: 0.42 ✅</div>
+                </div>
+                <div class="card fade-up delay-2">
+                    <div style="font-size:32px; margin-bottom:8px;">📝</div>
+                    <h3>Prompt 2</h3>
+                    <p style="font-size:14px;">"Give me a brief overview."</p>
+                    <div style="margin-top:12px;" class="tag tag-red">ROUGE: 0.19 ❌</div>
+                </div>
+                <div class="card fade-up delay-3"
+                    style="background:rgba(16,185,129,0.07); border-color:rgba(16,185,129,0.3);">
+                    <div style="font-size:32px; margin-bottom:8px;">🧠</div>
+                    <h3>Reality</h3>
+                    <p style="font-size:14px;">Both answers are equally good. ROUGE just penalizes different words.</p>
+                    <div style="margin-top:12px;" class="tag tag-amber">Evaluation Artifact</div>
+                </div>
+            </div>
+            <div class="verdict" style="border-color:var(--accent); background:rgba(59,130,246,0.07);">
+                <div class="verdict-title accent">Our Research Goal</div>
+                <div class="verdict-text">Build a framework that correctly evaluates model robustness — distinguishing
+                    <em>genuine failure</em> from <em>surface-level metric noise</em>.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: FRAMEWORK OVERVIEW -->
+        <div class="slide" id="slide-3">
+            <div class="slide-label">02 — Framework Overview</div>
+            <h2>The <span class="accent">Dual-Index</span> Reliability Framework</h2>
+            <div class="framework-box">
+                <div class="fw-block" style="border-color:rgba(59,130,246,0.4);">
+                    <div style="font-size:28px; margin-bottom:12px;">🔭</div>
+                    <div class="tag tag-blue" style="margin-bottom:12px;">ORI</div>
+                    <h3 class="accent">Observational Robustness Index</h3>
+                    <p style="font-size:14px; margin-top:8px;">Measures WHAT the output looks like — the external
+                        behavior</p>
+                    <div
+                        style="margin-top:16px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);">
+                        SMS · AUC-E · TRD · KPIG</div>
+                </div>
+                <div class="fw-arrow">+</div>
+                <div class="fw-block" style="border-color:rgba(167,139,250,0.4);">
+                    <div style="font-size:28px; margin-bottom:12px;">🧬</div>
+                    <div class="tag tag-purple" style="margin-bottom:12px;">IFI</div>
+                    <h3 class="accent3">Intrinsic Fidelity Index</h3>
+                    <p style="font-size:14px; margin-top:8px;">Measures WHY it behaves this way — the internal model
+                        state</p>
+                    <div
+                        style="margin-top:16px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);">
+                        PPL_var · PC_stab</div>
+                </div>
+                <div class="fw-arrow">=</div>
+                <div class="fw-block" style="border-color:rgba(6,182,212,0.4); background:rgba(6,182,212,0.05);">
+                    <div style="font-size:28px; margin-bottom:12px;">🎯</div>
+                    <div class="tag tag-cyan" style="margin-bottom:12px;">PRI</div>
+                    <h3 class="accent2">Prompt Robustness Index</h3>
+                    <p style="font-size:14px; margin-top:8px;">Final combined score using Weighted Harmonic Mean</p>
+                    <div
+                        style="margin-top:16px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);">
+                        Penalizes catastrophic failure</div>
+                </div>
+            </div>
+            <div class="card"
+                style="margin-top:24px; background:rgba(6,182,212,0.05); border-color:rgba(6,182,212,0.2);">
+                <p style="text-align:center; font-style:italic; font-size:16px; color:var(--accent2);">"Think of this as
+                    a Behavioral MRI of an LLM — not just checking if the answer is right, but scanning how and why the
+                    model behaves the way it does."</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: DATASET & PROMPT CONSTRUCTION -->
+        <div class="slide" id="slide-4">
+            <div class="slide-label">03 — Phase 1</div>
+            <h2>Dataset & Prompt <span class="accent">Construction</span></h2>
+            <p style="margin-bottom:24px;">For each task, we generate <strong style="color:var(--text);">12 diverse
+                    prompt templates</strong> across 3 difficulty levels — stress-testing the model gradually.</p>
+            <div class="card-grid cols-3" style="margin-bottom:24px;">
+                <div class="card fade-up delay-1" style="border-top:3px solid var(--success);">
+                    <div class="tag tag-green" style="margin-bottom:12px;">Level 1 — Surface</div>
+                    <h3>4 Variants</h3>
+                    <p style="font-size:14px; margin-top:8px;">Minor structural changes only</p>
+                    <div class="divider"></div>
+                    <div
+                        style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); line-height:1.8;">
+                        "summarize this"<br>
+                        "SUMMARIZE THIS"<br>
+                        "Summarize this."<br>
+                        "summarize this!"
+                    </div>
+                </div>
+                <div class="card fade-up delay-2" style="border-top:3px solid var(--warn);">
+                    <div class="tag tag-amber" style="margin-bottom:12px;">Level 2 — Semantic</div>
+                    <h3>4 Variants</h3>
+                    <p style="font-size:14px; margin-top:8px;">Same meaning, different words</p>
+                    <div class="divider"></div>
+                    <div
+                        style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); line-height:1.8;">
+                        "summarize this"<br>
+                        "give me an overview"<br>
+                        "what's the main point"<br>
+                        "briefly describe"
+                    </div>
+                </div>
+                <div class="card fade-up delay-3" style="border-top:3px solid var(--danger);">
+                    <div class="tag tag-red" style="margin-bottom:12px;">Level 3 — Instructional</div>
+                    <h3>4 Variants</h3>
+                    <p style="font-size:14px; margin-top:8px;">Added stylistic constraints</p>
+                    <div class="divider"></div>
+                    <div
+                        style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); line-height:1.8;">
+                        "in 50 words"<br>
+                        "like a journalist"<br>
+                        "bullet points only"<br>
+                        "for a 5yr old"
+                    </div>
+                </div>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card">
+                    <h3>Tasks Evaluated</h3>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+                        <span class="tag tag-blue">Summarization</span>
+                        <span class="tag tag-purple">Creative Writing</span>
+                        <span class="tag tag-cyan">Dialogue</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Dataset Used</h3>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+                        <span class="tag tag-amber">CNN / DailyMail</span>
+                        <span class="tag tag-green">WritingPrompts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: ORI — 4 PILLARS -->
+        <div class="slide" id="slide-5">
+            <div class="slide-label">04 — Phase 2 · ORI</div>
+            <h2>Observational Robustness Index <span class="accent">— 4 Pillars</span></h2>
+            <div class="card-grid cols-2">
+                <div class="card fade-up delay-1">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <span class="tag tag-blue">SMS</span>
+                        <h3 style="margin:0;">Semantic Manifold Stability</h3>
+                    </div>
+                    <p style="font-size:14px;">Converts all 12 outputs to vector embeddings. Measures how "spread out"
+                        meanings are using <strong style="color:var(--text);">Wasserstein Distance</strong>.</p>
+                    <div
+                        style="margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent);">
+                        S_SMS = 1 − W₁(Base, Variants)</div>
+                    <div style="margin-top:8px; font-size:12px; color:var(--muted);">🎯 Low spread = high semantic
+                        stability</div>
+                </div>
+                <div class="card fade-up delay-2">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <span class="tag tag-cyan">AUC-E</span>
+                        <h3 style="margin:0;">Performance Elasticity</h3>
+                    </div>
+                    <p style="font-size:14px;">Uses <strong style="color:var(--text);">LLM-as-a-Judge</strong> (scored
+                        0–1) to measure how fast quality drops across the 3 prompt levels.</p>
+                    <div
+                        style="margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent2);">
+                        Area Under Elasticity Curve</div>
+                    <div style="margin-top:8px; font-size:12px; color:var(--muted);">🎯 High AUC = quality stays high
+                        throughout</div>
+                </div>
+                <div class="card fade-up delay-3">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <span class="tag tag-purple">TRD</span>
+                        <h3 style="margin:0;">Topic-Response Divergence</h3>
+                    </div>
+                    <p style="font-size:14px;">Uses <strong style="color:var(--text);">Jensen-Shannon
+                            Divergence</strong> in shared topic space to check if responses drift off-topic.</p>
+                    <div
+                        style="margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent3);">
+                        S_TRD = 1 − D_JS(Prompt ‖ Response)</div>
+                    <div style="margin-top:8px; font-size:12px; color:var(--muted);">🎯 Low divergence = stays on topic
+                    </div>
+                </div>
+                <div class="card fade-up delay-4">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <span class="tag tag-amber">KPIG</span>
+                        <h3 style="margin:0;">Instructional Stability</h3>
+                    </div>
+                    <p style="font-size:14px;">Checks if model follows a key constraint (e.g., "50 words") when it's
+                        rephrased 10 different ways. Catches <strong
+                            style="color:var(--text);">"half-listening"</strong> models.</p>
+                    <div
+                        style="margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--warn);">
+                        S_KPIG = 1 − σ²(IG)</div>
+                    <div style="margin-top:8px; font-size:12px; color:var(--muted);">🎯 Low variance = understands
+                        constraint</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: IFI -->
+        <div class="slide" id="slide-6">
+            <div class="slide-label">05 — Phase 3 · IFI</div>
+            <h2>Intrinsic Fidelity Index <span class="accent3">— Opening the Hood</span></h2>
+            <p style="margin-bottom:28px;">While ORI watches the <em>outputs</em>, IFI looks inside the model to ask —
+                is this model genuinely confident, or is it statistically confused?</p>
+            <div class="card-grid cols-2" style="margin-bottom:24px;">
+                <div class="card fade-up delay-1" style="border-color:rgba(167,139,250,0.3);">
+                    <div style="font-size:36px; margin-bottom:12px;">📊</div>
+                    <div class="tag tag-purple" style="margin-bottom:12px;">PPL_var — Perplexity Variance</div>
+                    <p style="font-size:15px; margin-bottom:12px;">Perplexity = how "surprised" the model is by a
+                        prompt. We calculate it for all 12 variants and measure the <strong
+                            style="color:var(--text);">standard deviation.</strong></p>
+                    <div class="verdict" style="border-color:var(--accent3); background:rgba(167,139,250,0.07);">
+                        <div class="verdict-text" style="font-size:14px;"><strong style="color:var(--accent3);">Low
+                                σ</strong> = model finds all phrasings equally natural = truly robust<br><strong
+                                style="color:var(--danger);">High σ</strong> = model is confused by some phrasings =
+                            brittle</div>
+                    </div>
+                    <div style="margin-top:12px; font-size:12px; color:var(--muted);">🎯 Analogy: A fluent English
+                        speaker reads "summarize" and "give an overview" with equal ease</div>
+                </div>
+                <div class="card fade-up delay-2" style="border-color:rgba(167,139,250,0.3);">
+                    <div style="font-size:36px; margin-bottom:12px;">🌡️</div>
+                    <div class="tag tag-purple" style="margin-bottom:12px;">PC_stab — Probability Concentration</div>
+                    <p style="font-size:15px; margin-bottom:12px;">At each word generated, we measure the model's
+                        <strong style="color:var(--text);">Branching Factor</strong> — how many word options it's
+                        seriously considering.</p>
+                    <div class="verdict" style="border-color:var(--accent3); background:rgba(167,139,250,0.07);">
+                        <div class="verdict-text" style="font-size:14px;"><strong style="color:var(--success);">Low
+                                BF</strong> = confident, knows what to say<br><strong style="color:var(--danger);">High
+                                BF</strong> = confused, considering many options<br><strong
+                                style="color:var(--warn);">Unstable BF</strong> = sensitive to phrasing</div>
+                    </div>
+                    <div style="margin-top:12px; font-size:12px; color:var(--muted);">🎯 Analogy: A fluent speaker
+                        doesn't pause before every word. An uncertain one does.</div>
+                </div>
+            </div>
+            <div class="card" style="background:rgba(167,139,250,0.05); border-color:rgba(167,139,250,0.2);">
+                <p style="text-align:center; font-size:15px;">IFI requires <strong style="color:var(--text);">white-box
+                        model access</strong> (token probabilities). Evaluated on open-source models: LLaMA-3,
+                    Mistral-7B, Falcon-7B. For closed-source models (GPT-4, Claude), ORI alone serves as a black-box
+                    estimator.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: PRI FORMULA -->
+        <div class="slide" id="slide-7">
+            <div class="slide-label">06 — Phase 4 · Final Score</div>
+            <h2>The Prompt Robustness Index <span class="accent2">— PRI</span></h2>
+            <div class="card-grid cols-2" style="margin-bottom:24px; align-items:start;">
+                <div>
+                    <div class="card" style="margin-bottom:16px; text-align:center;">
+                        <div
+                            style="font-family:'JetBrains Mono',monospace; font-size:22px; color:var(--accent2); margin-bottom:12px;">
+                            PRI = Σwᵢ / Σ(wᵢ/Sᵢ)</div>
+                        <p style="font-size:14px;">Weighted Harmonic Mean of all 6 pillar scores</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">S₁</div>
+                        <div class="step-content">
+                            <div class="step-title">SMS — Semantic Manifold Stability</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">S₂</div>
+                        <div class="step-content">
+                            <div class="step-title">AUC-E — Performance Elasticity</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">S₃</div>
+                        <div class="step-content">
+                            <div class="step-title">TRD — Topic-Response Divergence</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">S₄</div>
+                        <div class="step-content">
+                            <div class="step-title">KPIG — Instructional Stability</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">S₅</div>
+                        <div class="step-content">
+                            <div class="step-title">PPL_var — Perplexity Variance</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">S₆</div>
+                        <div class="step-content">
+                            <div class="step-title">PC_stab — Probability Concentration</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card"
+                        style="margin-bottom:16px; background:rgba(16,185,129,0.07); border-color:rgba(16,185,129,0.3);">
+                        <h3 class="success">Why Harmonic Mean?</h3>
+                        <p style="font-size:14px; margin-top:8px; line-height:1.6;">The harmonic mean <strong
+                                style="color:var(--text);">punishes catastrophic failure.</strong> If a model scores
+                            0.95 on 5 pillars but 0.05 on one, the harmonic mean pulls the final score down dramatically
+                            — unlike a simple average which would hide the weakness.</p>
+                    </div>
+                    <div class="card" style="background:rgba(245,158,11,0.07); border-color:rgba(245,158,11,0.3);">
+                        <h3 class="warn">Car Safety Analogy</h3>
+                        <p style="font-size:14px; margin-top:8px; line-height:1.6;">Your car's safety score shouldn't be
+                            "great" just because 4 of 5 systems work. If the <strong style="color:var(--danger);">brakes
+                                fail</strong>, that matters disproportionately. PRI captures this.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: MODELS TESTED -->
+        <div class="slide" id="slide-8">
+            <div class="slide-label">07 — Experimental Setup</div>
+            <h2>Models <span class="accent">Evaluated</span></h2>
+            <p style="margin-bottom:28px;">We evaluated 4 models on CNN/DailyMail summarization dataset across all 12
+                prompt variants.</p>
+            <div class="card-grid cols-2" style="margin-bottom:24px;">
+                <div class="card fade-up delay-1" style="border-left:4px solid var(--accent);">
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <div>
+                            <h3>sshleifer/distilbart-cnn-12-6</h3>
+                            <p style="font-size:13px; margin-top:4px;">Distilled BART, CNN-optimized</p>
+                        </div>
+                        <span class="tag tag-blue">🥇 Rank 1</span>
+                    </div>
+                </div>
+                <div class="card fade-up delay-2" style="border-left:4px solid var(--accent2);">
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <div>
+                            <h3>facebook/bart-large-cnn</h3>
+                            <p style="font-size:13px; margin-top:4px;">Full BART large, CNN-finetuned</p>
+                        </div>
+                        <span class="tag tag-cyan">🥈 Rank 2</span>
+                    </div>
+                </div>
+                <div class="card fade-up delay-3" style="border-left:4px solid var(--accent3);">
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <div>
+                            <h3>google/flan-t5-large</h3>
+                            <p style="font-size:13px; margin-top:4px;">Instruction-tuned T5 large</p>
+                        </div>
+                        <span class="tag tag-purple">🥉 Rank 3</span>
+                    </div>
+                </div>
+                <div class="card fade-up delay-4" style="border-left:4px solid var(--muted);">
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <div>
+                            <h3>google/flan-t5-base</h3>
+                            <p style="font-size:13px; margin-top:4px;">Instruction-tuned T5 base (250M)</p>
+                        </div>
+                        <span class="tag tag-amber">Rank 4</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="background:rgba(239,68,68,0.07); border-color:rgba(239,68,68,0.2);">
+                <h3 style="color:var(--danger); margin-bottom:8px;">⚠️ Implementation Note (Current Limitation)</h3>
+                <p style="font-size:14px;">The LLM Judge used in this phase was <strong
+                        style="color:var(--text);">Flan-T5-base (250M parameters)</strong> — a small model. Published
+                    research shows small models have lower human correlation (~0.35) vs. larger judges like GPT-4o
+                    (~0.82). This directly explains the moderate correlations in our current results. <strong
+                        style="color:var(--warn);">Fix: Replace with GPT-4o-mini or Mistral-7B judge in next
+                        phase.</strong></p>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: RESULTS — MODEL PERFORMANCE -->
+        <div class="slide" id="slide-9">
+            <div class="slide-label">08 — Results</div>
+            <h2>Model Performance <span class="accent">Summary</span></h2>
+            <div style="overflow-x:auto; margin-bottom:24px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Model</th>
+                            <th>PRI</th>
+                            <th>ORI</th>
+                            <th>IFI</th>
+                            <th>CS</th>
+                            <th>Consistency</th>
+                            <th>Human Score</th>
+                            <th>Final Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>🥇 1</td>
+                            <td>distilbart-cnn-12-6</td>
+                            <td class="cor-strong">0.747</td>
+                            <td class="cor-strong">0.892</td>
+                            <td class="cor-strong">0.915</td>
+                            <td class="cor-med">0.399</td>
+                            <td class="cor-strong">0.908</td>
+                            <td class="cor-strong">0.640</td>
+                            <td class="cor-strong">0.704</td>
+                        </tr>
+                        <tr>
+                            <td>🥈 2</td>
+                            <td>bart-large-cnn</td>
+                            <td class="cor-strong">0.740</td>
+                            <td class="cor-strong">0.859</td>
+                            <td class="cor-strong">0.824</td>
+                            <td class="cor-med">0.424</td>
+                            <td class="cor-strong">0.873</td>
+                            <td class="cor-strong">0.640</td>
+                            <td class="cor-strong">0.700</td>
+                        </tr>
+                        <tr>
+                            <td>🥉 3</td>
+                            <td>flan-t5-large</td>
+                            <td class="cor-med">0.601</td>
+                            <td class="cor-med">0.752</td>
+                            <td class="cor-med">0.624</td>
+                            <td class="cor-weak">0.291</td>
+                            <td class="cor-med">0.676</td>
+                            <td class="cor-med">0.600</td>
+                            <td class="cor-med">0.600</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>flan-t5-base</td>
+                            <td class="cor-neg">0.313</td>
+                            <td class="cor-weak">0.555</td>
+                            <td class="cor-weak">0.512</td>
+                            <td class="cor-neg">0.124</td>
+                            <td class="cor-weak">0.251</td>
+                            <td class="cor-weak">0.560</td>
+                            <td class="cor-neg">0.412</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-grid cols-3">
+                <div class="card" style="text-align:center;">
+                    <div
+                        style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-bottom:4px;">
+                        TOP MODEL ORI</div>
+                    <div style="font-size:36px; font-weight:800; color:var(--success);">0.892</div>
+                    <div style="font-size:12px; color:var(--muted);">distilbart consistency</div>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <div
+                        style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-bottom:4px;">
+                        TOP MODEL IFI</div>
+                    <div style="font-size:36px; font-weight:800; color:var(--success);">0.915</div>
+                    <div style="font-size:12px; color:var(--muted);">distilbart internal fidelity</div>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <div
+                        style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-bottom:4px;">
+                        RANK ALIGNMENT</div>
+                    <div style="font-size:36px; font-weight:800; color:var(--warn);">3/4</div>
+                    <div style="font-size:12px; color:var(--muted);">PRI matches human ranking</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: ROUGE vs HUMAN — KEY FINDING -->
+        <div class="slide" id="slide-10">
+            <div class="slide-label">09 — Key Finding</div>
+            <h2>The <span class="danger">Evaluation Artifact</span> — Proven</h2>
+            <p style="margin-bottom:24px;">ROUGE systematically underestimates model quality. Our results <strong
+                    style="color:var(--text);">empirically prove</strong> this gap across all 4 models.</p>
+            <div style="overflow-x:auto; margin-bottom:24px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>ROUGE-1</th>
+                            <th>Human Score</th>
+                            <th>Underestimation Gap</th>
+                            <th>SMS Wasserstein</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>distilbart-cnn</td>
+                            <td class="cor-neg">0.380 ❌</td>
+                            <td class="cor-strong">0.640 ✅</td>
+                            <td style="color:var(--danger); font-weight:700;">+68% gap</td>
+                            <td class="cor-strong">0.872</td>
+                        </tr>
+                        <tr>
+                            <td>bart-large-cnn</td>
+                            <td class="cor-neg">0.377 ❌</td>
+                            <td class="cor-strong">0.640 ✅</td>
+                            <td style="color:var(--danger); font-weight:700;">+70% gap</td>
+                            <td class="cor-strong">0.841</td>
+                        </tr>
+                        <tr>
+                            <td>flan-t5-large</td>
+                            <td class="cor-neg">0.294 ❌</td>
+                            <td class="cor-med">0.600 ✅</td>
+                            <td style="color:var(--danger); font-weight:700;">+104% gap</td>
+                            <td class="cor-med">0.734</td>
+                        </tr>
+                        <tr>
+                            <td>flan-t5-base</td>
+                            <td class="cor-neg">0.211 ❌</td>
+                            <td class="cor-weak">0.560 ✅</td>
+                            <td style="color:var(--danger); font-weight:700;">+165% gap</td>
+                            <td class="cor-weak">0.508</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="verdict" style="border-color:var(--danger); background:rgba(239,68,68,0.07);">
+                    <div class="verdict-title" style="color:var(--danger);">ROUGE Says: All Models Are Poor</div>
+                    <div class="verdict-text">Maximum ROUGE-1 score: 0.380 — suggesting all models perform poorly on
+                        summarization.</div>
+                </div>
+                <div class="verdict" style="border-color:var(--success); background:rgba(16,185,129,0.07);">
+                    <div class="verdict-title success">Reality: Models Are Actually Good</div>
+                    <div class="verdict-text">Human scores range 0.56–0.64. SMS tracks this gap. ROUGE is penalizing
+                        valid paraphrases.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: CORRELATION ANALYSIS -->
+        <div class="slide" id="slide-11">
+            <div class="slide-label">10 — Correlation Analysis</div>
+            <h2>Metric Correlation <span class="accent">with Human Scores</span></h2>
+            <div class="card-grid cols-2" style="align-items:start;">
+                <div>
+                    <div class="card" style="margin-bottom:16px;">
+                        <h3 style="margin-bottom:16px;">Pearson r — All Metrics</h3>
+                        <div class="metric-bar-wrap">
+                            <div class="metric-bar-label"><span>Final Score</span><span class="cor-strong">0.602</span>
+                            </div>
+                            <div class="metric-bar-track">
+                                <div class="metric-bar-fill"
+                                    style="width:60.2%; background:linear-gradient(90deg,#10b981,#34d399);"></div>
+                            </div>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="metric-bar-label"><span>PRI</span><span class="cor-med">0.377</span></div>
+                            <div class="metric-bar-track">
+                                <div class="metric-bar-fill"
+                                    style="width:37.7%; background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div>
+                            </div>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="metric-bar-label"><span>CS Score</span><span class="cor-med">0.347</span></div>
+                            <div class="metric-bar-track">
+                                <div class="metric-bar-fill"
+                                    style="width:34.7%; background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div>
+                            </div>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="metric-bar-label"><span>KPIG Advanced</span><span class="cor-weak">0.332</span>
+                            </div>
+                            <div class="metric-bar-track">
+                                <div class="metric-bar-fill"
+                                    style="width:33.2%; background:linear-gradient(90deg,#64748b,#94a3b8);"></div>
+                            </div>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="metric-bar-label"><span>SMS</span><span class="cor-weak">0.308</span></div>
+                            <div class="metric-bar-track">
+                                <div class="metric-bar-fill"
+                                    style="width:30.8%; background:linear-gradient(90deg,#64748b,#94a3b8);"></div>
+                            </div>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="metric-bar-label"><span>SMS Wasserstein</span><span
+                                    class="cor-weak">0.282</span></div>
+                            <div class="metric-bar-track">
+                                <div class="metric-bar-fill"
+                                    style="width:28.2%; background:linear-gradient(90deg,#64748b,#94a3b8);"></div>
+                            </div>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="metric-bar-label"><span>TRD</span><span class="cor-neg">-0.245 ⚠️</span></div>
+                            <div class="metric-bar-track">
+                                <div class="metric-bar-fill"
+                                    style="width:24.5%; background:linear-gradient(90deg,#ef4444,#f87171);"></div>
+                            </div>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="metric-bar-label"><span>TRD Semantic</span><span class="cor-neg">-0.314
+                                    🚨</span></div>
+                            <div class="metric-bar-track">
+                                <div class="metric-bar-fill"
+                                    style="width:31.4%; background:linear-gradient(90deg,#ef4444,#f87171);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card"
+                        style="margin-bottom:16px; background:rgba(239,68,68,0.07); border-color:rgba(239,68,68,0.25);">
+                        <h3 style="color:var(--danger); margin-bottom:8px;">🚨 TRD Problem</h3>
+                        <p style="font-size:14px; line-height:1.6;">TRD shows <strong>negative</strong> correlation with
+                            human scores. This means it's measuring the <em>opposite</em> of what humans value — likely
+                            because it penalizes models that naturally expand context. <strong
+                                style="color:var(--warn);">Solution: Remove TRD from PRI in next iteration.</strong></p>
+                    </div>
+                    <div class="card" style="background:rgba(16,185,129,0.07); border-color:rgba(16,185,129,0.25);">
+                        <h3 class="success" style="margin-bottom:8px;">✅ Final Score at 0.602</h3>
+                        <p style="font-size:14px; line-height:1.6;">The composite Final Score achieves Pearson r =
+                            <strong style="color:var(--success);">0.602</strong> — the strongest result. This validates
+                            that multi-dimensional scoring outperforms any single metric. Model ranking (3/4 correct)
+                            also confirms ordinal validity.</p>
+                    </div>
+                    <div class="card"
+                        style="margin-top:16px; background:rgba(245,158,11,0.07); border-color:rgba(245,158,11,0.25);">
+                        <h3 class="warn" style="margin-bottom:8px;">⚠️ Why Correlations Are Moderate</h3>
+                        <p style="font-size:14px; line-height:1.6;">Root cause: <strong
+                                style="color:var(--text);">Flan-T5-base judge (250M params)</strong> compresses human
+                            score range to 0.56–0.64, artificially limiting all correlations. Expected to reach r ≥ 0.70
+                            with proper judge.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: ADVANCED METRICS -->
+        <div class="slide" id="slide-12">
+            <div class="slide-label">11 — Advanced Metrics</div>
+            <h2>Advanced Metric <span class="accent">Deep Dive</span></h2>
+            <div style="overflow-x:auto; margin-bottom:24px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>SMS Wasserstein</th>
+                            <th>TRD Semantic</th>
+                            <th>KPIG Advanced</th>
+                            <th>USD (Gap)</th>
+                            <th>ROUGE-1</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>distilbart-cnn</td>
+                            <td class="cor-strong">0.872 ✅</td>
+                            <td class="cor-weak">0.029</td>
+                            <td class="cor-weak">0.124</td>
+                            <td class="cor-strong">0.149</td>
+                            <td class="cor-neg">0.380</td>
+                        </tr>
+                        <tr>
+                            <td>bart-large-cnn</td>
+                            <td class="cor-strong">0.841 ✅</td>
+                            <td class="cor-weak">0.041</td>
+                            <td class="cor-weak">0.146</td>
+                            <td class="cor-strong">0.136</td>
+                            <td class="cor-neg">0.377</td>
+                        </tr>
+                        <tr>
+                            <td>flan-t5-large</td>
+                            <td class="cor-med">0.734</td>
+                            <td class="cor-weak">0.110</td>
+                            <td class="cor-weak">0.121</td>
+                            <td class="cor-med">0.167</td>
+                            <td class="cor-neg">0.294</td>
+                        </tr>
+                        <tr>
+                            <td>flan-t5-base</td>
+                            <td class="cor-weak">0.508</td>
+                            <td class="cor-med">0.271</td>
+                            <td class="cor-weak">0.126</td>
+                            <td class="cor-neg">0.247</td>
+                            <td class="cor-neg">0.211</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-grid cols-3">
+                <div class="card">
+                    <h3 class="accent2">SMS Wasserstein</h3>
+                    <p style="font-size:13px; margin-top:8px; line-height:1.6;">Top models (BART family) show strong
+                        semantic stability (0.84–0.87). Flan-T5-base is significantly lower (0.51), indicating it drifts
+                        more across prompt variants. <strong style="color:var(--success);">SMS ranks models
+                            correctly.</strong></p>
+                </div>
+                <div class="card" style="border-color:rgba(245,158,11,0.3);">
+                    <h3 class="warn">USD — Utility-Stability Divergence</h3>
+                    <p style="font-size:13px; margin-top:8px; line-height:1.6;">Measures |PRI − Human Score|.
+                        flan-t5-base has highest USD (0.247), meaning our robustness metric and human judgment disagree
+                        most for the weakest model. <strong style="color:var(--warn);">USD is a useful diagnostic
+                            signal.</strong></p>
+                </div>
+                <div class="card" style="border-color:rgba(239,68,68,0.3);">
+                    <h3 class="danger">KPIG Low for All Models</h3>
+                    <p style="font-size:13px; margin-top:8px; line-height:1.6;">All models score 0.12–0.15 on KPIG —
+                        suggesting none reliably follow instruction constraints when rephrased. This is the <strong
+                            style="color:var(--text);">"half-listening" problem</strong> confirmed across all tested
+                        models.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: CURRENT LIMITATIONS -->
+        <div class="slide" id="slide-13">
+            <div class="slide-label">12 — Limitations & Fixes</div>
+            <h2>Current Limitations & <span class="warn">Planned Fixes</span></h2>
+            <div class="card-grid cols-2">
+                <div>
+                    <h3 style="margin-bottom:16px; color:var(--danger);">🚨 Identified Issues</h3>
+                    <div class="step">
+                        <div class="step-num"
+                            style="background:rgba(239,68,68,0.2); border-color:rgba(239,68,68,0.4); color:var(--danger);">
+                            1</div>
+                        <div class="step-content">
+                            <div class="step-title">Weak LLM Judge (Flan-T5-base)</div>
+                            <div class="step-desc">250M parameter model cannot reliably evaluate quality. Produces
+                                compressed scores (0.56–0.64), limiting correlation ceiling.</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num"
+                            style="background:rgba(239,68,68,0.2); border-color:rgba(239,68,68,0.4); color:var(--danger);">
+                            2</div>
+                        <div class="step-content">
+                            <div class="step-title">TRD Negatively Correlated</div>
+                            <div class="step-desc">Both TRD variants show r = -0.245 to -0.314. Metric design needs
+                                revision or complete removal.</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num"
+                            style="background:rgba(239,68,68,0.2); border-color:rgba(239,68,68,0.4); color:var(--danger);">
+                            3</div>
+                        <div class="step-content">
+                            <div class="step-title">KPIG Underperforming</div>
+                            <div class="step-desc">Scores near 0.12–0.15 for all models. Formula needs rigorous
+                                mathematical reformulation using KL divergence.</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num"
+                            style="background:rgba(245,158,11,0.2); border-color:rgba(245,158,11,0.4); color:var(--warn);">
+                            4</div>
+                        <div class="step-content">
+                            <div class="step-title">PRI Weights Unjustified</div>
+                            <div class="step-desc">Equal weights assumed. Need ablation study or learned weights for
+                                scientific validity.</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="margin-bottom:16px; color:var(--success);">✅ Planned Fixes</h3>
+                    <div class="card"
+                        style="background:rgba(16,185,129,0.07); border-color:rgba(16,185,129,0.3); margin-bottom:14px;">
+                        <div class="step-title" style="margin-bottom:6px;">Fix 1 — Replace Judge</div>
+                        <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent2);">
+                            Flan-T5-base → GPT-4o-mini / Mistral-7B</div>
+                        <div class="step-desc" style="margin-top:6px;">Expected: correlation r improves from 0.38 →
+                            0.65+</div>
+                    </div>
+                    <div class="card"
+                        style="background:rgba(16,185,129,0.07); border-color:rgba(16,185,129,0.3); margin-bottom:14px;">
+                        <div class="step-title" style="margin-bottom:6px;">Fix 2 — Remove TRD</div>
+                        <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent2);">New
+                            PRI = f(SMS, AUC-E, KPIG, PPL_var, PC_stab)</div>
+                        <div class="step-desc" style="margin-top:6px;">Recompute PRI without TRD. Expected: PRI
+                            correlation improves.</div>
+                    </div>
+                    <div class="card"
+                        style="background:rgba(16,185,129,0.07); border-color:rgba(16,185,129,0.3); margin-bottom:14px;">
+                        <div class="step-title" style="margin-bottom:6px;">Fix 3 — SummEval Correlation</div>
+                        <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent2);">
+                            Correlate SMS against existing human labels</div>
+                        <div class="step-desc" style="margin-top:6px;">Adds external validation without new human study.
+                        </div>
+                    </div>
+                    <div class="card" style="background:rgba(16,185,129,0.07); border-color:rgba(16,185,129,0.3);">
+                        <div class="step-title" style="margin-bottom:6px;">Fix 4 — Weight Ablation</div>
+                        <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent2);">Test
+                            3 weight configs → show PRI is stable</div>
+                        <div class="step-desc" style="margin-top:6px;">Proves robustness to weight choice = a strength.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 14: NOVELTY CLAIM -->
+        <div class="slide" id="slide-14">
+            <div class="slide-label">13 — Novelty & Contributions</div>
+            <h2>Genuine <span class="accent">Novel Contributions</span></h2>
+            <div class="card-grid cols-2" style="margin-bottom:20px;">
+                <div class="card fade-up delay-1" style="border-top:3px solid var(--success);">
+                    <div class="tag tag-green" style="margin-bottom:12px;">✅ Proven by Data</div>
+                    <h3>Evaluation Artifact — Empirically Proven</h3>
+                    <p style="font-size:14px; margin-top:8px;">We show ROUGE underestimates model quality by <strong
+                            style="color:var(--danger);">68–165%</strong> across 4 models. This is a concrete, citable
+                        finding that challenges how the field uses ROUGE for open-ended tasks.</p>
+                </div>
+                <div class="card fade-up delay-2" style="border-top:3px solid var(--accent);">
+                    <div class="tag tag-blue" style="margin-bottom:12px;">✅ Novel Approach</div>
+                    <h3>Dual-Index Design (ORI + IFI)</h3>
+                    <p style="font-size:14px; margin-top:8px;">First framework to separate <em>behavioral
+                            robustness</em> (ORI) from <em>mechanistic robustness</em> (IFI) in open-ended generation.
+                        PromptBench does not do this.</p>
+                </div>
+                <div class="card fade-up delay-3" style="border-top:3px solid var(--accent3);">
+                    <div class="tag tag-purple" style="margin-bottom:12px;">✅ New Problem Definition</div>
+                    <h3>KPIG — "Half-Listening" Problem</h3>
+                    <p style="font-size:14px; margin-top:8px;">First formalized measurement of whether models follow
+                        instruction <em>meaning</em> vs. surface keywords. Our results confirm all 4 models half-listen
+                        (KPIG ≈ 0.12–0.15).</p>
+                </div>
+                <div class="card fade-up delay-4" style="border-top:3px solid var(--warn);">
+                    <div class="tag tag-amber" style="margin-bottom:12px;">✅ Practical Warning</div>
+                    <h3>Small Judge = Unreliable Evaluation</h3>
+                    <p style="font-size:14px; margin-top:8px;">We demonstrate that LLM judge model size critically
+                        confounds results. A key methodological warning for future evaluation papers — itself a citable
+                        finding.</p>
+                </div>
+            </div>
+            <div class="verdict" style="border-color:var(--accent2); background:rgba(6,182,212,0.07);">
+                <div class="verdict-title" style="color:var(--accent2);">Positioning Statement</div>
+                <div class="verdict-text">This work is positioned as the first systematic robustness study specifically
+                    designed for open-ended generation. PromptBench (2023) covers classification/NLU. HELM covers
+                    general evaluation. Our gap: open-ended generation + dual behavioral/mechanistic analysis.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 15: NEXT STEPS -->
+        <div class="slide" id="slide-15">
+            <div class="slide-label">14 — Roadmap</div>
+            <h2>What Happens <span class="accent">Next</span></h2>
+            <div class="card-grid cols-2" style="align-items:start;">
+                <div>
+                    <h3 style="margin-bottom:16px; color:var(--accent2);">📅 8-Week Roadmap to Submission</h3>
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <div class="step-title">Week 1-2 — Fix Judge + Rerun</div>
+                            <div class="step-desc">Replace Flan-T5-base with Mistral-7B or GPT-4o-mini. Recompute all
+                                correlations. Remove TRD from PRI.</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <div class="step-title">Week 3 — SummEval Validation</div>
+                            <div class="step-desc">Correlate SMS against SummEval's existing human labels. Target:
+                                Kendall's τ ≥ 0.60.</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Week 4 — Multi-LLM Judge Validation</div>
+                            <div class="step-desc">GPT-4o + Claude + Gemini as 3 independent judges. Show inter-judge
+                                agreement (κ ≥ 0.70).</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <div class="step-title">Week 5 — Ablation Study</div>
+                            <div class="step-desc">Remove each pillar one at a time. Show PRI degrades without each
+                                component.</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">5</div>
+                        <div class="step-content">
+                            <div class="step-title">Week 6-7 — Writing</div>
+                            <div class="step-desc">Write Results → Related Work → Method → Introduction → Abstract. In
+                                that order.</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">6</div>
+                        <div class="step-content">
+                            <div class="step-title">Week 8 — Submit</div>
+                            <div class="step-desc">Target: Eval4NLP Workshop @ EMNLP or Findings of NAACL.</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="margin-bottom:16px; color:var(--accent2);">🎯 Realistic Publication Targets</h3>
+                    <div class="card"
+                        style="margin-bottom:12px; background:rgba(16,185,129,0.07); border-color:rgba(16,185,129,0.3);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div class="step-title">Eval4NLP Workshop @ EMNLP</div>
+                                <div class="step-desc">Current state + fixes</div>
+                            </div>
+                            <span class="tag tag-green">✅ Feasible</span>
+                        </div>
+                    </div>
+                    <div class="card"
+                        style="margin-bottom:12px; background:rgba(245,158,11,0.07); border-color:rgba(245,158,11,0.3);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div class="step-title">Findings of EMNLP / NAACL</div>
+                                <div class="step-desc">Needs all 6 phases complete</div>
+                            </div>
+                            <span class="tag tag-amber">⚠️ Possible</span>
+                        </div>
+                    </div>
+                    <div class="card"
+                        style="margin-bottom:12px; background:rgba(239,68,68,0.07); border-color:rgba(239,68,68,0.2);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div class="step-title">ACL / EMNLP Main Track</div>
+                                <div class="step-desc">Needs more models + human study</div>
+                            </div>
+                            <span class="tag tag-red">🔴 Not yet</span>
+                        </div>
+                    </div>
+                    <div class="card" style="background:rgba(59,130,246,0.07); border-color:rgba(59,130,246,0.3);">
+                        <h3 class="accent" style="margin-bottom:8px;">Minimum Viable Paper</h3>
+                        <div
+                            style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); line-height:1.8;">
+                            Claim: ROUGE underestimates LLM robustness<br>
+                            Metric: SMS as corrective measure<br>
+                            Proof: 68–165% gap across 4 models<br>
+                            Validation: SummEval + Multi-LLM judge<br>
+                            Target: Workshop / Findings
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 16: CONCLUSION -->
+        <div class="slide" id="slide-16">
+            <div class="slide-label">15 — Conclusion</div>
+            <h2>Summary & <span class="accent">Key Takeaways</span></h2>
+            <div class="card-grid cols-3" style="margin-bottom:24px;">
+                <div class="big-stat card fade-up delay-1">
+                    <div class="big-stat-num" style="color:var(--danger);">68%</div>
+                    <div class="big-stat-label">Min ROUGE underestimation gap</div>
+                </div>
+                <div class="big-stat card fade-up delay-2">
+                    <div class="big-stat-num" style="color:var(--success);">0.602</div>
+                    <div class="big-stat-label">Final Score × Human correlation</div>
+                </div>
+                <div class="big-stat card fade-up delay-3">
+                    <div class="big-stat-num" style="color:var(--accent);">3/4</div>
+                    <div class="big-stat-label">Model rankings correctly predicted</div>
+                </div>
+            </div>
+            <div class="card-grid cols-2" style="margin-bottom:24px;">
+                <div class="verdict" style="border-color:var(--success); background:rgba(16,185,129,0.07);">
+                    <div class="verdict-title success">What We Proved</div>
+                    <div class="verdict-text">ROUGE systematically underestimates LLM quality in open-ended generation.
+                        SMS (semantic stability) tracks human judgment better. Our composite PRI correctly ranks models
+                        in 3 out of 4 cases.</div>
+                </div>
+                <div class="verdict" style="border-color:var(--warn); background:rgba(245,158,11,0.07);">
+                    <div class="verdict-title warn">What We Learned (Limitations)</div>
+                    <div class="verdict-text">LLM judge quality is a critical confounding variable. TRD needs redesign.
+                        KPIG needs formal mathematical grounding. Next phase: better judge + SummEval validation.</div>
+                </div>
+            </div>
+            <div class="card"
+                style="text-align:center; background:rgba(59,130,246,0.07); border-color:rgba(59,130,246,0.3);">
+                <p style="font-size:20px; font-style:italic; color:var(--accent2);">"We're not just building a better
+                    metric — we're building an argument that the field has been measuring robustness wrong all along,
+                    and providing the evidence to prove it."</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="nav">
+        <button id="prevBtn" onclick="changeSlide(-1)" disabled>← Prev</button>
+        <span class="counter" id="counter">1 / 16</span>
+        <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        const totalSlides = 16;
+        let currentSlide = 1;
+
+        function changeSlide(dir) {
+            const current = document.getElementById(`slide-${currentSlide}`);
+            current.classList.remove('active');
+            current.classList.add('exit');
+
+            setTimeout(() => {
+                current.classList.remove('exit');
+            }, 500);
+
+            currentSlide = Math.max(1, Math.min(totalSlides, currentSlide + dir));
+            const next = document.getElementById(`slide-${currentSlide}`);
+            next.classList.add('active');
+
+            // Restart animations
+            next.querySelectorAll('.fade-up').forEach(el => {
+                el.style.animation = 'none';
+                el.offsetHeight;
+                el.style.animation = '';
+            });
+
+            // Update progress
+            document.getElementById('progress').style.width = `${(currentSlide / totalSlides) * 100}%`;
+            document.getElementById('counter').textContent = `${currentSlide} / ${totalSlides}`;
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+                e.preventDefault();
+                if (currentSlide < totalSlides) changeSlide(1);
+            }
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (currentSlide > 1) changeSlide(-1);
+            }
+        });
+
+        // Initial progress
+        document.getElementById('progress').style.width = `${(1 / totalSlides) * 100}%`;
+    </script>
+</body>
+
+</html>

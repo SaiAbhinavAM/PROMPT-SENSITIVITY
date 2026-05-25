@@ -1,0 +1,94 @@
+# ============================================================
+# LL-PIRC Pipeline Configuration
+# ============================================================
+# All thresholds and hyperparameters for the prompt sensitivity
+# research pipeline. Modify values here instead of in code.
+
+# --- Target Model ---
+model:
+  name: "meta-llama/Meta-Llama-3-8B-Instruct"
+  dtype: "float16"            # float16 or bfloat16
+  device_map: "auto"          # "auto", "cuda", "cpu"
+  max_new_tokens: 200         # max tokens to generate
+
+# --- Paraphrase Generation ---
+paraphrase:
+  K: 5                        # number of paraphrase variants per prompt
+  method: "back_translation"  # "back_translation" or "phi3"
+  similarity_threshold: 0.85  # min cosine similarity to keep a paraphrase
+  max_retries: 10             # max attempts to generate valid paraphrases
+  # Back-translation models (Helsinki-NLP)
+  en_to_pivot_model: "Helsinki-NLP/opus-mt-en-de"
+  pivot_to_en_model: "Helsinki-NLP/opus-mt-de-en"
+  # Additional pivot languages for diversity
+  pivot_languages:
+    - model_forward: "Helsinki-NLP/opus-mt-en-de"
+      model_backward: "Helsinki-NLP/opus-mt-de-en"
+    - model_forward: "Helsinki-NLP/opus-mt-en-fr"
+      model_backward: "Helsinki-NLP/opus-mt-fr-en"
+    - model_forward: "Helsinki-NLP/opus-mt-en-es"
+      model_backward: "Helsinki-NLP/opus-mt-es-en"
+    - model_forward: "Helsinki-NLP/opus-mt-en-ru"
+      model_backward: "Helsinki-NLP/opus-mt-ru-en"
+    - model_forward: "Helsinki-NLP/opus-mt-en-zh"
+      model_backward: "Helsinki-NLP/opus-mt-zh-en"
+  similarity_model: "sentence-transformers/all-mpnet-base-v2"
+
+# --- Logit Lens ---
+logit_lens:
+  cast_to_float32: true       # cast hidden states to float32 for numerical stability
+
+# --- Sensitive Layer Detection ---
+sensitive_layer:
+  scan_start_fraction: 0.25   # start scanning from layer L * this fraction (skip early layers)
+  scan_end_fraction: 1.0      # scan up to this fraction of total layers
+  method: "inflection"        # "inflection" or "zscore"
+  zscore_threshold: 2.0       # z-score threshold for fallback method
+
+# --- Anchor Token Identification ---
+anchor_tokens:
+  tau: 3.0                    # PPL threshold: tokens with mean_ppl < tau are candidates
+  tau_var: 1.0                # variance threshold: tokens with var_ppl < tau_var are anchors
+
+# --- PIRC (Paraphrase-Invariant Residual Clamping) ---
+pirc:
+  alpha: 1.0                  # clamping strength: 1.0 = full replacement, 0.5 = soft clamping
+                              # h_clamped = alpha * mean_h + (1 - alpha) * h_original
+  soft_clamp_alpha: 0.5       # alpha to use when soft clamping fallback is triggered
+
+# --- Experiment Settings ---
+experiment:
+  num_articles: 100           # number of CNN/DailyMail articles to process
+  dataset_name: "cnn_dailymail"
+  dataset_config: "3.0.0"
+  dataset_split: "test[:100]"
+  checkpoint_interval: 10     # save checkpoint every N articles
+  results_dir: "results"
+
+# --- Auto-Retry / Fallback Logic ---
+retry:
+  variance_reduction_threshold: 0.10  # if reduction < this, retry with different tau
+  rouge_drop_threshold: 2.0          # if mean ROUGE-L drops > this, switch to soft clamping
+  tau_values: [1.5, 2.0, 3.0]       # tau values to try on retry
+
+# --- IFI Metrics ---
+ifi:
+  temperature: 1.0            # temperature for branching factor entropy (must be 1.0 for meaningful B)
+
+# --- Evaluation ---
+evaluation:
+  num_sample_plots: 5         # number of sample articles to plot S(ℓ) curves
+  plot_dpi: 150               # DPI for saved plots
+  significance_level: 0.01    # p-value threshold for Wilcoxon test
+
+# --- Summarization Prompt Templates ---
+prompts:
+  base_instruction: "Summarize the following article concisely."
+  template: |
+    <|begin_of_text|><|start_header_id|>user<|end_header_id|>
+
+    {instruction}
+
+    Article:
+    {article}
+    <|eot_id|><|start_header_id|>assistant<|end_header_id|>

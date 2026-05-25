@@ -135,6 +135,8 @@ def render_performance_table(results_df: pd.DataFrame) -> None:
         table.add_column("Rank", justify="center", style="bold", width=6)
         table.add_column("Model", justify="left", min_width=20)
         table.add_column("PRI", justify="center", width=8)
+        table.add_column("ORI", justify="center", width=8)
+        table.add_column("IFI", justify="center", width=8)
         table.add_column("CS", justify="center", width=8)
         table.add_column("HS", justify="center", width=8)
         table.add_column("Consistency", justify="center", width=12)
@@ -148,6 +150,8 @@ def render_performance_table(results_df: pd.DataFrame) -> None:
             row_style = "bold on grey15" if is_best else ""
 
             pri_color = _score_color(row["PRI"])
+            ori_color = _score_color(row.get("ORI", 0))
+            ifi_color = _score_color(row.get("IFI", 0))
             cs_color = _score_color(row["CS"])
             hs_color = _score_color(row["HS"], invert=True)
             cons_color = _score_color(row["Consistency"])
@@ -160,6 +164,8 @@ def render_performance_table(results_df: pd.DataFrame) -> None:
                 rank_val,
                 row["Model"],
                 f"[{pri_color}]{_fmt(row['PRI'])}[/]",
+                f"[{ori_color}]{_fmt(row.get('ORI', 0))}[/]",
+                f"[{ifi_color}]{_fmt(row.get('IFI', 0))}[/]",
                 f"[{cs_color}]{_fmt(row['CS'])}[/]",
                 f"[{hs_color}]{_fmt(row['HS'])}[/]",
                 f"[{cons_color}]{_fmt(row['Consistency'])}[/]",
@@ -173,12 +179,13 @@ def render_performance_table(results_df: pd.DataFrame) -> None:
         _console.print()
 
     elif HAS_TABULATE:
-        headers = ["Rank", "Model", "PRI", "CS", "HS", "Consistency", "Human Score", "Final Score"]
+        headers = ["Rank", "Model", "PRI", "ORI", "IFI", "CS", "HS", "Consistency", "Human Score", "Final Score"]
         rows = []
         for _, row in df.iterrows():
             rows.append([
                 int(row["Rank"]), row["Model"],
-                _fmt(row["PRI"]), _fmt(row["CS"]), _fmt(row["HS"]),
+                _fmt(row["PRI"]), _fmt(row.get("ORI", 0)), _fmt(row.get("IFI", 0)),
+                _fmt(row["CS"]), _fmt(row["HS"]),
                 _fmt(row["Consistency"]), _fmt(row["Human_Score"]),
                 _fmt(row["Final_Score"]),
             ])
@@ -188,7 +195,7 @@ def render_performance_table(results_df: pd.DataFrame) -> None:
 
     else:
         _fallback_print("Model Performance Summary", df, [
-            "Rank", "Model", "PRI", "CS", "HS", "Consistency", "Human_Score", "Final_Score"
+            "Rank", "Model", "PRI", "ORI", "IFI", "CS", "HS", "Consistency", "Human_Score", "Final_Score"
         ])
 
 

@@ -1,0 +1,237 @@
+"""
+Sensitive Layer Detector for LL-PIRC Pipeline.
+
+For K paraphrase variants of the same prompt, computes the layer-wise
+sensitivity signal S(ℓ) = Var_k[mean per-token PPL at layer ℓ], and
+identifies the sensitive layer ℓ* via:
+  1. Sharpest upward inflection in S(ℓ)  (primary method)
+  2. Z-score threshold fallback: first ℓ where S(ℓ) > mean + z*std
+
+Reference: method_analysis_prompt_sensitivity.md, Steps 3-4 (lines 486-493)
+"""
+
+import torch
+import logging
+from typing import Dict, List, Tuple, Optional
+
+from .logit_lens import LogitLensExtractor
+
+logger = logging.getLogger(__name__)
+
+
+class SensitiveLayerDetector:
+    """
+    Detects the sensitive layer ℓ* where prompt paraphrase sensitivity
+    first manifests in the model's internal representations.
+
+    The sensitivity signal S(ℓ) measures how much the model's per-layer
+    perplexity varies across K paraphrase variants of the same prompt.
+    High S(ℓ) indicates that the model's internal representations at
+    layer ℓ are sensitive to surface-level prompt differences.
+    """
+
+    def __init__(
+        self,
+        logit_lens: LogitLensExtractor,
+        scan_start_fraction: float = 0.25,
+        scan_end_fraction: float = 1.0,
+        method: str = "inflection",
+        zscore_threshold: float = 2.0
+    ):
+        """
+        Args:
+            logit_lens: LogitLensExtractor instance for the target model.
+            scan_start_fraction: Start scanning from this fraction of total
+                layers (skip early uninformative layers). Default 0.25 = L//4.
+            scan_end_fraction: Scan up to this fraction. Default 1.0 = L.
+            method: Detection method - "inflection" (argmax of ΔS) or
+                "zscore" (first ℓ where S > mean + z*std).
+            zscore_threshold: Z-score multiplier for the zscore method.
+        """
+        self.logit_lens = logit_lens
+        self.num_layers = logit_lens.num_layers
+        self.scan_start = int(self.num_layers * scan_start_fraction)
+        self.scan_end = int(self.num_layers * scan_end_fraction)
+        self.method = method
+        self.zscore_threshold = zscore_threshold
+
+        logger.info(
+            f"SensitiveLayerDetector initialized: scanning layers "
+            f"[{self.scan_start}, {self.scan_end}) of {self.num_layers} total. "
+            f"Method: {self.method}"
+        )
+
+    def compute_sensitivity_curve(
+        self,
+        tokenizer,
+        paraphrases: List[str],
+        device: Optional[str] = None
+    ) -> Dict[int, float]:
+        """
+        Compute S(ℓ) = Var_k[mean per-token PPL at layer ℓ] across K
+        paraphrase variants.
+
+        For each paraphrase, extracts hidden states at all layers,
+        computes per-token logit-lens PPL, then takes the mean across
+        tokens. S(ℓ) is the variance of these K mean-PPL values at each
+        layer.
+
+        Args:
+            tokenizer: HuggingFace tokenizer.
+            paraphrases: List of K paraphrase prompt strings.
+            device: Device for computation.
+
+        Returns:
+            S: Dict mapping layer_idx -> S(ℓ) (variance of mean PPL
+                across paraphrases). Only includes layers in the scan range.
+        """
+        K = len(paraphrases)
+        layer_range = (self.scan_start, self.scan_end)
+
+        # Collect mean PPL per layer per paraphrase
+        # all_mean_ppl[ell] = list of K mean-PPL values
+        all_mean_ppl: Dict[int, List[float]] = {
+            ell: [] for ell in range(self.scan_start, self.scan_end)
+        }
+
+        for k, prompt in enumerate(paraphrases):
+            logger.debug(f"Processing paraphrase {k+1}/{K} for sensitivity curve")
+            _, mean_ppl = self.logit_lens.compute_all_layer_ppl(
+                tokenizer, prompt, device, layer_range
+            )
+            for ell, val in mean_ppl.items():
+                if ell in all_mean_ppl:
+                    all_mean_ppl[ell].append(val)
+
+        # Compute S(ℓ) = Var_k[mean_PPL_k at layer ℓ]
+        S: Dict[int, float] = {}
+        for ell in range(self.scan_start, self.scan_end):
+            if len(all_mean_ppl[ell]) == K:
+                vals = torch.tensor(all_mean_ppl[ell])
+                S[ell] = vals.var().item()
+            else:
+                logger.warning(
+                    f"Layer {ell}: expected {K} PPL values, got "
+                    f"{len(all_mean_ppl[ell])}. Skipping."
+                )
+
+        return S
+
+    def find_sensitive_layer_inflection(
+        self,
+        S: Dict[int, float]
+    ) -> int:
+        """
+        Find ℓ* as the layer with the sharpest upward inflection in S(ℓ).
+
+        ℓ* = argmax_ℓ [S(ℓ) - S(ℓ-1)]
+
+        Args:
+            S: Sensitivity curve dict from compute_sensitivity_curve.
+
+        Returns:
+            ell_star: The sensitive layer index.
+        """
+        layers = sorted(S.keys())
+        if len(layers) < 2:
+            logger.warning("Not enough layers to compute inflection. Returning last layer.")
+            return layers[-1] if layers else self.scan_end - 1
+
+        # Compute finite differences ΔS(ℓ) = S(ℓ) - S(ℓ-1)
+        deltas = []
+        for i in range(1, len(layers)):
+            delta = S[layers[i]] - S[layers[i - 1]]
+            deltas.append((layers[i], delta))
+
+        # Find the layer with the largest upward jump
+        ell_star, max_delta = max(deltas, key=lambda x: x[1])
+
+        logger.info(
+            f"Inflection method: ℓ* = {ell_star} "
+            f"(ΔS = {max_delta:.6f})"
+        )
+        return ell_star
+
+    def find_sensitive_layer_zscore(
+        self,
+        S: Dict[int, float]
+    ) -> int:
+        """
+        Find ℓ* as the first layer where S(ℓ) exceeds mean + z*std.
+
+        Fallback method when inflection detection is noisy.
+
+        Args:
+            S: Sensitivity curve dict from compute_sensitivity_curve.
+
+        Returns:
+            ell_star: The sensitive layer index.
+        """
+        layers = sorted(S.keys())
+        vals = torch.tensor([S[ell] for ell in layers])
+
+        mean_s = vals.mean().item()
+        std_s = vals.std().item()
+        threshold = mean_s + self.zscore_threshold * std_s
+
+        logger.info(
+            f"Z-score method: mean(S) = {mean_s:.6f}, std(S) = {std_s:.6f}, "
+            f"threshold = {threshold:.6f}"
+        )
+
+        for ell in layers:
+            if S[ell] > threshold:
+                logger.info(f"Z-score method: ℓ* = {ell} (S = {S[ell]:.6f})")
+                return ell
+
+        # If no layer exceeds threshold, fall back to max S
+        ell_star = max(S, key=S.get)
+        logger.warning(
+            f"No layer exceeded z-score threshold. "
+            f"Falling back to argmax: ℓ* = {ell_star}"
+        )
+        return ell_star
+
+    def find_sensitive_layer(
+        self,
+        S: Dict[int, float]
+    ) -> int:
+        """
+        Find the sensitive layer ℓ* using the configured method.
+
+        Args:
+            S: Sensitivity curve dict from compute_sensitivity_curve.
+
+        Returns:
+            ell_star: The sensitive layer index.
+        """
+        if self.method == "inflection":
+            return self.find_sensitive_layer_inflection(S)
+        elif self.method == "zscore":
+            return self.find_sensitive_layer_zscore(S)
+        else:
+            raise ValueError(
+                f"Unknown method: {self.method}. Use 'inflection' or 'zscore'."
+            )
+
+    def detect(
+        self,
+        tokenizer,
+        paraphrases: List[str],
+        device: Optional[str] = None
+    ) -> Tuple[int, Dict[int, float]]:
+        """
+        Full detection pipeline: compute sensitivity curve and find ℓ*.
+
+        Args:
+            tokenizer: HuggingFace tokenizer.
+            paraphrases: List of K paraphrase prompt strings.
+            device: Device for computation.
+
+        Returns:
+            ell_star: The identified sensitive layer.
+            S: The full sensitivity curve dict.
+        """
+        S = self.compute_sensitivity_curve(tokenizer, paraphrases, device)
+        ell_star = self.find_sensitive_layer(S)
+        return ell_star, S

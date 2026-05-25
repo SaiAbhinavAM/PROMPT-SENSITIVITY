@@ -16,6 +16,10 @@ streamlit>=1.25.0
 tqdm>=4.65.0
 openai>=1.0.0
 python-dotenv>=1.0.0
+# LL-PIRC Pipeline additions
+datasets>=2.14.0
+pyyaml>=6.0
+accelerate>=0.24.0
+sentencepiece>=0.1.99
 # Optional: BERTScore (enable with --enable-bertscore flag)
 # bert-score>=0.3.13
-

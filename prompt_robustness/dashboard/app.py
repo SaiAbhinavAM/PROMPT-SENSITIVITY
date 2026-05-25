@@ -37,7 +37,7 @@ if df.empty:
 st.sidebar.title("Configuration")
 models = df["Model"].unique().tolist()
 selected_models = st.sidebar.multiselect("Select Models", models, default=models)
-selected_metric = st.sidebar.selectbox("Metric to Analyze", ["PRI", "CS", "HS", "Consistency"])
+selected_metric = st.sidebar.selectbox("Metric to Analyze", ["PRI", "ORI", "IFI", "CS", "HS", "Consistency"])
 
 show_sample_analysis = st.sidebar.toggle("Show per-sample analysis", value=True)
 show_flags = st.sidebar.toggle("Show hallucination flags", value=True)
@@ -79,20 +79,50 @@ df_grouped = df_grouped.sort_values(by="Final_Score", ascending=False) if "Final
 df_filtered = df_filtered.sort_values(by="Final_Score", ascending=False) if "Final_Score" in df_filtered else df_filtered
 
 # Metric Cards
-cols = st.columns(6)
+cols1 = st.columns(4)
+cols2 = st.columns(4)
+
 avg_pri = df_filtered["PRI"].mean() if "PRI" in df_filtered else 0
+avg_ori = df_filtered["ORI"].mean() if "ORI" in df_filtered else 0
+avg_ifi = df_filtered["IFI"].mean() if "IFI" in df_filtered else 0
 avg_cons = df_filtered["Consistency"].mean() if "Consistency" in df_filtered else 0
 avg_cs = df_filtered["CS"].mean() if "CS" in df_filtered else 0
 avg_hs = df_filtered["HS"].mean() if "HS" in df_filtered else 0
 avg_human = df_filtered["Human_Score"].mean() if "Human_Score" in df_filtered else 0
 avg_final = df_filtered["Final_Score"].mean() if "Final_Score" in df_filtered else 0
 
-cols[0].metric("Avg PRI", f"{avg_pri:.3f}")
-cols[1].metric("Avg Consistency", f"{avg_cons:.3f}")
-cols[2].metric("Avg Correctness", f"{avg_cs:.3f}")
-cols[3].metric("Avg Hallucination", f"{avg_hs:.3f}")
-cols[4].metric("Human Score", f"{avg_human:.3f}")
-cols[5].metric("Final Score", f"{avg_final:.3f}")
+cols1[0].metric("Avg PRI", f"{avg_pri:.3f}")
+cols1[1].metric("Avg ORI", f"{avg_ori:.3f}")
+cols1[2].metric("Avg IFI", f"{avg_ifi:.3f}")
+cols1[3].metric("Avg Consistency", f"{avg_cons:.3f}")
+
+cols2[0].metric("Avg Correctness", f"{avg_cs:.3f}")
+cols2[1].metric("Avg Hallucination", f"{avg_hs:.3f}")
+cols2[2].metric("Avg Human Score", f"{avg_human:.3f}")
+cols2[3].metric("Avg Final Score", f"{avg_final:.3f}")
+
+st.header("1b. Output Tables")
+
+st.subheader("Model Performance Summary")
+summary_cols = ["Rank", "Model", "PRI", "ORI", "IFI", "CS", "HS", "Consistency", "Human_Score", "Final_Score"]
+if all(c in df_filtered.columns for c in [col for col in summary_cols if col != "Rank"]):
+    df_summary = df_filtered.copy()
+    if "Final_Score" in df_summary.columns:
+        df_summary["Rank"] = df_summary["Final_Score"].rank(ascending=False).astype(int)
+        df_summary = df_summary.sort_values("Final_Score", ascending=False)
+    
+    st.dataframe(df_summary[summary_cols].style.format({c: "{:.3f}" for c in summary_cols if c not in ["Rank", "Model"]}), use_container_width=True)
+
+st.subheader("Advanced Metrics")
+adv_cols = ["Model", "SMS_Wasserstein", "TRD_Semantic", "KPIG_Advanced", "USD"]
+if all(c in df_filtered.columns for c in adv_cols):
+    st.dataframe(df_filtered[adv_cols].style.format({c: "{:.3f}" for c in adv_cols if c != "Model"}), use_container_width=True)
+
+st.subheader("ROUGE Scores")
+rouge_cols = ["Model", "ROUGE_1", "ROUGE_2", "ROUGE_L"]
+if all(c in df_filtered.columns for c in rouge_cols):
+    st.dataframe(df_filtered[rouge_cols].style.format({c: "{:.3f}" for c in rouge_cols if c != "Model"}), use_container_width=True)
+
 
 # 3. Model Comparison
 st.header("2. Model Comparison")
@@ -100,7 +130,7 @@ if "Final_Score" in df_grouped.columns:
     fig_final = px.bar(df_grouped, x="Model", y="Final_Score", title="Final Model Ranking (PRI + Human Judge)", color="Model")
     st.plotly_chart(fig_final, use_container_width=True)
 
-metrics_to_plot = ["PRI", "CS", "HS", "Consistency", "Human_Score", "Final_Score"]
+metrics_to_plot = ["PRI", "ORI", "IFI", "CS", "HS", "Consistency", "Human_Score", "Final_Score"]
 available_metrics = [m for m in metrics_to_plot if m in df_grouped.columns]
 
 if available_metrics:
@@ -143,6 +173,8 @@ if show_sample_analysis and run_data:
             
         for res in sample_results:
             pri_val = res.get("pri", 0.0)
+            ori_val = res.get("ori_score", 0.0)
+            ifi_val = res.get("ifi_score", 0.0)
             cs_val = res.get("cs", 0.0)
             hs_val = res.get("hs_score", 0.0)
             cons_val = res.get("consistency", 0.0)
@@ -159,12 +191,28 @@ if show_sample_analysis and run_data:
             st.subheader(f"{res['model']} {pri_color}")
             
             # Metrics
-            mcols = st.columns(5)
+            mcols = st.columns(8)
             mcols[0].metric("PRI", f"{pri_val:.3f}")
-            mcols[1].metric("CS", f"{cs_val:.3f}")
-            mcols[2].metric("Consistency", f"{cons_val:.3f}")
-            mcols[3].metric("HS", f"{hs_val:.3f}")
-            mcols[4].metric("Confidence", f"{conf_val:.3f}")
+            mcols[1].metric("ORI", f"{ori_val:.3f}")
+            mcols[2].metric("IFI", f"{ifi_val:.3f}")
+            mcols[3].metric("CS", f"{cs_val:.3f}")
+            mcols[4].metric("Consistency", f"{cons_val:.3f}")
+            mcols[5].metric("HS", f"{hs_val:.3f}")
+            
+            human_score = res.get("human_score", 0.0)
+            final_score = res.get("final_score", 0.0)
+            mcols[6].metric("Human Score", f"{human_score:.3f}")
+            mcols[7].metric("Final Score", f"{final_score:.3f}")
+            
+            adv_cols = st.columns(4)
+            sms_w = res.get("sms_wasserstein", 0.0)
+            trd_s = res.get("trd_semantic", 0.0)
+            kpig_a = res.get("kpig_advanced", 0.0)
+            usd_val = res.get("usd", 0.0)
+            adv_cols[0].metric("SMS Wasserstein", f"{sms_w:.3f}")
+            adv_cols[1].metric("TRD Semantic", f"{trd_s:.3f}")
+            adv_cols[2].metric("KPIG Advanced", f"{kpig_a:.3f}")
+            adv_cols[3].metric("USD", f"{usd_val:.3f}")
             
             # Logs
             logs = res.get("interpretability_logs", [])

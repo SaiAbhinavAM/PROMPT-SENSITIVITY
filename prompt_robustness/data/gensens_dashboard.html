@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>GenSens — Dataset Generation Dashboard v2</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0f1117;--surface:#1a1d2e;--card:#21253a;--border:#2e3352;
+  --text:#e2e8f0;--muted:#8892b0;--accent:#7c83fd;
+  --m1:#7c83fd;--m2:#38bdf8;--m3:#4ade80;
+  --t1:#fb923c;--t2:#c084fc;--t3:#f472b6;--t4:#facc15;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:13px}
+
+/* ── Header ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+header h1{font-size:1.3rem;font-weight:700}
+header .sub{color:var(--muted);font-size:.8rem;margin-top:3px}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{background:#2e3352;border:1px solid var(--border);border-radius:20px;padding:3px 11px;font-size:.75rem;color:var(--accent);font-weight:600}
+
+/* ── Layout ── */
+.container{max-width:1360px;margin:0 auto;padding:20px 28px}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:16px;text-align:center}
+.kpi .val{font-size:1.6rem;font-weight:700;margin-bottom:3px}
+.kpi .lbl{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:18px}
+.panel-full{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:18px;margin-bottom:18px}
+.panel h2{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:14px}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap}
+.tab{background:#2e3352;border:1px solid var(--border);border-radius:5px;padding:4px 12px;cursor:pointer;font-size:.78rem;color:var(--muted);transition:.12s}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.tab:hover:not(.active){border-color:#7c83fd66;color:var(--text)}
+
+/* ── Table ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th{background:#1e2338;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-size:.72rem;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+td{padding:7px 10px;border-bottom:1px solid #1c2035;vertical-align:top}
+tr:hover td{background:#232741}
+tr.selected td{background:#7c83fd18;border-left:2px solid var(--accent)}
+
+/* ── Pills ── */
+.pill{display:inline-block;border-radius:4px;padding:1px 7px;font-size:.72rem;font-weight:600}
+.pill-m1{background:#7c83fd20;color:var(--m1)}
+.pill-m2{background:#38bdf820;color:var(--m2)}
+.pill-m3{background:#4ade8020;color:var(--m3)}
+.pill-t1{background:#fb923c20;color:var(--t1)}
+.pill-t2{background:#c084fc20;color:var(--t2)}
+.pill-t3{background:#f472b620;color:var(--t3)}
+.pill-t4{background:#facc1520;color:var(--t4)}
+
+/* ── Bar inline ── */
+.bar-inline{display:flex;align-items:center;gap:7px}
+.bar-bg{height:5px;border-radius:3px;background:#2e3352;flex:1;min-width:60px}
+.bar-fill{height:5px;border-radius:3px}
+
+/* ── Variant explorer panel ── */
+#explorerPanel{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:18px;margin-bottom:18px;display:none}
+#explorerPanel h2{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:14px}
+.explorer-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.v-card{background:#1a1d2e;border:1px solid #2e3352;border-radius:7px;padding:12px}
+.v-card .v-num{font-size:.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.v-card .v-prompt{font-size:.75rem;color:var(--muted);margin-bottom:8px;font-style:italic;line-height:1.4}
+.v-card .v-output{font-size:.78rem;color:var(--text);line-height:1.45;margin-bottom:8px}
+.v-card .v-metrics{display:flex;gap:8px;font-size:.72rem}
+.v-metric{background:#2e335280;border-radius:4px;padding:2px 7px}
+.v-metric span{color:var(--muted)}
+.v-ref{background:#1a1d2e;border:1px solid #4ade8033;border-radius:7px;padding:12px;margin-top:10px}
+.v-ref .v-num{color:#4ade80}
+.v-ref .v-output{color:#c7ffd4}
+.explorer-meta{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.explorer-meta .meta-item{font-size:.78rem;color:var(--muted)}
+.explorer-meta .meta-item strong{color:var(--text)}
+
+select{background:#2e3352;border:1px solid var(--border);border-radius:5px;color:var(--text);padding:4px 10px;font-size:.78rem;cursor:pointer}
+
+footer{text-align:center;padding:20px;color:var(--muted);font-size:.75rem;border-top:1px solid var(--border);margin-top:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>⚡ GenSens — Dataset Generation Dashboard <span style="color:var(--muted);font-size:.85rem">v2</span></h1>
+    <div class="sub">Prompt sensitivity benchmark · 4 tasks · 3 models (&lt;2B params) · 5 prompt variants · 60 rows × 26 cols (wide format)</div>
+  </div>
+  <div class="badges">
+    <span class="badge">flan-t5-small · 77M</span>
+    <span class="badge">flan-t5-base · 250M</span>
+    <span class="badge">distilbart-cnn-12-6 · 306M</span>
+    <span class="badge" style="color:#4ade80">Wide Format</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- KPIs -->
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <!-- Charts row 1 -->
+  <div class="grid2">
+    <div class="panel">
+      <h2>Avg Perplexity by Model &amp; Task</h2>
+      <div style="position:relative;height:240px"><canvas id="chartPPL"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Avg Branching Factor by Model &amp; Task</h2>
+      <div style="position:relative;height:240px"><canvas id="chartBF"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Charts row 2 -->
+  <div class="grid2">
+    <div class="panel">
+      <h2>PPL Sensitivity — across 5 Variants (prompt wording effect)</h2>
+      <div class="tabs" id="sensitivityTabs"></div>
+      <div style="position:relative;height:200px"><canvas id="chartSensitivity"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>PPL Variance (σ) — Prompt Robustness per Model</h2>
+      <div style="position:relative;height:240px"><canvas id="chartVariance"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Charts row 3 -->
+  <div class="grid2">
+    <div class="panel">
+      <h2>PPL vs Branching Factor (scatter · coloured by model)</h2>
+      <div style="position:relative;height:240px"><canvas id="chartScatter"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Avg Response Length by Model &amp; Task (words)</h2>
+      <div style="position:relative;height:240px"><canvas id="chartLen"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Variant Explorer -->
+  <div id="explorerPanel">
+    <h2>🔍 Variant Explorer — click any table row to inspect</h2>
+    <div class="explorer-meta" id="explorerMeta"></div>
+    <div class="explorer-grid" id="explorerGrid"></div>
+    <div class="v-ref" id="explorerRef"></div>
+  </div>
+
+  <!-- Summary Table -->
+  <div class="panel-full">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <h2 style="margin:0">All Records (60 rows) — click a row to explore variants</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="filterTask" onchange="renderTable()">
+          <option value="">All Tasks</option>
+          <option value="summarization">Summarization</option>
+          <option value="code">Code</option>
+          <option value="creative_writing">Creative Writing</option>
+          <option value="dialogue">Dialogue</option>
+        </select>
+        <select id="filterModel" onchange="renderTable()">
+          <option value="">All Models</option>
+          <option value="flan-t5-small">flan-t5-small</option>
+          <option value="flan-t5-base">flan-t5-base</option>
+          <option value="distilbart-cnn-12-6">distilbart-cnn-12-6</option>
+        </select>
+        <select id="sortBy" onchange="renderTable()">
+          <option value="avg_ppl">Sort: Avg PPL ↑</option>
+          <option value="avg_bf">Sort: Avg BF ↓</option>
+          <option value="ppl_std">Sort: PPL Variance ↑</option>
+        </select>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th onclick="setSortBy('avg_ppl')">Task</th>
+          <th onclick="setSortBy('avg_ppl')">Model</th>
+          <th onclick="setSortBy('avg_ppl')">Input (preview)</th>
+          <th onclick="setSortBy('avg_ppl')">Avg PPL ↕</th>
+          <th onclick="setSortBy('avg_bf')">Avg BF ↕</th>
+          <th onclick="setSortBy('ppl_std')">PPL σ (sensitivity) ↕</th>
+          <th>Prompt Variant 1 (original)</th>
+          <th>Reference Output</th>
+        </tr></thead>
+        <tbody id="mainTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>GenSens v2 · Wide format · 60 rows × 26 cols · flan-t5-small (77M), flan-t5-base (250M), distilbart-cnn-12-6 (306M) · All &lt;2B params</footer>
+
+<script>
+// ── DATA (embedded from dataset_all_tasks.csv) ────────────────────────────────
+const RAW_CSV = `topic_label,sample_idx,model,input_text,original_prompt,prompt_variant_1,prompt_variant_2,prompt_variant_3,prompt_variant_4,prompt_variant_5,model_output_v1,model_output_v2,model_output_v3,model_output_v4,model_output_v5,ppl_v1,ppl_v2,ppl_v3,ppl_v4,ppl_v5,bf_v1,bf_v2,bf_v3,bf_v4,bf_v5,reference_output`;
+
+// ── Parsed data injected from Python ─────────────────────────────────────────
+const DATA = [{"topic_label":"summarization","sample_idx":0,"model":"google/flan-t5-small","input_text":"LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him. The young actor says he has no plans to fritter his cash away on fast cars, drink and celebrity","original_prompt":"Summarize the following text: {input}","prompt_variant_1":"Summarize the following text: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him. The young actor","prompt_variant_2":"Condense the main ideas from this passage: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him. Th","prompt_variant_3":"Produce a concise, neutral summary of the article below: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a sp","prompt_variant_4":"Give a brief overview of the key points in this text: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell","prompt_variant_5":"In one paragraph, capture the essential information from: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a s","model_output_v1":"Daniel Radcliffe turns 18 and gains access to his £20 million fortune, but says he plans to.","model_output_v2":"The young actor says he has no plans to fritter his cash away on fast.","model_output_v3":"Daniel Radcliffe turns 18 and gains access to his £20 million fortune, but says he plans.","model_output_v4":"Daniel Radcliffe turns 18 and gains access to his £20 million fortune, but says he plans to remain grounded and won't spend.","model_output_v5":"The young actor says he has no plans to fritter his cash away on fast cars,.","ppl_v1":20.5111,"ppl_v2":20.3185,"ppl_v3":22.1833,"ppl_v4":21.751,"ppl_v5":21.702,"bf_v1":0.6593,"bf_v2":0.6438,"bf_v3":0.7181,"bf_v4":0.6653,"bf_v5":0.687,"reference_output":"Daniel Radcliffe turns 18 and gains access to his £20 million fortune, but says he plans to remain grounded and won't spend it extravagantly."},{"topic_label":"summarization","sample_idx":0,"model":"google/flan-t5-base","input_text":"LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him. The young actor says he has no plans to fritter his cash away on fast cars, drink and celebrity","original_prompt":"Summarize the following text: {input}","prompt_variant_1":"Summarize the following text: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him. The young actor","prompt_variant_2":"Condense the main ideas from this passage: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him. Th","prompt_variant_3":"Produce a concise, neutral summary of the article below: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a sp","prompt_variant_4":"Give a brief overview of the key points in this text: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell","prompt_variant_5":"In one paragraph, capture the essential information from: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a s","model_output_v1":"Daniel Radcliffe turns 18 and gains access to his £20 million fortune, but says he plans to remain grounded and won't spend it extravagantly. 'I don't plan to be one of those people who, as soon as they turn 18,.","model_output_v2":"Radcliffe's earnings from the first five Potter films have been held in a trust fund which he has not been able to touch. Daniel Radcliffe turns 18 and gains.","model_output_v3":"Radcliffe's earnings from the first five Potter films have been held in a trust fund which he has not been able to touch. Daniel Radcliffe turns 18 and gains.","model_output_v4":"'I don't plan to be one of those people who, as soon as they turn 18, suddenly buy themselves a massive sports car collection,' he told an Australian interviewer. Daniel Radcliffe turns 18 and gains access to his £20 million.","model_output_v5":"LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him. Daniel Radcliffe turns 18 and gains access to his £20 million fortune, but says he plans to rem","ppl_v1":14.4025,"ppl_v2":15.0448,"ppl_v3":11.8825,"ppl_v4":15.7444,"ppl_v5":15.81,"bf_v1":0.7218,"bf_v2":0.695,"bf_v3":0.7161,"bf_v4":0.7129,"bf_v5":0.6524,"reference_output":"Daniel Radcliffe turns 18 and gains access to his £20 million fortune, but says he plans to remain grounded and won't spend it extravagantly."},{"topic_label":"summarization","sample_idx":0,"model":"sshleifer/distilbart-cnn-12-6","input_text":"LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him. The young actor says he has no plans to fritter his cash away on fast cars, drink and celebrity","original_prompt":"Summarize the following text: {input}","prompt_variant_1":"Summarize the following text: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him. The young actor","prompt_variant_2":"Condense the main ideas from this passage: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him. Th","prompt_variant_3":"Produce a concise, neutral summary of the article below: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a sp","prompt_variant_4":"Give a brief overview of the key points in this text: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell","prompt_variant_5":"In one paragraph, capture the essential information from: LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a s","model_output_v1":"Daniel Radcliffe turns 18 and gains access to his £20 million fortune, but says he plans to remain grounded and won't spend it extravagantly. 'I don't plan to be one of those people who, as soon as they turn 18,","model_output_v2":"Daniel Radcliffe turns 18 and gains access to his £20 million fortune, but says he plans to remain grounded and won't spend it extravagantly. 'I don't plan to be one of those people who, as soon as they turn 18,","model_output_v3":"Radcliffe's earnings from the first five Potter films have been held in a trust fund which he has not been able to touch. Daniel Radcliffe turns 18 and gains access to his £20 million fortune,","model_output_v4":"Radcliffe's earnings from the first five Potter films have been held in a trust fund which he has not been able to touch. Daniel Radcliffe turns 18 and gains access to his £20 million fortune,","model_output_v5":"Radcliffe's earnings from the first five Potter films have been held in a trust fund which he has not been able to touch. Daniel Radcliffe turns 18 and gains access to his £20 million fortune,","ppl_v1":8.4765,"ppl_v2":8.9461,"ppl_v3":9.9888,"ppl_v4":9.9143,"ppl_v5":10.1694,"bf_v1":0.8358,"bf_v2":0.846,"bf_v3":0.8292,"bf_v4":0.8409,"bf_v5":0.8375,"reference_output":"Daniel Radcliffe turns 18 and gains access to his £20 million fortune, but says he plans to remain grounded and won't spend it extravagantly."},{"topic_label":"summarization","sample_idx":1,"model":"google/flan-t5-small","input_text":"Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a novel electrode coating that dramatically reduces charge time while maintaining energy density. The team estimates commercial production could begin within three years, potentially transforming the EV market.","original_prompt":"Summarize the following text: {input}","prompt_variant_1":"Summarize the following text: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a novel electrode coating","prompt_variant_2":"Condense the main ideas from this passage: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a novel electrode","prompt_variant_3":"Produce a concise, neutral summary of the article below: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a","prompt_variant_4":"Give a brief overview of the key points in this text: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a novel","prompt_variant_5":"In one paragraph, capture the essential information from: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a","model_output_v1":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","model_output_v2":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes,.","model_output_v3":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","model_output_v4":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","model_output_v5":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes,.","ppl_v1":16.4562,"ppl_v2":19.2108,"ppl_v3":19.7282,"ppl_v4":18.6514,"ppl_v5":18.8478,"bf_v1":0.6695,"bf_v2":0.6622,"bf_v3":0.6581,"bf_v4":0.6769,"bf_v5":0.6716,"reference_output":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years."},{"topic_label":"summarization","sample_idx":1,"model":"google/flan-t5-base","input_text":"Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a novel electrode coating that dramatically reduces charge time while maintaining energy density. The team estimates commercial production could begin within three years, potentially transforming the EV market.","original_prompt":"Summarize the following text: {input}","prompt_variant_1":"Summarize the following text: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a novel electrode coating","prompt_variant_2":"Condense the main ideas from this passage: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a novel electrode","prompt_variant_3":"Produce a concise, neutral summary of the article below: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a","prompt_variant_4":"Give a brief overview of the key points in this text: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a novel","prompt_variant_5":"In one paragraph, capture the essential information from: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a","model_output_v1":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","model_output_v2":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","model_output_v3":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","model_output_v4":"The breakthrough uses sodium-ion cells paired with a novel electrode coating that dramatically reduces charge time while maintaining energy density. Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","model_output_v5":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","ppl_v1":12.7258,"ppl_v2":13.6408,"ppl_v3":13.0254,"ppl_v4":13.2398,"ppl_v5":13.1218,"bf_v1":0.7405,"bf_v2":0.7554,"bf_v3":0.7465,"bf_v4":0.7374,"bf_v5":0.7532,"reference_output":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years."},{"topic_label":"summarization","sample_idx":1,"model":"sshleifer/distilbart-cnn-12-6","input_text":"Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a novel electrode coating that dramatically reduces charge time while maintaining energy density. The team estimates commercial production could begin within three years, potentially transforming the EV market.","original_prompt":"Summarize the following text: {input}","prompt_variant_1":"Summarize the following text: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a novel electrode coating","prompt_variant_2":"Condense the main ideas from this passage: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a novel electrode","prompt_variant_3":"Produce a concise, neutral summary of the article below: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a","prompt_variant_4":"Give a brief overview of the key points in this text: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a novel","prompt_variant_5":"In one paragraph, capture the essential information from: Scientists at the University of Cambridge have developed a new battery technology that could charge electric vehicles in under five minutes. The breakthrough uses sodium-ion cells paired with a","model_output_v1":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","model_output_v2":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","model_output_v3":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","model_output_v4":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","model_output_v5":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years.","ppl_v1":9.3783,"ppl_v2":9.7162,"ppl_v3":9.2067,"ppl_v4":9.3588,"ppl_v5":9.0975,"bf_v1":0.8529,"bf_v2":0.8464,"bf_v3":0.8566,"bf_v4":0.8551,"bf_v5":0.8482,"reference_output":"Cambridge scientists developed a sodium-ion battery technology that can charge EVs in under 5 minutes, with commercial production expected within 3 years."},{"topic_label":"summarization","sample_idx":2,"model":"google/flan-t5-small","input_text":"The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the largest producer by volume for the first time. Supply chain disruptions caused by climate events in key growing regions pushed arabica futures to a 45-year high, affecting cafés and consumers worldwide.","original_prompt":"Summarize the following text: {input}","prompt_variant_1":"Summarize the following text: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the largest producer","prompt_variant_2":"Condense the main ideas from this passage: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the largest produc","prompt_variant_3":"Produce a concise, neutral summary of the article below: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the","prompt_variant_4":"Give a brief overview of the key points in this text: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the la","prompt_variant_5":"In one paragraph, capture the essential information from: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as th","model_output_v1":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","model_output_v2":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","model_output_v3":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","model_output_v4":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","model_output_v5":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","ppl_v1":17.5977,"ppl_v2":20.6047,"ppl_v3":19.0619,"ppl_v4":20.5693,"ppl_v5":22.4073,"bf_v1":0.6824,"bf_v2":0.6744,"bf_v3":0.6651,"bf_v4":0.6608,"bf_v5":0.6598,"reference_output":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions."},{"topic_label":"summarization","sample_idx":2,"model":"google/flan-t5-base","input_text":"The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the largest producer by volume for the first time. Supply chain disruptions caused by climate events in key growing regions pushed arabica futures to a 45-year high, affecting cafés and consumers worldwide.","original_prompt":"Summarize the following text: {input}","prompt_variant_1":"Summarize the following text: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the largest producer","prompt_variant_2":"Condense the main ideas from this passage: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the largest produc","prompt_variant_3":"Produce a concise, neutral summary of the article below: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the","prompt_variant_4":"Give a brief overview of the key points in this text: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the la","prompt_variant_5":"In one paragraph, capture the essential information from: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as th","model_output_v1":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","model_output_v2":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","model_output_v3":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","model_output_v4":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","model_output_v5":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","ppl_v1":12.6048,"ppl_v2":12.8483,"ppl_v3":13.1255,"ppl_v4":13.3083,"ppl_v5":14.8022,"bf_v1":0.7491,"bf_v2":0.7585,"bf_v3":0.7503,"bf_v4":0.7387,"bf_v5":0.6937,"reference_output":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions."},{"topic_label":"summarization","sample_idx":2,"model":"sshleifer/distilbart-cnn-12-6","input_text":"The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the largest producer by volume for the first time. Supply chain disruptions caused by climate events in key growing regions pushed arabica futures to a 45-year high, affecting cafés and consumers worldwide.","original_prompt":"Summarize the following text: {input}","prompt_variant_1":"Summarize the following text: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the largest producer","prompt_variant_2":"Condense the main ideas from this passage: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the largest produc","prompt_variant_3":"Produce a concise, neutral summary of the article below: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the","prompt_variant_4":"Give a brief overview of the key points in this text: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as the la","prompt_variant_5":"In one paragraph, capture the essential information from: The global coffee market reached a record $100 billion valuation in 2025, driven by surging demand in Asia and premiumisation trends across Western markets. Vietnam surpassed Brazil as th","model_output_v1":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","model_output_v2":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","model_output_v3":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","model_output_v4":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","model_output_v5":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions.","ppl_v1":9.4027,"ppl_v2":9.9063,"ppl_v3":9.3055,"ppl_v4":9.7527,"ppl_v5":9.3641,"bf_v1":0.8619,"bf_v2":0.8672,"bf_v3":0.8617,"bf_v4":0.8617,"bf_v5":0.8552,"reference_output":"The global coffee market hit $100 billion in 2025, with Vietnam becoming the top producer and arabica prices reaching a 45-year high due to climate-driven supply disruptions."},{"topic_label":"dialogue","sample_idx":0,"model":"google/flan-t5-small","input_text":"User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at least 3 stars please.","original_prompt":"Continue this conversation as a helpful assistant: {input}","prompt_variant_1":"Continue this conversation as a helpful assistant: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at leas","prompt_variant_2":"Respond naturally to the following dialogue: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at least 3","prompt_variant_3":"Provide a helpful and coherent reply to the conversation below: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at","prompt_variant_4":"As a conversational AI, continue the exchange below: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at least","prompt_variant_5":"Give a relevant and informative response to this conversation: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at lea","model_output_v1":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","model_output_v2":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","model_output_v3":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","model_output_v4":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","model_output_v5":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","ppl_v1":18.2754,"ppl_v2":16.4944,"ppl_v3":19.7893,"ppl_v4":20.6611,"ppl_v5":19.5308,"bf_v1":0.6827,"bf_v2":0.6858,"bf_v3":0.6434,"bf_v4":0.6706,"bf_v5":0.6578,"reference_output":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?"},{"topic_label":"dialogue","sample_idx":0,"model":"google/flan-t5-base","input_text":"User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at least 3 stars please.","original_prompt":"Continue this conversation as a helpful assistant: {input}","prompt_variant_1":"Continue this conversation as a helpful assistant: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at leas","prompt_variant_2":"Respond naturally to the following dialogue: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at least 3","prompt_variant_3":"Provide a helpful and coherent reply to the conversation below: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at","prompt_variant_4":"As a conversational AI, continue the exchange below: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at least","prompt_variant_5":"Give a relevant and informative response to this conversation: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at lea","model_output_v1":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","model_output_v2":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","model_output_v3":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","model_output_v4":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","model_output_v5":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","ppl_v1":12.4562,"ppl_v2":12.8763,"ppl_v3":11.7829,"ppl_v4":13.3025,"ppl_v5":13.8407,"bf_v1":0.7284,"bf_v2":0.7515,"bf_v3":0.7203,"bf_v4":0.7291,"bf_v5":0.7162,"reference_output":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?"},{"topic_label":"dialogue","sample_idx":0,"model":"sshleifer/distilbart-cnn-12-6","input_text":"User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at least 3 stars please.","original_prompt":"Continue this conversation as a helpful assistant: {input}","prompt_variant_1":"Continue this conversation as a helpful assistant: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at leas","prompt_variant_2":"Respond naturally to the following dialogue: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at least 3","prompt_variant_3":"Provide a helpful and coherent reply to the conversation below: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at","prompt_variant_4":"As a conversational AI, continue the exchange below: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at least","prompt_variant_5":"Give a relevant and informative response to this conversation: User: I need to find a cheap hotel in the north part of town. Assistant: I found a few options. Do you have a preference for the number of stars? User: I'd like at lea","model_output_v1":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","model_output_v2":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","model_output_v3":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","model_output_v4":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","model_output_v5":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?","ppl_v1":9.3204,"ppl_v2":9.054,"ppl_v3":8.7219,"ppl_v4":9.7463,"ppl_v5":9.2051,"bf_v1":0.8483,"bf_v2":0.8394,"bf_v3":0.8434,"bf_v4":0.8388,"bf_v5":0.837,"reference_output":"I have a 3-star hotel called the Ashley Hotel in the north. Would you like me to book it?"},{"topic_label":"code","sample_idx":0,"model":"google/flan-t5-small","input_text":"def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.     >>> has_close_elements([1.0, 2.0, 3.0], 0.5)     False     >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)     True     ","original_prompt":"Write a Python function for the following problem: {input}","prompt_variant_1":"Write a Python function for the following problem: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.     >>> has_","prompt_variant_2":"Implement a Python solution for this programming task: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.     >>> has_","prompt_variant_3":"Provide a working Python function that solves the problem described below: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given thres","prompt_variant_4":"Create a Python function to address the following specification: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.   ","prompt_variant_5":"Code a solution in Python for this task: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.     >>> has_close_eleme","model_output_v1":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","model_output_v2":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","model_output_v3":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","model_output_v4":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","model_output_v5":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","ppl_v1":14.8977,"ppl_v2":18.2253,"ppl_v3":18.4093,"ppl_v4":20.2618,"ppl_v5":20.8283,"bf_v1":0.5683,"bf_v2":0.5514,"bf_v3":0.5527,"bf_v4":0.5571,"bf_v5":0.5545,"reference_output":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False"},{"topic_label":"code","sample_idx":0,"model":"google/flan-t5-base","input_text":"def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.     >>> has_close_elements([1.0, 2.0, 3.0], 0.5)     False     >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)     True     ","original_prompt":"Write a Python function for the following problem: {input}","prompt_variant_1":"Write a Python function for the following problem: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.     >>> has_","prompt_variant_2":"Implement a Python solution for this programming task: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.     >>> has_","prompt_variant_3":"Provide a working Python function that solves the problem described below: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given thres","prompt_variant_4":"Create a Python function to address the following specification: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.   ","prompt_variant_5":"Code a solution in Python for this task: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.     >>> has_close_eleme","model_output_v1":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","model_output_v2":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","model_output_v3":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","model_output_v4":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","model_output_v5":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","ppl_v1":12.0348,"ppl_v2":13.2895,"ppl_v3":11.9506,"ppl_v4":12.8706,"ppl_v5":13.7449,"bf_v1":0.6877,"bf_v2":0.6539,"bf_v3":0.6569,"bf_v4":0.6511,"bf_v5":0.6575,"reference_output":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False"},{"topic_label":"code","sample_idx":0,"model":"sshleifer/distilbart-cnn-12-6","input_text":"def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.     >>> has_close_elements([1.0, 2.0, 3.0], 0.5)     False     >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)     True     ","original_prompt":"Write a Python function for the following problem: {input}","prompt_variant_1":"Write a Python function for the following problem: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.     >>> has_","prompt_variant_2":"Implement a Python solution for this programming task: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.     >>> has_","prompt_variant_3":"Provide a working Python function that solves the problem described below: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given thres","prompt_variant_4":"Create a Python function to address the following specification: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.   ","prompt_variant_5":"Code a solution in Python for this task: def has_close_elements(numbers: List[float], threshold: float) -> bool:     Check if in given list of numbers, are any two numbers closer to each other than     given threshold.     >>> has_close_eleme","model_output_v1":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","model_output_v2":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","model_output_v3":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","model_output_v4":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","model_output_v5":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False","ppl_v1":9.3449,"ppl_v2":9.3741,"ppl_v3":9.0867,"ppl_v4":9.4629,"ppl_v5":9.521,"bf_v1":0.7552,"bf_v2":0.7556,"bf_v3":0.7573,"bf_v4":0.7486,"bf_v5":0.7399,"reference_output":"for idx, elem in enumerate(numbers):     for idx2, elem2 in enumerate(numbers):         if idx != idx2:             distance = abs(elem - elem2)             if distance < threshold:                 return True return False"},{"topic_label":"creative_writing","sample_idx":0,"model":"google/flan-t5-small","input_text":"A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","original_prompt":"Write a short story based on this prompt: {input}","prompt_variant_1":"Write a short story based on this prompt: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","prompt_variant_2":"Create a brief narrative inspired by: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","prompt_variant_3":"Compose a short creative passage that explores the following idea: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","prompt_variant_4":"Craft a short fictional piece using this concept as your starting point: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","prompt_variant_5":"Write a vivid short narrative based on: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","model_output_v1":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still. Whatever the light had been keeping away, it had stopped.","model_output_v2":"Whatever the light had been keeping away, it had stopped moving. For forty years, Miriam had kept the light burning without question.","model_output_v3":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still.","model_output_v4":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still.","model_output_v5":"For forty years, Miriam had kept the light burning without question. Whatever the light had been keeping away, it had stopped moving.","ppl_v1":16.7823,"ppl_v2":17.4052,"ppl_v3":18.2694,"ppl_v4":18.9337,"ppl_v5":18.5271,"bf_v1":0.6325,"bf_v2":0.6487,"bf_v3":0.6512,"bf_v4":0.6601,"bf_v5":0.6432,"reference_output":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still."},{"topic_label":"creative_writing","sample_idx":0,"model":"google/flan-t5-base","input_text":"A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","original_prompt":"Write a short story based on this prompt: {input}","prompt_variant_1":"Write a short story based on this prompt: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","prompt_variant_2":"Create a brief narrative inspired by: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","prompt_variant_3":"Compose a short creative passage that explores the following idea: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","prompt_variant_4":"Craft a short fictional piece using this concept as your starting point: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","prompt_variant_5":"Write a vivid short narrative based on: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","model_output_v1":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still. Whatever the light had been keeping away, it had stopped moving.","model_output_v2":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still. Whatever the light had been keeping away, it had stopped moving.","model_output_v3":"Whatever the light had been keeping away, it had stopped moving. For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still.","model_output_v4":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still. Whatever the light had been keeping away, it had stopped moving.","model_output_v5":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still. Whatever the light had been keeping away, it had stopped moving.","ppl_v1":11.0482,"ppl_v2":12.3961,"ppl_v3":11.6258,"ppl_v4":12.5493,"ppl_v5":13.7024,"bf_v1":0.7149,"bf_v2":0.7217,"bf_v3":0.7341,"bf_v4":0.7073,"bf_v5":0.6975,"reference_output":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still."},{"topic_label":"creative_writing","sample_idx":0,"model":"sshleifer/distilbart-cnn-12-6","input_text":"A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","original_prompt":"Write a short story based on this prompt: {input}","prompt_variant_1":"Write a short story based on this prompt: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","prompt_variant_2":"Create a brief narrative inspired by: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","prompt_variant_3":"Compose a short creative passage that explores the following idea: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","prompt_variant_4":"Craft a short fictional piece using this concept as your starting point: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","prompt_variant_5":"Write a vivid short narrative based on: A lighthouse keeper discovers that the light has been warning ships away from something other than rocks.","model_output_v1":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still. Whatever the light had been keeping away, it had stopped moving.","model_output_v2":"Whatever the light had been keeping away, it had stopped moving. For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore.","model_output_v3":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still. Whatever the light had been keeping away, it had stopped moving.","model_output_v4":"Whatever the light had been keeping away, it had stopped moving. For forty years, Miriam had kept the light burning without question.","model_output_v5":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still. Whatever the light had been keeping away, it had stopped moving.","ppl_v1":9.1836,"ppl_v2":8.5302,"ppl_v3":8.7942,"ppl_v4":7.6534,"ppl_v5":8.8401,"bf_v1":0.8204,"bf_v2":0.8135,"bf_v3":0.8285,"bf_v4":0.7895,"bf_v5":0.8271,"reference_output":"For forty years, Miriam had kept the light burning without question. But on the night the fog rolled in thicker than she'd ever seen, she climbed down to the shore and found the water perfectly still."}];
+
+// ── Derived computed fields ───────────────────────────────────────────────────
+const VARIANTS = [1,2,3,4,5];
+function shortModel(m){ return m.split('/').pop(); }
+function avg(arr){ return arr.reduce((s,v)=>s+v,0)/arr.length; }
+function stddev(arr){ const m=avg(arr); return Math.sqrt(avg(arr.map(v=>(v-m)**2))); }
+
+DATA.forEach(r=>{
+  r._model_short = shortModel(r.model);
+  r._ppls = VARIANTS.map(i=>r[`ppl_v${i}`]);
+  r._bfs  = VARIANTS.map(i=>r[`bf_v${i}`]);
+  r._lens = VARIANTS.map(i=>(r[`model_output_v${i}`]||'').split(' ').length);
+  r.avg_ppl = avg(r._ppls);
+  r.avg_bf  = avg(r._bfs);
+  r.avg_len = avg(r._lens);
+  r.ppl_std = stddev(r._ppls);
+  r.bf_std  = stddev(r._bfs);
+});
+
+// ── Colour maps ───────────────────────────────────────────────────────────────
+const MC = {'flan-t5-small':'#7c83fd','flan-t5-base':'#38bdf8','distilbart-cnn-12-6':'#4ade80'};
+const TC = {summarization:'#fb923c',code:'#c084fc',creative_writing:'#f472b6',dialogue:'#facc15'};
+const MODELS = ['flan-t5-small','flan-t5-base','distilbart-cnn-12-6'];
+const TASKS  = ['summarization','code','creative_writing','dialogue'];
+const TL = {summarization:'Summ.',code:'Code',creative_writing:'Creative',dialogue:'Dialogue'};
+
+// ── Chart defaults ────────────────────────────────────────────────────────────
+Chart.defaults.color='#8892b0';
+Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";
+Chart.defaults.font.size=11;
+const ax = ()=>({grid:{color:'#2e3352',drawBorder:false},ticks:{color:'#8892b0'}});
+
+function groupAvg(metric, model, task){
+  return avg(DATA.filter(r=>(!model||r._model_short===model)&&(!task||r.topic_label===task))
+                 .map(r=>r[metric]));
+}
+
+// ── KPIs ─────────────────────────────────────────────────────────────────────
+document.getElementById('kpiRow').innerHTML=[
+  {val:'60',  lbl:'Records (wide)', color:'var(--accent)'},
+  {val:'26',  lbl:'Columns',        color:'var(--m2)'},
+  {val:'5',   lbl:'Prompt Variants',color:'var(--t1)'},
+  {val:avg(DATA.map(r=>r.avg_ppl)).toFixed(2), lbl:'Avg PPL', color:'var(--purple,#c084fc)'},
+  {val:avg(DATA.map(r=>r.avg_bf)).toFixed(3),  lbl:'Avg BF',  color:'var(--m3)'},
+].map(k=>`<div class="kpi"><div class="val" style="color:${k.color}">${k.val}</div><div class="lbl">${k.lbl}</div></div>`).join('');
+
+// ── Chart 1: PPL by model x task ─────────────────────────────────────────────
+new Chart('chartPPL',{type:'bar',
+  data:{labels:TASKS.map(t=>TL[t]),datasets:MODELS.map(m=>({
+    label:m,
+    data:TASKS.map(t=>groupAvg('avg_ppl',m,t).toFixed(2)),
+    backgroundColor:MC[m]+'bb',borderColor:MC[m],borderWidth:1.5,borderRadius:4
+  }))},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#e2e8f0',boxWidth:11}}},
+    scales:{x:ax(),y:{...ax(),title:{display:true,text:'Avg PPL',color:'#8892b0'}}}}
+});
+
+// ── Chart 2: BF by model x task ──────────────────────────────────────────────
+new Chart('chartBF',{type:'bar',
+  data:{labels:TASKS.map(t=>TL[t]),datasets:MODELS.map(m=>({
+    label:m,
+    data:TASKS.map(t=>groupAvg('avg_bf',m,t).toFixed(3)),
+    backgroundColor:MC[m]+'bb',borderColor:MC[m],borderWidth:1.5,borderRadius:4
+  }))},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#e2e8f0',boxWidth:11}}},
+    scales:{x:ax(),y:{...ax(),min:0.5,max:1,title:{display:true,text:'Avg BF',color:'#8892b0'}}}}
+});
+
+// ── Chart 3: Sensitivity ──────────────────────────────────────────────────────
+let sensChart=null, activeTask='summarization';
+function buildSensTabs(){
+  document.getElementById('sensitivityTabs').innerHTML=TASKS.map(t=>
+    `<button class="tab${t===activeTask?' active':''}" onclick="setSens('${t}')">${TL[t]}</button>`
+  ).join('');
+}
+function setSens(t){ activeTask=t; if(sensChart)sensChart.destroy(); buildSensTabs(); buildSensChart(); }
+function buildSensChart(){
+  sensChart=new Chart('chartSensitivity',{type:'line',
+    data:{labels:['v1','v2','v3','v4','v5'],datasets:MODELS.map(m=>({
+      label:m,
+      data:VARIANTS.map(i=>avg(DATA.filter(r=>r._model_short===m&&r.topic_label===activeTask).map(r=>r[`ppl_v${i}`]))),
+      borderColor:MC[m],backgroundColor:MC[m]+'33',fill:false,tension:.3,pointRadius:4,borderWidth:2
+    }))},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#e2e8f0',boxWidth:11}}},
+      scales:{x:{...ax(),title:{display:true,text:'Prompt Variant',color:'#8892b0'}},
+              y:{...ax(),title:{display:true,text:'Avg PPL',color:'#8892b0'}}}}
+  });
+}
+buildSensTabs(); buildSensChart();
+
+// ── Chart 4: PPL std (variance / sensitivity) ─────────────────────────────────
+new Chart('chartVariance',{type:'bar',
+  data:{labels:TASKS.map(t=>TL[t]),datasets:MODELS.map(m=>({
+    label:m,
+    data:TASKS.map(t=>avg(DATA.filter(r=>r._model_short===m&&r.topic_label===t).map(r=>r.ppl_std)).toFixed(3)),
+    backgroundColor:MC[m]+'bb',borderColor:MC[m],borderWidth:1.5,borderRadius:4
+  }))},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#e2e8f0',boxWidth:11}},
+             tooltip:{callbacks:{label:c=>`${c.dataset.label}: σ=${c.parsed.y.toFixed(3)}`}}},
+    scales:{x:ax(),y:{...ax(),title:{display:true,text:'PPL std dev (σ) — lower=more robust',color:'#8892b0'}}}}
+});
+
+// ── Chart 5: Scatter PPL vs BF ────────────────────────────────────────────────
+new Chart('chartScatter',{type:'scatter',
+  data:{datasets:MODELS.map(m=>({
+    label:m,
+    data:DATA.filter(r=>r._model_short===m).map(r=>({x:r.avg_ppl,y:r.avg_bf})),
+    backgroundColor:MC[m]+'99',pointRadius:5,pointHoverRadius:7
+  }))},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#e2e8f0',boxWidth:11}}},
+    scales:{x:{...ax(),title:{display:true,text:'Avg PPL',color:'#8892b0'}},
+            y:{...ax(),title:{display:true,text:'Avg BF',color:'#8892b0'},min:.5,max:1}}}
+});
+
+// ── Chart 6: Response length ──────────────────────────────────────────────────
+new Chart('chartLen',{type:'bar',
+  data:{labels:TASKS.map(t=>TL[t]),datasets:MODELS.map(m=>({
+    label:m,
+    data:TASKS.map(t=>groupAvg('avg_len',m,t).toFixed(1)),
+    backgroundColor:MC[m]+'bb',borderColor:MC[m],borderWidth:1.5,borderRadius:4
+  }))},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#e2e8f0',boxWidth:11}}},
+    scales:{x:ax(),y:{...ax(),title:{display:true,text:'Avg words',color:'#8892b0'}}}}
+});
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+const MPILL={'flan-t5-small':'pill-m1','flan-t5-base':'pill-m2','distilbart-cnn-12-6':'pill-m3'};
+const TPILL={summarization:'pill-t1',code:'pill-t2',creative_writing:'pill-t3',dialogue:'pill-t4'};
+let selectedRow=null;
+
+function setSortBy(m){ document.getElementById('sortBy').value=m; renderTable(); }
+
+function renderTable(){
+  const task=document.getElementById('filterTask').value;
+  const model=document.getElementById('filterModel').value;
+  const sortKey=document.getElementById('sortBy').value;
+  let rows=[...DATA].filter(r=>(!task||r.topic_label===task)&&(!model||r._model_short===model));
+  const dir=sortKey==='avg_bf'?-1:1;
+  rows.sort((a,b)=>(a[sortKey]-b[sortKey])*dir);
+  const tbody=document.getElementById('mainTbody');
+  tbody.innerHTML=rows.map((r,i)=>{
+    const pplColor=r.ppl_std>1.5?'#fb923c':r.ppl_std>0.8?'#facc15':'#4ade80';
+    const idx=DATA.indexOf(r);
+    return `<tr onclick="showExplorer(${idx})" style="cursor:pointer">
+      <td><span class="pill ${TPILL[r.topic_label]}">${r.topic_label.replace('_',' ')}</span></td>
+      <td><span class="pill ${MPILL[r._model_short]}">${r._model_short}</span></td>
+      <td style="color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.input_text.slice(0,80)}…</td>
+      <td style="font-weight:600;color:#e2e8f0">${r.avg_ppl.toFixed(2)}</td>
+      <td style="font-weight:600;color:#e2e8f0">${r.avg_bf.toFixed(3)}</td>
+      <td>
+        <div class="bar-inline">
+          <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100,r.ppl_std/3*100)}%;background:${pplColor}"></div></div>
+          <span style="color:${pplColor};font-weight:600;min-width:32px">${r.ppl_std.toFixed(3)}</span>
+        </div>
+      </td>
+      <td style="color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.prompt_variant_1||'').slice(0,60)}…</td>
+      <td style="color:#c7ffd4;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.reference_output||'').slice(0,70)}…</td>
+    </tr>`;
+  }).join('');
+}
+renderTable();
+
+// ── Variant Explorer ──────────────────────────────────────────────────────────
+function showExplorer(idx){
+  const r=DATA[idx];
+  const panel=document.getElementById('explorerPanel');
+  panel.style.display='block';
+
+  document.getElementById('explorerMeta').innerHTML=`
+    <div class="meta-item"><strong>Task:</strong> ${r.topic_label.replace('_',' ')}</div>
+    <div class="meta-item"><strong>Model:</strong> ${r._model_short}</div>
+    <div class="meta-item"><strong>Sample:</strong> #${r.sample_idx}</div>
+    <div class="meta-item"><strong>Avg PPL:</strong> ${r.avg_ppl.toFixed(2)}</div>
+    <div class="meta-item"><strong>Avg BF:</strong> ${r.avg_bf.toFixed(3)}</div>
+    <div class="meta-item" style="color:#fb923c"><strong>PPL σ:</strong> ${r.ppl_std.toFixed(3)}</div>
+    <div class="meta-item" style="color:var(--muted);font-size:.72rem">Input: ${r.input_text.slice(0,100)}…</div>
+  `;
+
+  document.getElementById('explorerGrid').innerHTML=VARIANTS.map(i=>{
+    const prompt=r[`prompt_variant_${i}`]||'';
+    const output=r[`model_output_v${i}`]||'';
+    const ppl=r[`ppl_v${i}`];
+    const bf=r[`bf_v${i}`];
+    const pplColor=ppl<10?'#4ade80':ppl<15?'#facc15':'#fb923c';
+    return `<div class="v-card">
+      <div class="v-num">Variant ${i}</div>
+      <div class="v-prompt">"${prompt.slice(0,80)}…"</div>
+      <div class="v-output">${output.slice(0,200)}</div>
+      <div class="v-metrics">
+        <div class="v-metric"><span>PPL </span><strong style="color:${pplColor}">${ppl.toFixed(2)}</strong></div>
+        <div class="v-metric"><span>BF </span><strong style="color:#38bdf8">${bf.toFixed(3)}</strong></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('explorerRef').innerHTML=`
+    <div class="v-num">Reference Output (Gold)</div>
+    <div class="v-output" style="color:#c7ffd4">${r.reference_output||'—'}</div>
+  `;
+
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body>
+</html>

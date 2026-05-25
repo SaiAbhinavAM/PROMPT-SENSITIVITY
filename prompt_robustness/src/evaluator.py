@@ -235,6 +235,14 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
     # STEP 8: Final score with optional dynamic weighting
     final_score = _compute_final_score(pri, human_score, config, usd_val)
 
+    # Calculate IFI (Intrinsic Fidelity Index)
+    # High fidelity = low perplexity variance & low branching uncertainty
+    ifi_score = max(0.0, min(1.0, 1.0 - ((metrics["ppl_var"] + metrics["bf"]) / 2.0)))
+    
+    # Calculate ORI (Observable Robustness Index)
+    # Combines structural/observable metrics: SMS, AUC_E, KPIG (higher is better), and TRD (lower is better => 1.0 - trd)
+    ori_score = max(0.0, min(1.0, (metrics["sms"] + metrics["auc_e"] + (1.0 - metrics["trd"]) + metrics["kpig"]) / 4.0))
+
     # STEP 7: Baseline metrics (ROUGE, BERTScore)
     rouge_scores = {}
     bertscore_scores = {}
@@ -245,7 +253,7 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
     if config.enable_bertscore:
         bertscore_scores = compute_bertscore(responses, reference)
 
-    print(f"[{label}] PRI: {pri:.3f} | Consistency: {consistency_score:.3f} | Correctness (CS): {correctness_score:.3f} | Hallucination (HS): {hs_score:.3f} | Human Score: {human_score:.3f} | Final: {final_score:.3f}")
+    print(f"[{label}] PRI: {pri:.3f} | ORI: {ori_score:.3f} | IFI: {ifi_score:.3f} | Consistency: {consistency_score:.3f} | Correctness (CS): {correctness_score:.3f} | Hallucination (HS): {hs_score:.3f} | Human Score: {human_score:.3f} | Final: {final_score:.3f}")
     if interpretability_logs:
         for ilog in interpretability_logs:
             print(f"      -> {ilog}")
@@ -273,6 +281,8 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
         "metrics": metrics,
         # Core scores
         "pri": pri,
+        "ori_score": ori_score,
+        "ifi_score": ifi_score,
         "sms": metrics["sms"],
         "trd": metrics["trd"],
         "kpig": metrics["kpig"],
