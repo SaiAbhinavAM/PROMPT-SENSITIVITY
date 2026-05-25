@@ -83,15 +83,18 @@ else
   pass "venv already exists — skipping creation"
 fi
 
-source "${VENV_DIR}/bin/activate"
-info "Python: $(python3 --version)"
+# Use explicit binary paths instead of relying on source activate
+VENV_PYTHON="${VENV_DIR}/bin/python3"
+VENV_PIP="${VENV_DIR}/bin/pip"
 
-# Install / upgrade packages quietly
+info "Python: $(${VENV_PYTHON} --version)"
+
+# Install / upgrade packages
 info "Installing dependencies (may take 2–5 minutes on first run)..."
-pip install --quiet --upgrade pip
+${VENV_PIP} install --upgrade pip
 
 # Core packages for ALL steps
-pip install --quiet \
+${VENV_PIP} install \
   torch \
   transformers \
   sentence-transformers \
@@ -125,7 +128,7 @@ else
   cd "${GENSENS_DIR}"
 
   set +e
-  python3 scripts/generate_dataset.py \
+  ${VENV_PYTHON} scripts/generate_dataset.py \
     --task summarization \
     --n_instances "${N_INSTANCES}" \
     --n_variants  "${N_VARIANTS}" \
@@ -163,7 +166,7 @@ else
   cd "${GENSENS_DIR}"
 
   set +e
-  python3 scripts/validate_dataset.py \
+  ${VENV_PYTHON} scripts/validate_dataset.py \
     --expected-instances "${N_INSTANCES}" \
     --expected-variants  "${N_VARIANTS}"
   VAL_EXIT=$?
@@ -191,7 +194,7 @@ else
 
   info "Running PRI benchmark on Flan-T5 models..."
   set +e
-  python3 main.py 2>&1 | tee /tmp/pri_smoke_output.txt
+  ${VENV_PYTHON} main.py 2>&1 | tee /tmp/pri_smoke_output.txt
   PRI_EXIT=$?
   set -e
 
@@ -222,7 +225,7 @@ else
 
   info "Running LL-PIRC pipeline test (gpt2-medium, ~5 min on CPU)..."
   set +e
-  python3 "${SMOKE_SCRIPT}" ${PIRC_ARGS}
+  ${VENV_PYTHON} "${SMOKE_SCRIPT}" ${PIRC_ARGS}
   PIRC_EXIT=$?
   set -e
 

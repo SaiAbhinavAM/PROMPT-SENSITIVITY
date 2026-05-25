@@ -79,15 +79,21 @@ class ModelInterface:
             truncation=True,
         ).to(self.device)
 
+        gen_kwargs = dict(
+            input_ids=inputs["input_ids"],
+            attention_mask=inputs["attention_mask"],
+            max_new_tokens=self.config.max_new_tokens,
+            do_sample=self.config.do_sample,
+            pad_token_id=self.tokenizer.pad_token_id,
+        )
+        # Only pass sampling knobs when sampling is enabled — passing temperature
+        # with do_sample=False triggers transformers warnings and is a no-op.
+        if self.config.do_sample:
+            gen_kwargs["temperature"] = self.config.temperature
+            torch.manual_seed(self.config.seed)  # reproducible sampling
+
         with torch.no_grad():
-            outputs = self.model.generate(
-                input_ids=inputs["input_ids"],
-                attention_mask=inputs["attention_mask"],
-                max_new_tokens=self.config.max_new_tokens,
-                temperature=self.config.temperature,
-                do_sample=self.config.do_sample,
-                pad_token_id=self.tokenizer.pad_token_id,
-            )
+            outputs = self.model.generate(**gen_kwargs)
 
         if self.is_seq2seq:
             # Seq2Seq: output tokens are purely the generated sequence

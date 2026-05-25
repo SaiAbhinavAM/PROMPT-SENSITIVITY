@@ -4,17 +4,41 @@
 # All thresholds and hyperparameters for the prompt sensitivity
 # research pipeline. Modify values here instead of in code.
 
-# --- Target Model ---
+# ============================================================
+# H100 MODEL REGISTRY (one role per model; loaded one big model
+# at a time via the decoupled generate→score pipeline).
+# 70B targets MUST be AWQ/GPTQ-INT4 to fit a single 80GB card.
+# ============================================================
+roles:
+  generator:        "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4"  # Phase 1 paraphrases
+  generator_quant:  "awq_marlin"
+  subjects:         # Phase 2 models UNDER TEST (cross-family 8B)
+    - "meta-llama/Llama-3.1-8B-Instruct"
+    - "Qwen/Qwen2.5-7B-Instruct"
+    - "mistralai/Mistral-7B-Instruct-v0.3"
+  judge:            "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4"  # independent of subjects
+  judge_quant:      "awq_marlin"
+  faithfulness:     "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4"  # LLM-as-NLI, reuses judge
+  embedder:         "Alibaba-NLP/gte-Qwen2-7B-instruct"                    # SMS/CS/TRD (7B)
+  pirc_target:      "meta-llama/Llama-3.1-8B-Instruct"                     # Phase 3 (HF hooks)
+
+# --- Target Model (Phase 3 PIRC; HF transformers, needs hidden-state hooks) ---
 model:
-  name: "meta-llama/Meta-Llama-3-8B-Instruct"
+  name: "meta-llama/Llama-3.1-8B-Instruct"
   dtype: "float16"            # float16 or bfloat16
   device_map: "auto"          # "auto", "cuda", "cpu"
   max_new_tokens: 200         # max tokens to generate
 
 # --- Paraphrase Generation ---
+# NOTE: GenSens (gensens/scripts/) does NOT read this section — it generates
+# via the 16 LLM strategies + diversity controls, configured by CLI flags
+# (--model vllm --model-id ... --similarity-upper ... --max-token-overlap ...).
+# The back_translation/pivot keys below are legacy and unused by the current
+# generator; kept only for older baseline scripts. Diversity band defaults:
+#   similarity ∈ [0.82, 0.98], max_token_overlap 0.85, max_per_strategy 2.
 paraphrase:
   K: 5                        # number of paraphrase variants per prompt
-  method: "back_translation"  # "back_translation" or "phi3"
+  method: "back_translation"  # legacy; current generator uses LLM strategies
   similarity_threshold: 0.85  # min cosine similarity to keep a paraphrase
   max_retries: 10             # max attempts to generate valid paraphrases
   # Back-translation models (Helsinki-NLP)

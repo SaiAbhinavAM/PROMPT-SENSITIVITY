@@ -25,6 +25,7 @@ from .model_interface import ModelInterface
 from .cache_manager import CacheManager
 from .evaluator import evaluate_sample
 from .utils import generate_run_id, save_json
+from . import csv_io
 
 # STEP 6: Correlation analysis
 from .analysis import (
@@ -54,10 +55,24 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
     """
     df = load_dataset(config.data_path)
     samples = df.to_dict('records')[:100]
+    for i, s in enumerate(samples):
+        s.setdefault("instance_id", f"idx_{i}")
     print(f"Running evaluation on {len(samples)} samples")
     print(f"Models to run: {config.models}")
 
     cache_manager = CacheManager(config.cache_dir, config.enable_cache)
+
+    # Fault-tolerant incremental CSV persistence (resume-safe): every completed
+    # sample is flushed+fsync'd immediately, so a crash never loses computed work
+    # and a re-run skips what is already on disk.
+    os.makedirs(config.results_dir, exist_ok=True)
+    resp_path = os.path.join(config.results_dir, "responses.csv")
+    scored_path = os.path.join(config.results_dir, "scored_samples.csv")
+    done_keys = csv_io.existing_scored_keys(scored_path)
+    if done_keys:
+        print(f"↻ Resuming: {len(done_keys)} (model,instance) pairs already scored — skipping them")
+    resp_writer = csv_io.IncrementalCSVWriter(resp_path, csv_io.RESPONSES_COLS, resume=True)
+    scored_writer = csv_io.IncrementalCSVWriter(scored_path, csv_io.SCORED_COLS, resume=True)
 
     all_results = []
     last_sample_df = pd.DataFrame()
@@ -96,9 +111,18 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
             print(f"Model {model_name} failed. Continuing...")
             continue
             
-        # Tasks for multiprocessing
-        tasks = [(sample, config, model_interface, cache_manager) for sample in samples]
-        
+        # Skip samples already scored for this model (resume).
+        pending = [s for s in samples if (model_name, s.get("instance_id", "")) not in done_keys]
+        if len(pending) < len(samples):
+            print(f"   Skipping {len(samples) - len(pending)} already-scored samples for {model_name}")
+        tasks = [(sample, config, model_interface, cache_manager) for sample in pending]
+
+        def _record(r):
+            """Persist one result immediately (crash-safe) and accumulate."""
+            resp_writer.write_rows(csv_io.responses_rows_from_result(r))
+            scored_writer.write_rows([csv_io.scored_row_from_result(r)])
+            results.append(r)
+
         results = []
         if config.enable_parallel and model_interface.device.type == "cpu":
             # Parallel execution for API models or CPU models
@@ -106,14 +130,14 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
                 futures = [executor.submit(evaluate_sample_wrapper, task) for task in tasks]
                 for future in tqdm(as_completed(futures), total=len(futures), desc=f"Evaluating {model_name}"):
                     try:
-                        results.append(future.result())
+                        _record(future.result())
                     except Exception as e:
                         logger.error(f"Error evaluating sample: {e}")
         else:
             # Sequential execution for CUDA to avoid OOM or GIL contention with Torch
             for task in tqdm(tasks, desc=f"Evaluating {model_name}"):
                 try:
-                    results.append(evaluate_sample_wrapper(task))
+                    _record(evaluate_sample_wrapper(task))
                 except Exception as e:
                     logger.error(f"Error evaluating sample: {e}")
                 
@@ -137,13 +161,14 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
                 "IFI": r.get("ifi_score", 0),
                 "CS": r.get("cs", 0),
                 "HS": r.get("hs_score", 0),
+                "Faithfulness": r.get("faithfulness", 0),
                 "Consistency": r.get("consistency", 0),
                 "Human_Score": r.get("human_score", 0),
                 "Final_Score": r.get("final_score", 0),
             }
             # Include advanced metrics in sample-level CSV
             if config.enable_advanced_metrics:
-                row["SMS_Wasserstein"] = r.get("sms_wasserstein", 0)
+                row["Faithfulness"] = r.get("faithfulness", 0)
                 row["TRD_Semantic"] = r.get("trd_semantic", 0)
                 row["KPIG_Advanced"] = r.get("kpig_advanced", 0)
                 row["USD"] = r.get("usd", 0)
@@ -183,6 +208,12 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
         elif torch.cuda.is_available():
             torch.cuda.empty_cache()
 
+    # responses.csv (Layer B) and scored_samples.csv (Layer C) were written
+    # incrementally above; close the writers (data already flushed+fsync'd).
+    resp_writer.close()
+    scored_writer.close()
+    print(f"💾 CSV layers persisted: {resp_path}, {scored_path}")
+
     # =========================================================================
     # STEP 6: Correlation Analysis
     # =========================================================================
@@ -221,6 +252,7 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
             "IFI": sum(r.get("ifi_score", 0) for r in model_runs) / len(model_runs),
             "CS": sum(r.get("cs", 0) for r in model_runs) / len(model_runs),
             "HS": sum(r.get("hs_score", 0) for r in model_runs) / len(model_runs),
+            "Faithfulness": sum(r.get("faithfulness", 0) for r in model_runs) / len(model_runs),
             "Consistency": sum(r.get("consistency", 0) for r in model_runs) / len(model_runs),
             "Human_Score": sum(r.get("human_score", 0) for r in model_runs) / len(model_runs),
             "Final_Score": sum(r.get("final_score", 0) for r in model_runs) / len(model_runs),
@@ -230,7 +262,7 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
 
         # Add advanced aggregate metrics
         if config.enable_advanced_metrics:
-            agg["SMS_Wasserstein"] = sum(r.get("sms_wasserstein", 0) for r in model_runs) / len(model_runs)
+            agg["Faithfulness"] = sum(r.get("faithfulness", 0) for r in model_runs) / len(model_runs)
             agg["TRD_Semantic"] = sum(r.get("trd_semantic", 0) for r in model_runs) / len(model_runs)
             agg["KPIG_Advanced"] = sum(r.get("kpig_advanced", 0) for r in model_runs) / len(model_runs)
             agg["USD"] = sum(r.get("usd", 0) for r in model_runs) / len(model_runs)
@@ -244,6 +276,97 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
         
     df_results = pd.DataFrame(benchmark_results)
     df_results.to_csv(os.path.join(config.results_dir, "benchmark.csv"), index=False)
-    
+
     return df_results, last_sample_df, correlation_results
+
+
+def generate_responses_to_csv(config: Config) -> str:
+    """GENERATE-ONLY: produce responses.csv with ONLY the subject model loaded.
+
+    No scorer models (embedder/judge/NLI) are loaded, so on a single 80GB card
+    the subject never has to co-reside with the 70B judge. Rows are flushed +
+    fsync'd per sample (crash-safe) and already-generated (model,instance) pairs
+    are skipped on re-run (resume). Returns the responses.csv path.
+    """
+    df = load_dataset(config.data_path)
+    samples = df.to_dict("records")[:100]
+    for i, s in enumerate(samples):
+        s.setdefault("instance_id", f"idx_{i}")
+
+    os.makedirs(config.results_dir, exist_ok=True)
+    resp_path = os.path.join(config.results_dir, "responses.csv")
+    done = csv_io.existing_response_keys(resp_path)
+    if done:
+        print(f"↻ Resuming generation: {len(done)} (model,instance) pairs already on disk")
+    writer = csv_io.IncrementalCSVWriter(resp_path, csv_io.RESPONSES_COLS, resume=True)
+
+    for model_name in config.models:
+        print(f"\n🚀 Generating responses: {model_name}")
+        try:
+            mi = ModelInterface(model_name, config)
+        except Exception as e:
+            logger.error(f"Cannot load model '{model_name}': {e}")
+            continue
+        for sample in tqdm(samples, desc=f"Generating {model_name}"):
+            inst = sample.get("instance_id", "")
+            if (model_name, inst) in done:
+                continue
+            try:
+                prompts = sample.get("prompt_variants")
+                if not prompts:
+                    from .prompt_generator import generate_prompt_variants, flatten_prompt_variants
+                    prompts = flatten_prompt_variants(generate_prompt_variants(sample["input_text"]))
+                responses = mi.generate_responses(prompts)
+                strategies = sample.get("strategies") or [None] * len(prompts)
+                rows = [{
+                    "model": model_name, "instance_id": inst,
+                    "topic_label": sample.get("topic_label", sample.get("task", "")),
+                    "variant_idx": i, "strategy": strategies[i] if i < len(strategies) else None,
+                    "prompt": p, "response": r,
+                    "input_text": sample.get("input_text", ""),
+                    "reference_output": sample.get("reference_output", ""),
+                } for i, (p, r) in enumerate(zip(prompts, responses))]
+                writer.write_rows(rows)   # flush + fsync per sample
+            except Exception as e:
+                logger.error(f"Error generating {model_name}/{inst}: {e}")
+        del mi
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        elif torch.backends.mps.is_available():
+            torch.mps.empty_cache()
+
+    writer.close()
+    print(f"💾 responses.csv written → {resp_path}")
+    return resp_path
+
+
+def score_from_responses_csv(csv_path: str, config: Config) -> pd.DataFrame:
+    """Re-evaluate from a persisted responses.csv WITHOUT a generation model.
+
+    Loads pre-generated responses (Layer B), runs only the scoring metrics
+    (embedder / judge / NLI / ROUGE), and writes scored_samples.csv
+    incrementally (flush+fsync per group, resume-safe). The subject model is
+    never loaded — the cheap, crash-safe re-evaluation path.
+    """
+    grouped = csv_io.read_responses_grouped(csv_path)
+    scored_path = os.path.join(config.results_dir, "scored_samples.csv")
+    done = csv_io.existing_scored_keys(scored_path)
+    pending = {k: v for k, v in grouped.items() if k not in done}
+    print(f"Scoring {len(pending)}/{len(grouped)} groups from {csv_path} "
+          f"({len(done)} already done) — no generation model")
+    os.makedirs(config.results_dir, exist_ok=True)
+    writer = csv_io.IncrementalCSVWriter(scored_path, csv_io.SCORED_COLS, resume=True)
+    rows = []
+    for (model, inst), sample in pending.items():
+        try:
+            r = evaluate_sample(sample, config, model_interface=None, cache_manager=None)
+            row = csv_io.scored_row_from_result(r)
+            writer.write_rows([row])   # flush + fsync per group
+            rows.append(row)
+        except Exception as e:
+            logger.error(f"Error scoring {model}/{inst}: {e}")
+    writer.close()
+    print(f"💾 scored_samples.csv updated → {scored_path}")
+    return pd.DataFrame(rows)
 

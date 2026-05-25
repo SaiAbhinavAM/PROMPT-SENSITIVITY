@@ -34,6 +34,7 @@ from .branching_factor import compute_branching_factor
 from .pri_calculator import compute_pri
 from .attribution_matrix import compute_attribution_matrix
 from .cache_manager import CacheManager
+from . import scores as _scores
 
 # Advanced metrics (STEP 1, 2, 4, 5, 7)
 from .metrics_advanced import (
@@ -77,120 +78,134 @@ def _compute_final_score(pri: float, human_score: float, config: Config, usd_val
         # When PRI and human diverge (high USD), shift trust toward human judgment
         trust_human = min(0.7, config.final_score_human_weight + 0.3 * usd_val)
         trust_pri = 1.0 - trust_human
-        final = trust_pri * pri + trust_human * human_score
-    else:
-        final = config.final_score_pri_weight * pri + config.final_score_human_weight * human_score
+        return max(0.0, min(1.0, trust_pri * pri + trust_human * human_score))
 
-    return max(0.0, min(1.0, final))
+    return _scores.compute_final_static(
+        pri, human_score, config.final_score_pri_weight, config.final_score_human_weight
+    )
 
 
 def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterface, cache_manager: CacheManager) -> Dict:
-    """Run the full evaluation pipeline for a single sample."""
+    """Run the full evaluation pipeline for a single sample.
+
+    Generation vs scoring: if ``sample['precomputed_responses']`` is present
+    (loaded from responses.csv), generation is SKIPPED and the sample is scored
+    directly — so re-evaluation needs no generation model. In that mode
+    ``model_interface`` may be None; the model-internal PPL/BF diagnostics are
+    then skipped (they are IFI-only and never enter PRI).
+    """
     input_text = sample["input_text"]
     reference = sample.get("reference_output", "")
-    model_name = model_interface.model_name
+    model_name = sample.get("model") or (model_interface.model_name if model_interface else "unknown")
+    instance_id = sample.get("instance_id", "")
+    topic_label = sample.get("topic_label", sample.get("task", ""))
+    strategies = sample.get("strategies")
 
-    # 1. Generate prompt variants
-    # For now, we flatten the d1, d2, d3 hierarchy so it works seamlessly 
-    # with the rest of the metrics until AUC-E's custom integration is run.
-    prompt_groups = generate_prompt_variants(input_text, max_per_level=None)
-    prompts = flatten_prompt_variants(prompt_groups)
-    
-    total_prompts = sum(len(p) for p in prompt_groups.values())
-    print(f"Total prompts generated: {total_prompts}")
+    # 1. Obtain prompt variants.
+    # Rectification R1 (close the loop): if the sample carries real GenSens
+    # paraphrase variants, evaluate against THOSE. Only fall back to the
+    # synthetic d1/d2/d3 templates when no variants are supplied (legacy JSON).
+    provided_variants = sample.get("prompt_variants")
+    if provided_variants:
+        prompts = list(provided_variants)
+        print(f"Using {len(prompts)} GenSens paraphrase variants")
+    else:
+        prompt_groups = generate_prompt_variants(input_text, max_per_level=None)
+        prompts = flatten_prompt_variants(prompt_groups)
+        print(f"Total prompts generated: {len(prompts)} (synthetic d1/d2/d3)")
 
-    # 2. Generate model responses (with caching)
-    responses = []
-    uncached_indices = []
-    uncached_prompts = []
-    
-    for i, p in enumerate(prompts):
-        cached_resp = cache_manager.get("resp", model=model_name, prompt=p)
-        if cached_resp:
-            responses.append(cached_resp)
-        else:
-            responses.append(None) # Placeholder
-            uncached_indices.append(i)
-            uncached_prompts.append(p)
-            
-    if uncached_prompts:
-        batch_responses = model_interface.generate_responses(uncached_prompts)
-        for idx, p, r in zip(uncached_indices, uncached_prompts, batch_responses):
-            cache_manager.set(r, "resp", model=model_name, prompt=p)
-            responses[idx] = r
+    # 2. Obtain model responses.
+    precomputed = sample.get("precomputed_responses")
+    if precomputed is not None:
+        # Score-from-CSV mode: responses already generated on the H100.
+        responses = list(precomputed)
+    else:
+        responses = []
+        uncached_indices = []
+        uncached_prompts = []
+        for i, p in enumerate(prompts):
+            cached_resp = cache_manager.get("resp", model=model_name, prompt=p) if cache_manager else None
+            if cached_resp:
+                responses.append(cached_resp)
+            else:
+                responses.append(None)  # Placeholder
+                uncached_indices.append(i)
+                uncached_prompts.append(p)
+        if uncached_prompts:
+            batch_responses = model_interface.generate_responses(uncached_prompts)
+            for idx, p, r in zip(uncached_indices, uncached_prompts, batch_responses):
+                if cache_manager:
+                    cache_manager.set(r, "resp", model=model_name, prompt=p)
+                responses[idx] = r
 
-    # 3. Compute core ORI metrics (preserved from original)
-    # Embeddings for SMS and advanced metrics
+    # 3. Compute consistency / quality / drift metrics.
     embedder = EmbeddingHelper()
     embeddings = embedder.encode(responses)
-    
+
+    # R6: the canonical TRD is embedding-based semantic drift, not length variance.
+    trd_semantic = compute_trd_semantic(responses, embedder=embedder)
+    trd_length = compute_trd_metric(responses)  # retained as a diagnostic only
+
+    # R3: the canonical KPIG is reference-coverage (non-collinear with SMS).
+    # The old cosine KPIG duplicated SMS and is no longer a score component.
+    kpig_coverage = compute_kpig_advanced(
+        prompts, responses, reference=reference, embedder=embedder
+    )
+
     metrics = {
         "sms": compute_sms_metric(embeddings),
         "auc_e": compute_auc_e_metric(reference, responses),
-        "trd": compute_trd_metric(responses),
-        "kpig": compute_kpig_metric(prompts, responses),
-        "ppl_var": compute_ppl_variance(prompts, responses, model_interface),
-        "bf": compute_branching_factor(responses, model_interface),
+        "trd": trd_semantic,        # canonical TRD = semantic drift (R6)
+        "kpig": kpig_coverage,      # canonical KPIG = reference coverage (R3)
+        # PPL variance & branching factor are INTRA-MODEL diagnostics (R6):
+        # they are model-internal and NOT comparable across architectures, so
+        # they feed IFI only and never the cross-model PRI ranking. Skipped in
+        # score-from-CSV mode (no generation model available).
+        "ppl_var": compute_ppl_variance(prompts, responses, model_interface) if model_interface else 0.0,
+        "bf": compute_branching_factor(responses, model_interface) if model_interface else 0.0,
     }
 
-    # 3b. Compute advanced metrics (STEPS 1, 2, 4)
-    advanced_metrics = {}
-    if config.enable_advanced_metrics:
-        # STEP 1: Semantic TRD (embedding-based topic drift)
-        advanced_metrics["trd_semantic"] = compute_trd_semantic(responses, embedder=embedder)
+    advanced_metrics = {
+        "trd_semantic": trd_semantic,
+        "kpig_advanced": kpig_coverage,
+    }
+    # R3: SMS_Wasserstein removed — it was ~0.98 collinear with SMS.
 
-        # STEP 2: Wasserstein SMS (approximate Earth-Mover's Distance)
-        advanced_metrics["sms_wasserstein"] = compute_sms_wasserstein(embeddings)
-
-        # STEP 4: Advanced KPIG (semantic information gain with redundancy penalty)
-        advanced_metrics["kpig_advanced"] = compute_kpig_advanced(
-            prompts, responses, reference=reference, embedder=embedder
-        )
-
-    # 4. Correctness score & Normalizations
+    # 4. Quality (CS) vs reference — kept INDEPENDENT of consistency and
+    # faithfulness (R3/R4): no KPIG multiplier, no hallucination multiplier.
     from .correctness_metric import compute_correctness
-    
+
     correctness = compute_correctness(responses, reference, embeddings, embedder)
-    cs_score = correctness["cs_score"]
+    cs_score = max(0.0, min(1.0, correctness["cs_score"]))
     flags = correctness["flags"]
     avg_len = correctness.get("avg_length", 0.0)
     avg_cov = correctness.get("avg_coverage", 0.0)
-    
-    # Strengthen KPIG influence
-    kpig_score = metrics["kpig"]
-    cs_score = cs_score * (0.5 + 0.5 * kpig_score)
-    cs_score = max(0.0, min(1.0, cs_score))
-    
-    # 5. Hallucination Metric
+
+    # 5. Hallucination Score — DIAGNOSTIC ONLY now (R4). It is no longer
+    # multiplied into CS nor used as a PRI override; faithfulness is the single
+    # faithfulness signal in PRI.
     from .hallucination_metric import compute_hallucination_score
-    hs_score = compute_hallucination_score(responses, input_text)
-    hs_score = max(0.0, min(1.0, hs_score))
-    
-    # Fix hallucination leakage into CS
-    cs_score = cs_score * math.exp(-1.5 * hs_score)
-    cs_score = max(0.0, min(1.0, cs_score))
-    
-    # New Interpretable PRI definitions
-    consistency_score = metrics["sms"]
-    consistency_score = max(0.0, min(1.0, consistency_score))
-        
+    hs_score = max(0.0, min(1.0, compute_hallucination_score(responses, input_text, reference=reference)))
+
+    # 6. Faithfulness axis (R3) — NLI entailment of each response by the source.
+    # Falls back to the legacy (1 - HS) bag-of-words signal if NLI is unavailable.
+    from .faithfulness_metric import compute_faithfulness
+    faithfulness = compute_faithfulness(responses, input_text)
+    if faithfulness is None:
+        faithfulness = 1.0 - hs_score
+    faithfulness = max(0.0, min(1.0, faithfulness))
+
+    # 7. PRI from three non-collinear axes (R3):
+    #   consistency (SMS) ⟂ quality (CS vs reference) ⟂ faithfulness (NLI)
+    consistency_score = max(0.0, min(1.0, metrics["sms"]))
     correctness_score = cs_score
-    
-    # Calculate penalized robustness
-    pri = (0.40 * consistency_score) + (0.35 * correctness_score) + (0.25 * math.exp(-hs_score))
-        
-    # Add strict hallucination override to PRI
-    if hs_score > 0.5:
-        pri *= 0.6
-        
-    # Penalize too-short outputs
-    if avg_len < 12:
-        pri *= 0.85
-        
-    pri = max(0.0, min(1.0, pri))
-    
+
+    # Canonical PRI formula (single source of truth in src/scores.py; mirrored
+    # by reaggregate.py). Short-output gate applied inside compute_pri.
+    pri = _scores.compute_pri(consistency_score, correctness_score, faithfulness, avg_len)
+
     # Calculate confidence score
-    confidence = (consistency_score + correctness_score + (1.0 - hs_score)) / 3.0
+    confidence = (consistency_score + correctness_score + faithfulness) / 3.0
     
     # Final labels
     label = "Unreliable"
@@ -222,12 +237,11 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
     iPRI = pri * cs_score
     iPRI = max(0.0, min(1.0, iPRI))
     
-    # 6. LLM-as-a-Judge (Human_Score approximation)
-    from .llm_judge import llm_judge, parse_judge_output
-    # Use best summary (first variant) to save compute
-    best_summary = responses[0]
-    judge_output = llm_judge(input_text, best_summary)
-    human_score = parse_judge_output(judge_output)
+    # 6. LLM-as-a-Judge (Human_Score approximation).
+    # R5: judge ALL prompt variants and average — the quality signal must span
+    # every variant, not just responses[0]. Uses flan-t5-large (see llm_judge).
+    from .llm_judge import llm_judge_mean
+    human_score = llm_judge_mean(input_text, responses)
 
     # STEP 5: Utility-Stability Divergence
     usd_val = compute_usd(pri, human_score)
@@ -235,13 +249,11 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
     # STEP 8: Final score with optional dynamic weighting
     final_score = _compute_final_score(pri, human_score, config, usd_val)
 
-    # Calculate IFI (Intrinsic Fidelity Index)
-    # High fidelity = low perplexity variance & low branching uncertainty
-    ifi_score = max(0.0, min(1.0, 1.0 - ((metrics["ppl_var"] + metrics["bf"]) / 2.0)))
-    
-    # Calculate ORI (Observable Robustness Index)
-    # Combines structural/observable metrics: SMS, AUC_E, KPIG (higher is better), and TRD (lower is better => 1.0 - trd)
-    ori_score = max(0.0, min(1.0, (metrics["sms"] + metrics["auc_e"] + (1.0 - metrics["trd"]) + metrics["kpig"]) / 4.0))
+    # IFI — INTRA-MODEL diagnostic only (R6); not for cross-model ranking.
+    ifi_score = _scores.compute_ifi(metrics["ppl_var"], metrics["bf"])
+
+    # ORI — observable robustness (canonical formula in src/scores.py).
+    ori_score = _scores.compute_ori(metrics["sms"], metrics["auc_e"], metrics["trd"], metrics["kpig"])
 
     # STEP 7: Baseline metrics (ROUGE, BERTScore)
     rouge_scores = {}
@@ -253,7 +265,7 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
     if config.enable_bertscore:
         bertscore_scores = compute_bertscore(responses, reference)
 
-    print(f"[{label}] PRI: {pri:.3f} | ORI: {ori_score:.3f} | IFI: {ifi_score:.3f} | Consistency: {consistency_score:.3f} | Correctness (CS): {correctness_score:.3f} | Hallucination (HS): {hs_score:.3f} | Human Score: {human_score:.3f} | Final: {final_score:.3f}")
+    print(f"[{label}] PRI: {pri:.3f} | ORI: {ori_score:.3f} | IFI: {ifi_score:.3f} | Consistency: {consistency_score:.3f} | Correctness (CS): {correctness_score:.3f} | Faithfulness: {faithfulness:.3f} | HS(diag): {hs_score:.3f} | Human Score: {human_score:.3f} | Final: {final_score:.3f}")
     if interpretability_logs:
         for ilog in interpretability_logs:
             print(f"      -> {ilog}")
@@ -262,9 +274,8 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
     # Log advanced metrics if available
     if advanced_metrics:
         trd_s = advanced_metrics.get('trd_semantic', 0.0)
-        sms_w = advanced_metrics.get('sms_wasserstein', 0.0)
         kpig_a = advanced_metrics.get('kpig_advanced', 0.0)
-        print(f"      [Advanced] TRD_sem: {trd_s:.3f} | SMS_W: {sms_w:.3f} | KPIG_adv: {kpig_a:.3f} | USD: {usd_val:.3f}")
+        print(f"      [Advanced] TRD_sem: {trd_s:.3f} | KPIG_adv: {kpig_a:.3f} | Faithfulness: {faithfulness:.3f} | USD: {usd_val:.3f}")
 
     if rouge_scores:
         print(f"      [ROUGE] R1: {rouge_scores.get('rouge1', 0):.3f} | R2: {rouge_scores.get('rouge2', 0):.3f} | RL: {rouge_scores.get('rougeL', 0):.3f}")
@@ -276,6 +287,9 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
         "input_text": input_text,
         "reference_output": reference,
         "model": model_name,
+        "instance_id": instance_id,
+        "topic_label": topic_label,
+        "strategies": strategies,
         "prompts": prompts,
         "responses": responses,
         "metrics": metrics,
@@ -290,10 +304,11 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
         "bf": metrics["bf"],
         "cs": cs_score,
         "hs_score": hs_score,
+        "faithfulness": faithfulness,
+        "trd_length": trd_length,
         "human_score": human_score,
         "final_score": final_score,
-        # Advanced metrics (STEP 1, 2, 4, 5)
-        "sms_wasserstein": advanced_metrics.get("sms_wasserstein", 0.0),
+        # Advanced / de-collinearized metrics (R3)
         "trd_semantic": advanced_metrics.get("trd_semantic", 0.0),
         "kpig_advanced": advanced_metrics.get("kpig_advanced", 0.0),
         "usd": usd_val,

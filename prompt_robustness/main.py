@@ -30,9 +30,34 @@ def main():
     parser.add_argument("--enable-bertscore", action="store_true", help="Enable BERTScore computation")
     parser.add_argument("--no-rouge", action="store_true", help="Disable ROUGE computation")
     parser.add_argument("--no-correlation", action="store_true", help="Disable correlation analysis")
-    
+    parser.add_argument("--responses-csv", type=str, default=None,
+                        help="Score from a persisted responses.csv (Layer B) WITHOUT loading any generation model")
+    parser.add_argument("--generate-only", action="store_true",
+                        help="GENERATE-ONLY: load just the subject model(s), write responses.csv, no scoring (single-card safe)")
+
     args = parser.parse_args()
     config = Config()
+    if args.models:
+        config.models = args.models
+    if args.dataset:
+        config.data_path = args.dataset
+
+    # Generate-only path: subject model only, crash-safe incremental responses.csv.
+    if args.generate_only:
+        from src.benchmark import generate_responses_to_csv
+        print(f"✍️  Generate-only: models={config.models}")
+        generate_responses_to_csv(config)
+        print("✅ responses.csv written. Next: score with  python main.py --responses-csv results/responses.csv")
+        return
+
+    # Cheap re-evaluation path: score pre-generated responses, no generation model.
+    if args.responses_csv:
+        from src.benchmark import score_from_responses_csv
+        print(f"🔁 Scoring from {args.responses_csv} (no generation model)")
+        score_from_responses_csv(args.responses_csv, config)
+        print("✅ Wrote results/scored_samples.csv")
+        print("   Run `python reaggregate.py` for composite PRI/ORI/Final tables (no GPU).")
+        return
     
     if args.models:
         config.models = args.models
@@ -133,7 +158,7 @@ def main():
             plt.close()
 
         # 4. Advanced metrics plots (if available)
-        adv_plot_metrics = ["SMS_Wasserstein", "TRD_Semantic", "KPIG_Advanced", "USD"]
+        adv_plot_metrics = ["Faithfulness", "TRD_Semantic", "KPIG_Advanced", "USD"]
         for metric in adv_plot_metrics:
             if metric in results_df.columns:
                 plt.figure()

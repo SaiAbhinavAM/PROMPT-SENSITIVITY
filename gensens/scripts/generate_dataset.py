@@ -81,10 +81,40 @@ def save_checkpoint(records: List[Dict[str, Any]], checkpoint_path: str):
 
 
 def save_final(records: List[Dict[str, Any]], output_path: str):
-    """Save final output as JSONL."""
+    """Save final output as JSONL, plus a flat CSV alongside it.
+
+    The CSV (one row per variant) lets the dataset be loaded for evaluation
+    without re-running generation. Article/summary text is quoted by csv so
+    commas/quotes/newlines round-trip losslessly.
+    """
+    import csv as _csv
     with open(output_path, "w") as f:
         for record in records:
             f.write(json.dumps(record) + "\n")
+
+    csv_path = output_path.rsplit(".", 1)[0] + ".csv"
+    cols = ["instance_id", "task", "variant_idx", "strategy", "base_text",
+            "paraphrased_text", "sbert_similarity", "full_prompt",
+            "input_text", "reference_output"]
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        w = _csv.DictWriter(f, fieldnames=cols, quoting=_csv.QUOTE_MINIMAL)
+        w.writeheader()
+        for rec in records:
+            meta = rec.get("metadata", {})
+            for v in rec.get("variants", []) or []:
+                w.writerow({
+                    "instance_id": rec.get("instance_id", ""),
+                    "task": rec.get("task", ""),
+                    "variant_idx": v.get("variant_idx", 0),
+                    "strategy": v.get("strategy", ""),
+                    "base_text": rec.get("base_text", ""),
+                    "paraphrased_text": v.get("paraphrased_text", ""),
+                    "sbert_similarity": v.get("sbert_similarity", 0.0),
+                    "full_prompt": v.get("full_prompt", ""),
+                    "input_text": meta.get("article", ""),
+                    "reference_output": meta.get("gold_summary", ""),
+                })
+    logging.getLogger(__name__).info(f"  Also wrote flat CSV: {csv_path}")
 
 
 def compute_stats(all_records: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
@@ -279,12 +309,25 @@ def main():
         "--model",
         type=str,
         default="local",
-        choices=["local", "llama"],
+        choices=["local", "llama", "vllm"],
         help=(
-            "'local' = google/flan-t5-large (CPU/MPS, development on Mac); "
-            "'llama' = Meta-Llama-3.1-8B-Instruct (H100, production)"
+            "'local' = google/flan-t5-large (CPU/MPS, dev on Mac); "
+            "'llama' = HF transformers Llama (single-seq, slow); "
+            "'vllm'  = batched vLLM generator (H100; use --model-id + --quantization)"
         ),
     )
+    parser.add_argument("--model-id", type=str, default=None,
+                        help="HF repo id for the vLLM backend (e.g. an AWQ-INT4 70B repo)")
+    parser.add_argument("--quantization", type=str, default=None,
+                        help="vLLM quantization, e.g. awq_marlin / gptq_marlin (None for bf16)")
+    parser.add_argument("--similarity-threshold", type=float, default=0.82,
+                        help="lower SBERT band edge")
+    parser.add_argument("--similarity-upper", type=float, default=0.98,
+                        help="upper SBERT band edge (reject near-identical)")
+    parser.add_argument("--max-token-overlap", type=float, default=0.85,
+                        help="reject candidates above this lexical (Jaccard) overlap")
+    parser.add_argument("--max-per-strategy", type=int, default=2,
+                        help="cap variants contributed by any single strategy")
     args = parser.parse_args()
 
     # Paths
@@ -316,7 +359,15 @@ def main():
     # Load paraphrase generator ONCE (shared across all tasks)
     logger.info(f"Initializing ParaphraseGenerator (backend={args.model})...")
     t_init    = time.time()
-    generator = ParaphraseGenerator(model_backend=args.model)
+    generator = ParaphraseGenerator(
+        model_backend=args.model,
+        similarity_threshold=args.similarity_threshold,
+        similarity_upper=args.similarity_upper,
+        max_token_overlap=args.max_token_overlap,
+        max_per_strategy=args.max_per_strategy,
+        model_id=args.model_id,
+        quantization=args.quantization,
+    )
     logger.info(f"ParaphraseGenerator initialized in {time.time() - t_init:.1f}s")
 
     # Run each task

@@ -122,31 +122,31 @@ def compute_full_correlation_analysis(all_results: List[Dict]) -> Dict:
     pri_scores = [r.get('pri', 0.0) for r in all_results]
     human_scores = [r.get('human_score', 0.0) for r in all_results]
     cs_scores = [r.get('cs', 0.0) for r in all_results]
-    final_scores = [r.get('final_score', 0.0) for r in all_results]
+    faith_scores = [r.get('faithfulness', 0.0) for r in all_results]
 
     # Extract SMS from nested metrics dict
     sms_scores = [r.get('metrics', {}).get('sms', 0.0) for r in all_results]
     trd_scores = [r.get('metrics', {}).get('trd', 0.0) for r in all_results]
 
     # Advanced metrics (may not be present in all results)
-    sms_w_scores = [r.get('sms_wasserstein', 0.0) for r in all_results]
     trd_sem_scores = [r.get('trd_semantic', 0.0) for r in all_results]
     kpig_adv_scores = [r.get('kpig_advanced', 0.0) for r in all_results]
 
     correlations = {}
 
-    # Core correlations
+    # Core correlations against the human score.
+    # R5: Final_Score is NOT correlated against Human_Score here — Final_Score
+    # CONTAINS Human_Score (0.4 weight), so that correlation is circular and
+    # spuriously inflated. PRI_vs_Human is the honest validity signal.
     metric_pairs = [
         (pri_scores, human_scores, 'PRI', 'Human_Score'),
         (sms_scores, human_scores, 'SMS', 'Human_Score'),
         (cs_scores, human_scores, 'CS', 'Human_Score'),
-        (final_scores, human_scores, 'Final_Score', 'Human_Score'),
+        (faith_scores, human_scores, 'Faithfulness', 'Human_Score'),
         (trd_scores, human_scores, 'TRD', 'Human_Score'),
     ]
 
     # Advanced metric correlations (only if they contain non-zero values)
-    if any(s != 0.0 for s in sms_w_scores):
-        metric_pairs.append((sms_w_scores, human_scores, 'SMS_Wasserstein', 'Human_Score'))
     if any(s != 0.0 for s in trd_sem_scores):
         metric_pairs.append((trd_sem_scores, human_scores, 'TRD_Semantic', 'Human_Score'))
     if any(s != 0.0 for s in kpig_adv_scores):

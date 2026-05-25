@@ -1,10 +1,11 @@
 import os
 from dataclasses import dataclass, field
 from typing import List, Dict
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-# Load all environment variables from .env
-load_dotenv()
+# Load env from the nearest .env walking up from the CWD (repo-root .env works
+# whether run from prompt_robustness/ or elsewhere). Existing env vars win.
+load_dotenv(find_dotenv(usecwd=True))
 
 @dataclass
 class Config:
@@ -13,9 +14,13 @@ class Config:
     device: str = os.getenv("DEVICE", "cpu")
     max_new_tokens: int = int(os.getenv("MAX_NEW_TOKENS", "50"))
     temperature: float = float(os.getenv("TEMPERATURE", "0.7"))
-    
-    # Generation parameters
-    do_sample: bool = True
+
+    # Generation parameters.
+    # Deterministic (greedy) decoding is the default (rectification R2): output
+    # variance across prompt variants must reflect PROMPT sensitivity, not
+    # sampling noise. Set DO_SAMPLE=true only for explicit stochasticity studies.
+    do_sample: bool = os.getenv("DO_SAMPLE", "false").lower() == "true"
+    seed: int = int(os.getenv("SEED", "42"))
     
     # Paths
     base_dir: str = os.path.dirname(os.path.dirname(__file__))

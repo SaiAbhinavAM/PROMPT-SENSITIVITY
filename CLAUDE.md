@@ -138,12 +138,13 @@ Keep these in mind — if any of these change, `method.md` must be updated:
 
 | Formula | Definition | Location |
 |---------|-----------|----------|
-| **PRI** | `0.40 × Consistency + 0.35 × CS + 0.25 × exp(−HS)` | `src/evaluator.py:180` |
+| **PRI** | `0.40 × Consistency(SMS) + 0.35 × Quality(CS) + 0.25 × Faithfulness(NLI)` (R3; CS no longer multiplied by KPIG/HS) | `src/evaluator.py` |
+| **Faithfulness** | NLI `P(entail) + 0.5·P(neutral)` of source→response, mean over variants; fallback `1 − HS` | `src/faithfulness_metric.py` |
 | **Final Score** | `0.6 × PRI + 0.4 × Human_Score` | `src/evaluator.py:82` |
-| **SMS** | `mean(cosine_sim) − 0.5 × Var(embeddings)` | `src/sms_metric.py` |
+| **SMS** | `mean(cosine_sim) − 0.5 × Var(L2_normed_embeddings)` | `src/sms_metric.py` |
 | **TRD** | `Var(lengths) / mean(lengths)²` | `src/trd_metric.py` |
 | **KPIG** | `mean(|facts_i ∩ all_facts| / |all_facts|)` | `src/kpig_metric.py` |
-| **ORI** | `(SMS + AUC-E + (1−TRD) + KPIG) / 4` | `src/evaluator.py:244` |
+| **ORI** | `(SMS + AUC-E + (1−TRD_semantic) + KPIG_coverage) / 4` (R6: TRD=semantic, KPIG=coverage) | `src/evaluator.py` |
 | **IFI** | `1 − (PPL_var + BF) / 2` | `src/evaluator.py:240` |
 | **S(ℓ)** | `Var_k[mean_token_PPL at layer ℓ]` | `src/sensitive_layer.py` |
 | **ℓ*** | `argmax_ℓ [S(ℓ) − S(ℓ−1)]` | `src/sensitive_layer.py` |

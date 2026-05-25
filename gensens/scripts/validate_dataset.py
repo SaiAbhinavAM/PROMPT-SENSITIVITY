@@ -242,12 +242,17 @@ def validate_dataset(
     summary_table = []
 
     for task_name in tasks:
-        # Find the output file
+        # Find the output file (R7: pick the NEWEST matching file by mtime, so a
+        # fresh run is validated instead of an arbitrary stale one).
         pattern = f"gensens_{task_name}_"
-        matching_files = [
-            f for f in os.listdir(data_dir)
-            if f.startswith(pattern) and f.endswith(".jsonl") and "checkpoint" not in f
-        ]
+        matching_files = sorted(
+            [
+                f for f in os.listdir(data_dir)
+                if f.startswith(pattern) and f.endswith(".jsonl") and "checkpoint" not in f
+            ],
+            key=lambda f: os.path.getmtime(os.path.join(data_dir, f)),
+            reverse=True,
+        )
 
         if not matching_files:
             logger.warning(f"No output file found for task '{task_name}' in {data_dir}")

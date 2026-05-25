@@ -207,10 +207,10 @@ def render_advanced_metrics_table(results_df: pd.DataFrame) -> None:
     """
     Render TABLE 2 — Advanced Metrics.
 
-    Columns: Model, SMS_Wasserstein, TRD_Semantic, KPIG_Advanced, USD
+    Columns: Model, Faithfulness, TRD_Semantic, KPIG_Advanced, USD
     Adds ⚠ indicator if KPIG_Advanced > 0.95 (saturation warning).
     """
-    adv_cols = ["SMS_Wasserstein", "TRD_Semantic", "KPIG_Advanced", "USD"]
+    adv_cols = ["Faithfulness", "TRD_Semantic", "KPIG_Advanced", "USD"]
     available = [c for c in adv_cols if c in results_df.columns]
     if not available:
         return
@@ -226,13 +226,13 @@ def render_advanced_metrics_table(results_df: pd.DataFrame) -> None:
             header_style="bold white on dark_blue",
         )
         table.add_column("Model", justify="left", min_width=20)
-        table.add_column("SMS_Wasserstein", justify="center", width=16)
+        table.add_column("Faithfulness", justify="center", width=14)
         table.add_column("TRD_Semantic", justify="center", width=14)
         table.add_column("KPIG_Advanced", justify="center", width=15)
         table.add_column("USD", justify="center", width=8)
 
         for _, row in df.iterrows():
-            sms_w = row.get("SMS_Wasserstein", 0)
+            faith = row.get("Faithfulness", 0)
             trd_s = row.get("TRD_Semantic", 0)
             kpig_a = row.get("KPIG_Advanced", 0)
             usd = row.get("USD", 0)
@@ -247,7 +247,7 @@ def render_advanced_metrics_table(results_df: pd.DataFrame) -> None:
 
             table.add_row(
                 row["Model"],
-                f"[{_score_color(sms_w)}]{_fmt(sms_w)}[/]",
+                f"[{_score_color(faith)}]{_fmt(faith)}[/]",
                 f"[{_score_color(trd_s, invert=True)}]{_fmt(trd_s)}[/]",
                 f"[{kpig_color}]{kpig_str}[/]",
                 f"[{_score_color(usd, invert=True)}]{_fmt(usd)}[/]",
@@ -257,7 +257,7 @@ def render_advanced_metrics_table(results_df: pd.DataFrame) -> None:
         _console.print()
 
     elif HAS_TABULATE:
-        headers = ["Model", "SMS_Wasserstein", "TRD_Semantic", "KPIG_Advanced", "USD"]
+        headers = ["Model", "Faithfulness", "TRD_Semantic", "KPIG_Advanced", "USD"]
         rows = []
         for _, row in df.iterrows():
             kpig_val = row.get("KPIG_Advanced", 0)
@@ -266,7 +266,7 @@ def render_advanced_metrics_table(results_df: pd.DataFrame) -> None:
                 kpig_str += " ⚠"
             rows.append([
                 row["Model"],
-                _fmt(row.get("SMS_Wasserstein", 0)),
+                _fmt(row.get("Faithfulness", 0)),
                 _fmt(row.get("TRD_Semantic", 0)),
                 kpig_str,
                 _fmt(row.get("USD", 0)),
@@ -375,9 +375,8 @@ def render_correlation_table(
         "PRI_vs_Human_Score": "PRI vs Human Score",
         "SMS_vs_Human_Score": "SMS vs Human Score",
         "CS_vs_Human_Score": "CS vs Human Score",
-        "Final_Score_vs_Human_Score": "Final Score vs Human Score",
+        "Faithfulness_vs_Human_Score": "Faithfulness vs Human Score",
         "TRD_vs_Human_Score": "TRD vs Human Score",
-        "SMS_Wasserstein_vs_Human_Score": "SMS Wasserstein vs Human Score",
         "TRD_Semantic_vs_Human_Score": "TRD Semantic vs Human Score",
         "KPIG_Advanced_vs_Human_Score": "KPIG Advanced vs Human Score",
     }

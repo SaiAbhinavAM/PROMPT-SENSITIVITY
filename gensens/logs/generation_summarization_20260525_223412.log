@@ -1,0 +1,102 @@
+2026-05-25 22:34:12,013 [INFO] root: Logging to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/logs/generation_summarization_20260525_223412.log
+2026-05-25 22:34:12,013 [INFO] __main__: ============================================================
+2026-05-25 22:34:12,013 [INFO] __main__: GenSens Dataset Generation Pipeline
+2026-05-25 22:34:12,013 [INFO] __main__:   Task:             summarization
+2026-05-25 22:34:12,013 [INFO] __main__:   Instances/task:   6
+2026-05-25 22:34:12,013 [INFO] __main__:   Variants/inst:    4
+2026-05-25 22:34:12,013 [INFO] __main__:   Seed:             42
+2026-05-25 22:34:12,013 [INFO] __main__:   Checkpoint every: 2
+2026-05-25 22:34:12,013 [INFO] __main__:   Model backend:    local
+2026-05-25 22:34:12,013 [INFO] __main__: ============================================================
+2026-05-25 22:34:12,013 [INFO] __main__: Initializing ParaphraseGenerator (backend=local)...
+2026-05-25 22:34:12,013 [INFO] paraphrase_generator: Loading SBERT model: all-mpnet-base-v2
+2026-05-25 22:34:12,037 [INFO] sentence_transformers.base.model: No device provided, using mps
+2026-05-25 22:34:12,339 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:12,374 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/modules.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:12,606 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:12,640 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:12,642 [INFO] sentence_transformers.base.model: Loading SentenceTransformer model from sentence-transformers/all-mpnet-base-v2.
+2026-05-25 22:34:12,878 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:12,879 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-25 22:34:12,889 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:13,117 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:13,152 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/README.md "HTTP/1.1 200 OK"
+2026-05-25 22:34:13,386 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:13,397 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/modules.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:13,629 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:13,664 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/sentence_bert_config.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:13,901 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-05-25 22:34:14,133 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:14,168 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:14,527 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+2026-05-25 22:34:14,764 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-05-25 22:34:15,000 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-05-25 22:34:15,233 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-05-25 22:34:15,463 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:15,496 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:15,730 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:15,741 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:15,975 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:15,986 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:16,221 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:16,232 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:16,471 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-mpnet-base-v2/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-25 22:34:16,746 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-mpnet-base-v2/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-25 22:34:17,049 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:17,082 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:17,315 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-mpnet-base-v2 "HTTP/1.1 200 OK"
+2026-05-25 22:34:17,836 [INFO] paraphrase_generator:   SBERT loaded.
+2026-05-25 22:34:17,845 [INFO] paraphrase_generator: Loading Flan-T5: google/flan-t5-large
+2026-05-25 22:34:18,176 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/google/flan-t5-large/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:18,209 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/google/flan-t5-large/0613663d0d48ea86ba8cb3d7a44f0f65dc596a2a/config.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:18,443 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/google/flan-t5-large/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:18,688 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/google/flan-t5-large/0613663d0d48ea86ba8cb3d7a44f0f65dc596a2a/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:18,995 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/google/flan-t5-large/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-25 22:34:19,302 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/google/flan-t5-large/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-25 22:34:19,713 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/google/flan-t5-large/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:19,723 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/google/flan-t5-large/0613663d0d48ea86ba8cb3d7a44f0f65dc596a2a/config.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:19,961 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/google/flan-t5-large/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2026-05-25 22:34:20,534 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/google/flan-t5-large/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:20,840 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/google/flan-t5-large/0613663d0d48ea86ba8cb3d7a44f0f65dc596a2a/generation_config.json "HTTP/1.1 200 OK"
+2026-05-25 22:34:23,758 [INFO] paraphrase_generator:   Flan-T5 loaded on mps.
+2026-05-25 22:34:23,758 [INFO] __main__: ParaphraseGenerator initialized in 11.7s
+2026-05-25 22:34:23,758 [INFO] __main__: 
+============================================================
+2026-05-25 22:34:23,758 [INFO] __main__: Starting task: summarization
+2026-05-25 22:34:23,758 [INFO] __main__:   n_instances=6, n_variants=4, seed=42
+2026-05-25 22:34:23,758 [INFO] __main__: ============================================================
+2026-05-25 22:34:23,758 [INFO] data_loaders: Loading CNN/DailyMail dataset...
+2026-05-25 22:34:23,758 [ERROR] datasets.load: `trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'cnn_dailymail' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+2026-05-25 22:34:24,012 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:24,320 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:24,550 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/abisee/cnn_dailymail/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/README.md "HTTP/1.1 200 OK"
+2026-05-25 22:34:24,832 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 307 Temporary Redirect"
+2026-05-25 22:34:25,139 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 404 Not Found"
+2026-05-25 22:34:25,960 [INFO] httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/cnn_dailymail/cnn_dailymail.py "HTTP/1.1 200 OK"
+2026-05-25 22:34:25,978 [WARNING] datasets.load: Using the latest cached version of the dataset since cnn_dailymail couldn't be found on the Hugging Face Hub
+2026-05-25 22:34:25,979 [WARNING] datasets.packaged_modules.cache.cache: Found the latest cached dataset configuration '3.0.0' at /Users/saiabhinav/.cache/huggingface/datasets/cnn_dailymail/3.0.0/0.0.0/96df5e686bee6baa90b8bee7c28b81fa3fa6223d (last modified on Sun Jan 11 18:38:11 2026).
+2026-05-25 22:34:26,158 [INFO] data_loaders:   Loaded 11490 test articles
+2026-05-25 22:34:26,547 [INFO] data_loaders:   Buckets — short(<400): 2545, medium(400-800): 5418, long(>800): 3527
+2026-05-25 22:34:26,550 [INFO] data_loaders:   Loaded 6 summarization instances
+2026-05-25 22:34:26,555 [INFO] __main__: Loaded 6 source instances for 'summarization'
+2026-05-25 22:34:26,555 [INFO] __main__: Found 0 completed instances in checkpoint
+2026-05-25 22:34:33,458 [INFO] paraphrase_generator:   [summ_0000] n_variants=4, mean_sim=0.880, time=6.9s
+2026-05-25 22:34:39,977 [INFO] paraphrase_generator:   [summ_0001] n_variants=4, mean_sim=0.871, time=6.5s
+2026-05-25 22:34:39,978 [INFO] __main__:   ✓ Checkpoint saved at instance 2/6
+2026-05-25 22:34:43,138 [INFO] paraphrase_generator:   [summ_0002] n_variants=4, mean_sim=0.872, time=3.2s
+2026-05-25 22:34:49,044 [INFO] paraphrase_generator:   [summ_0003] n_variants=4, mean_sim=0.859, time=5.9s
+2026-05-25 22:34:49,045 [INFO] __main__:   ✓ Checkpoint saved at instance 4/6
+2026-05-25 22:34:58,558 [INFO] paraphrase_generator:   [summ_0004] n_variants=4, mean_sim=0.880, time=9.5s
+2026-05-25 22:35:08,322 [INFO] paraphrase_generator:   [summ_0005] n_variants=4, mean_sim=0.879, time=9.8s
+2026-05-25 22:35:08,323 [INFO] __main__:   ✓ Checkpoint saved at instance 6/6
+2026-05-25 22:35:08,324 [INFO] __main__: Task 'summarization' completed in 41.8s — 6 records
+2026-05-25 22:35:08,324 [INFO] __main__:   Saved final output to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/gensens_summarization_6inst_4var.jsonl
+2026-05-25 22:35:08,324 [INFO] __main__:   Removed checkpoint: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/gensens_summarization.checkpoint.jsonl
+2026-05-25 22:35:08,325 [INFO] __main__: Stats saved to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/gensens_stats.json
+2026-05-25 22:35:08,326 [INFO] __main__: 
+✓ ALL DONE — Total pipeline time: 44.6s
+2026-05-25 22:35:08,326 [INFO] __main__:   Output files in: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/
+2026-05-25 22:35:08,326 [INFO] __main__:   Total instances: 6
+2026-05-25 22:35:08,326 [INFO] __main__:   Total variants:  24

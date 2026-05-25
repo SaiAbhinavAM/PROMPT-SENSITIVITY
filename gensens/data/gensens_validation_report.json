@@ -1,22 +1,21 @@
 {
   "summarization": {
-    "file": "/Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/gensens_summarization_5inst_4var.jsonl",
-    "n_instances": 5,
-    "total_variants": 26,
+    "file": "/Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/gensens_summarization_6inst_4var.jsonl",
+    "n_instances": 6,
+    "total_variants": 24,
     "passed": true,
-    "n_warnings": 5,
+    "n_warnings": 4,
     "n_errors": 0,
     "warnings": [
-      "[summarization] Instance summ_0001 has 7 variants (expected 4)",
-      "[summarization] Instance summ_0002 has 7 variants (expected 4)",
-      "[summarization] Instance summ_0001 \u2014 mean pairwise edit distance = 9.0 < 10 (low diversity)",
-      "[summarization] Instance summ_0002 \u2014 mean pairwise edit distance = 7.8 < 10 (low diversity)",
-      "[summarization] Instance summ_0000 \u2014 mean pairwise edit distance = 9.7 < 10 (low diversity)"
+      "[summarization] Instance summ_0001 \u2014 mean pairwise edit distance = 7.2 < 10 (low diversity)",
+      "[summarization] Instance summ_0002 \u2014 mean pairwise edit distance = 9.5 < 10 (low diversity)",
+      "[summarization] Instance summ_0003 \u2014 mean pairwise edit distance = 5.0 < 10 (low diversity)",
+      "[summarization] Instance summ_0004 \u2014 mean pairwise edit distance = 9.5 < 10 (low diversity)"
     ],
     "errors": [],
     "similarity_stats": {
-      "mean": 0.8751,
-      "std": 0.033,
+      "mean": 0.8826,
+      "std": 0.0327,
       "min": 0.8202,
       "max": 0.9194,
       "histogram": {
@@ -24,9 +23,9 @@
         "0.70-0.75": 0,
         "0.75-0.80": 0,
         "0.80-0.82": 0,
-        "0.82-0.85": 7,
-        "0.85-0.90": 9,
-        "0.90-0.95": 10,
+        "0.82-0.85": 4,
+        "0.85-0.90": 7,
+        "0.90-0.95": 13,
         "0.95-1.01": 0
       }
     }
@@ -43,10 +42,10 @@
   "_summary": [
     {
       "task": "summarization",
-      "instances": 5,
-      "variants": 26,
+      "instances": 6,
+      "variants": 24,
       "passed": true,
-      "warnings": 5,
+      "warnings": 4,
       "errors": 0
     },
     {

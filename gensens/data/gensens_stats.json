@@ -1,30 +1,30 @@
 {
   "summarization": {
-    "n_instances": 5,
-    "total_variants": 26,
-    "avg_variants_per_instance": 5.2,
+    "n_instances": 2,
+    "total_variants": 8,
+    "avg_variants_per_instance": 4.0,
     "sbert_similarity": {
-      "mean": 0.8751,
-      "std": 0.033,
+      "mean": 0.8585,
+      "std": 0.0308,
       "min": 0.8202,
-      "max": 0.9194,
-      "p25": 0.85,
-      "p75": 0.908
+      "max": 0.9091,
+      "p25": 0.8389,
+      "p75": 0.8658
     },
     "base_text_word_count": {
       "mean": 15.0,
       "std": 0.0
     },
     "variant_word_count": {
-      "mean": 12.77,
-      "std": 2.17
+      "mean": 12.25,
+      "std": 2.11
     }
   },
   "_meta": {
-    "total_time_s": 22.9,
-    "n_instances_per_task": 5,
+    "total_time_s": 16.21,
+    "n_instances_per_task": 2,
     "n_variants": 4,
     "seed": 42,
-    "generated_at": "2026-05-23T19:44:41.195684"
+    "generated_at": "2026-05-26T00:13:13.416346"
   }
 }
