@@ -20,6 +20,8 @@ venv/
 .venv/
 env/
 .env/
+smoke_venv/
+*_venv/
 
 # Jupyter
 .ipynb_checkpoints/
