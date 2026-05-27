@@ -38,29 +38,54 @@ def _is_seq2seq(model_name: str) -> bool:
 
 
 class ModelInterface:
-    def __init__(self, model_name: str, config: Config):
+    def __init__(self, model_name: str, config: Config, quantization: str = None):
         self.config = config
         self.model_name = model_name
+        self.quantization = quantization
         self.is_seq2seq = _is_seq2seq(model_name)
 
-        if torch.backends.mps.is_available():
+        # Device priority: CUDA (H100/A100) → MPS (Apple Silicon) → CPU
+        if torch.cuda.is_available():
+            self.device = torch.device("cuda")
+        elif torch.backends.mps.is_available():
             self.device = torch.device("mps")
         else:
             self.device = torch.device("cpu")
 
-        print(f"\n--- Running model: {model_name} ({'seq2seq' if self.is_seq2seq else 'causal'}) on {self.device} ---")
+        print(f"\n--- Loading: {model_name} ({'seq2seq' if self.is_seq2seq else 'causal'}) "
+              f"on {self.device}{f'  quant={quantization}' if quantization else ''} ---")
 
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            model_name, use_fast=True, padding_side="left"
+        )
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
             self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
 
-        if self.is_seq2seq:
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(self.device)
+        # Build load kwargs — use device_map + bfloat16 on CUDA so large models
+        # (including AWQ-quantized 70B) load efficiently across GPU memory.
+        if torch.cuda.is_available():
+            load_kwargs = {"device_map": "auto", "torch_dtype": "auto"}
         else:
-            self.model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
+            load_kwargs = {}
+
+        if self.is_seq2seq:
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name, **load_kwargs)
+            if not torch.cuda.is_available():
+                self.model = self.model.to(self.device)
+        else:
+            self.model = AutoModelForCausalLM.from_pretrained(model_name, **load_kwargs)
+            if not torch.cuda.is_available():
+                self.model = self.model.to(self.device)
         self.model.eval()
+        print(f"    ✓ {model_name} loaded.")
+
+    @property
+    def _input_device(self):
+        """Device to move input tensors to — cuda:0 for device_map=auto, else self.device."""
+        if torch.cuda.is_available():
+            return torch.device("cuda:0")
+        return self.device
 
     def generate_responses(self, prompts: List[str]) -> List[str]:
         start_t = time.time()
@@ -69,6 +94,11 @@ class ModelInterface:
         for p in prompts:
             if "flan-t5" in self.model_name.lower() and not p.lower().startswith("summarize:"):
                 formatted_prompts.append(f"summarize: {p}")
+            elif hasattr(self.tokenizer, "chat_template") and self.tokenizer.chat_template:
+                msgs = [{"role": "user", "content": p}]
+                formatted_prompts.append(
+                    self.tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+                )
             else:
                 formatted_prompts.append(p)
 
@@ -77,7 +107,7 @@ class ModelInterface:
             return_tensors="pt",
             padding=True,
             truncation=True,
-        ).to(self.device)
+        ).to(self._input_device)
 
         gen_kwargs = dict(
             input_ids=inputs["input_ids"],
@@ -113,8 +143,8 @@ class ModelInterface:
         import math
 
         if self.is_seq2seq:
-            enc = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512).to(self.device)
-            dec = self.tokenizer(response, return_tensors="pt", truncation=True, max_length=512).to(self.device)
+            enc = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512).to(self._input_device)
+            dec = self.tokenizer(response, return_tensors="pt", truncation=True, max_length=512).to(self._input_device)
             if enc["input_ids"].shape[1] == 0 or dec["input_ids"].shape[1] == 0:
                 return None
             with torch.no_grad():
@@ -126,8 +156,8 @@ class ModelInterface:
         else:
             # Causal LM: concatenate prompt + response; labels mask out prompt tokens
             full_text = prompt + " " + response
-            full_enc = self.tokenizer(full_text, return_tensors="pt", truncation=True, max_length=512).to(self.device)
-            prompt_enc = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512).to(self.device)
+            full_enc = self.tokenizer(full_text, return_tensors="pt", truncation=True, max_length=512).to(self._input_device)
+            prompt_enc = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512).to(self._input_device)
             prompt_len = prompt_enc["input_ids"].shape[1]
             labels = full_enc["input_ids"].clone()
             labels[:, :prompt_len] = -100  # ignore prompt tokens in loss
@@ -163,7 +193,7 @@ class ModelInterface:
     def compute_branching_factor(self, responses):
         entropies = []
         for resp in responses:
-            inputs = self.tokenizer(resp, return_tensors="pt").to(self.device)
+            inputs = self.tokenizer(resp, return_tensors="pt").to(self._input_device)
             if inputs["input_ids"].shape[1] == 0:
                 continue
             with torch.no_grad():

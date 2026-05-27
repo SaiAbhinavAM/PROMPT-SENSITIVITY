@@ -1,0 +1,37 @@
+2026-05-27 00:27:44,927 [INFO] root: Logging to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/logs/generation_qa_20260527_002744.log
+2026-05-27 00:27:44,927 [INFO] __main__: ============================================================
+2026-05-27 00:27:44,927 [INFO] __main__: GenSens Dataset Generation Pipeline
+2026-05-27 00:27:44,927 [INFO] __main__:   Task:             qa
+2026-05-27 00:27:44,927 [INFO] __main__:   Instances/task:   4
+2026-05-27 00:27:44,927 [INFO] __main__:   Variants/inst:    4
+2026-05-27 00:27:44,927 [INFO] __main__:   Seed:             42
+2026-05-27 00:27:44,927 [INFO] __main__:   Checkpoint every: 2
+2026-05-27 00:27:44,927 [INFO] __main__:   Model backend:    local
+2026-05-27 00:27:44,927 [INFO] __main__: ============================================================
+2026-05-27 00:27:44,927 [INFO] __main__: Initializing ParaphraseGenerator (backend=local)...
+2026-05-27 00:27:44,927 [INFO] paraphrase_generator: Loading SBERT model: all-mpnet-base-v2
+2026-05-27 00:27:44,943 [INFO] sentence_transformers.base.model: No device provided, using mps
+2026-05-27 00:27:45,476 [INFO] sentence_transformers.base.model: Loading SentenceTransformer model from sentence-transformers/all-mpnet-base-v2.
+2026-05-27 00:27:49,256 [INFO] paraphrase_generator:   SBERT loaded.
+2026-05-27 00:27:49,258 [INFO] paraphrase_generator: Loading Flan-T5: google/flan-t5-large
+2026-05-27 00:27:54,536 [INFO] paraphrase_generator:   Flan-T5 loaded on mps.
+2026-05-27 00:27:54,542 [INFO] __main__: ParaphraseGenerator initialized in 9.6s
+2026-05-27 00:27:54,543 [INFO] __main__: 
+============================================================
+2026-05-27 00:27:54,543 [INFO] __main__: Starting task: qa
+2026-05-27 00:27:54,543 [INFO] __main__:   n_instances=4, n_variants=4, seed=42
+2026-05-27 00:27:54,543 [INFO] __main__: ============================================================
+2026-05-27 00:27:54,543 [INFO] data_loaders: Loading sentence-transformers/eli5 (pair config, train split)...
+2026-05-27 00:27:59,396 [INFO] data_loaders:   Loaded 325475 ELI5 question/answer pairs
+2026-05-27 00:28:07,514 [INFO] data_loaders:   After filtering (5-60 word EN question, ≥10 word answer): 314558
+2026-05-27 00:28:07,589 [INFO] data_loaders:   Loaded 4 QA instances
+2026-05-27 00:28:07,723 [INFO] __main__: Loaded 4 source instances for 'qa'
+2026-05-27 00:28:07,723 [INFO] __main__: Found 0 completed instances in checkpoint
+2026-05-27 00:28:28,381 [INFO] paraphrase_generator:   [qa_0000] Retry 1: 1/4 — trying all strategies again
+2026-05-27 00:28:47,105 [INFO] paraphrase_generator:   [qa_0000] Retry 2: 1/4 — trying all strategies again
+2026-05-27 00:29:03,832 [INFO] paraphrase_generator:   [qa_0000] n_variants=1, mean_sim=0.973, distinct2=0.000, mean_overlap=0.000, n_strategies=1, time=56.1s
+2026-05-27 00:29:16,335 [INFO] paraphrase_generator:   [qa_0001] Retry 1: 2/4 — trying all strategies again
+2026-05-27 00:29:29,126 [INFO] paraphrase_generator:   [qa_0001] Retry 2: 2/4 — trying all strategies again
+2026-05-27 00:29:42,333 [INFO] paraphrase_generator:   [qa_0001] n_variants=2, mean_sim=0.924, distinct2=0.938, mean_overlap=0.286, n_strategies=2, time=38.5s
+2026-05-27 00:29:42,334 [INFO] __main__:   ✓ Checkpoint saved at instance 2/4
+2026-05-27 00:31:05,736 [INFO] paraphrase_generator:   [qa_0002] Retry 1: 0/4 — trying all strategies again

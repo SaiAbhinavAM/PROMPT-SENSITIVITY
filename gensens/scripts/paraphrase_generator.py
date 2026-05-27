@@ -36,21 +36,23 @@ SYSTEM_PROMPTS: Dict[str, str] = {
         "while keeping the exact same meaning and intent. Do NOT change what is being "
         "asked — only change the wording. Return ONLY the rephrased instruction, nothing else."
     ),
-    "code": (
-        "You are a problem statement rewriting assistant. Rephrase coding problem "
-        "descriptions while keeping the exact same functional requirements. The rephrased "
-        "version must ask for the same function behavior. Return ONLY the rephrased problem "
-        "description, nothing else."
-    ),
     "creative": (
-        "You are a creative writing prompt rewriter. Rephrase story prompts while keeping "
-        "the same core scenario and creative direction. Do NOT add major new story elements. "
-        "Return ONLY the rephrased story prompt, nothing else."
+        "You are a text rewriting assistant. Rephrase the following news summary/highlights "
+        "while keeping all the same facts and information intact. Do NOT add, remove, or alter "
+        "any facts — only change the wording and phrasing. Return ONLY the rephrased summary, "
+        "nothing else."
     ),
     "dialogue": (
-        "You are a dialogue rewriting assistant. Rephrase user questions while keeping the "
-        "exact same intent and information being requested. Return ONLY the rephrased "
-        "question, nothing else."
+        "You are a question rewriting assistant. Rephrase the reading-comprehension question "
+        "while keeping the exact same intent and the exact same information being requested. "
+        "Do NOT change what is being asked — only change the wording. Return ONLY the "
+        "rephrased question, nothing else."
+    ),
+    "qa": (
+        "You are a question rewriting assistant. Rephrase the question while keeping the "
+        "exact same information need and intent, so the same answer would still be correct. "
+        "Do NOT change what is being asked — only change the wording. Return ONLY the "
+        "rephrased question, nothing else."
     ),
 }
 
@@ -94,9 +96,9 @@ assert len(STRATEGY_INSTRUCTIONS) == len(STRATEGY_NAMES) == 16
 def _build_flan_prompt(task: str, base_text: str, strategy_instruction: str) -> str:
     task_context = {
         "summarization": "a summarization instruction",
-        "code":          "a coding problem description",
-        "creative":      "a creative writing prompt",
-        "dialogue":      "a user dialogue question",
+        "creative":      "a news summary/highlights",
+        "dialogue":      "a reading-comprehension question",
+        "qa":            "a question",
     }.get(task, "a text")
 
     return (
@@ -350,6 +352,133 @@ class ParaphraseGenerator:
         if self.backend == "vllm":
             return self._generate_single_vllm(task, base_text, strategy_instruction)
         return self._generate_single_llama(task, base_text, strategy_instruction)
+
+    # ── Summarization instruction pool ───────────────────────
+
+    def generate_instruction_pool(
+        self,
+        n: int,
+        canonical_instruction: str,
+        logger: Optional[logging.Logger] = None,
+    ) -> List[str]:
+        """Generate n unique summarization instructions using the configured backend.
+
+        llama/vllm → single freeform LLM call (open-source model on H100, fast).
+        local       → strategy-based paraphrase fallback (Flan-T5 on CPU/MPS).
+        The canonical instruction is always index 0 in the returned pool.
+        """
+        _log = logger or logging.getLogger(__name__)
+        if self.backend == "local":
+            return self._instruction_pool_strategies(n, canonical_instruction, _log)
+        return self._instruction_pool_freeform(n, canonical_instruction, _log)
+
+    def _instruction_pool_freeform(
+        self, n: int, canonical: str, log: logging.Logger
+    ) -> List[str]:
+        """Ask the open-source LLM for n diverse instructions in a single call."""
+        from sentence_transformers import util as _st_util
+
+        prompt_text = (
+            f"Generate {n} distinct instructions for asking someone to summarize a news "
+            "article in 3-4 sentences, capturing the main events and key details. "
+            "Vary the wording, tone, and sentence structure (formal, casual, imperative, "
+            "question-form, passive, etc.). "
+            "Output ONLY the instructions, one per line, with no numbering, bullets, or extra text."
+        )
+        messages = [
+            {"role": "system", "content": "You generate diverse rewordings of task instructions."},
+            {"role": "user",   "content": prompt_text},
+        ]
+
+        if self.backend == "vllm":
+            full_prompt = self.tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
+            sp = self._SamplingParams(temperature=0.9, top_p=0.95, max_tokens=n * 25, seed=42)
+            raw = self.llm.generate([full_prompt], sp)[0].outputs[0].text
+        else:  # llama
+            input_ids = self.tokenizer.apply_chat_template(
+                messages, return_tensors="pt", add_generation_prompt=True
+            )
+            input_len = input_ids.shape[1]
+            device = next(self.model.parameters()).device
+            with torch.no_grad():
+                out = self.model.generate(
+                    input_ids.to(device),
+                    max_new_tokens=n * 25,
+                    temperature=0.9,
+                    top_p=0.95,
+                    do_sample=True,
+                    pad_token_id=self.tokenizer.pad_token_id,
+                )
+            raw = self.tokenizer.decode(out[0][input_len:], skip_special_tokens=True)
+
+        # Parse: strip leading numbers/bullets, keep lines with ≥5 words
+        candidates: List[str] = []
+        for line in raw.split("\n"):
+            line = re.sub(r'^\s*\d+[.)]\s*', '', line)
+            line = re.sub(r'^\s*[-*•]\s*', '', line).strip()
+            if len(line.split()) >= 5:
+                candidates.append(line)
+
+        # SBERT filter: similarity band [threshold, upper] relative to canonical
+        pool: List[str] = [canonical]
+        seen: set = {self._first_n_words_sig(canonical)}
+        canon_emb = self.sbert.encode(canonical, convert_to_tensor=True)
+        for cand in candidates:
+            if len(pool) >= n:
+                break
+            sig = self._first_n_words_sig(cand)
+            if sig in seen:
+                continue
+            emb = self.sbert.encode(cand, convert_to_tensor=True)
+            sim = float(_st_util.cos_sim(canon_emb, emb).item())
+            if self.similarity_threshold <= sim <= self.similarity_upper:
+                if self._token_overlap(cand, canonical) <= self.max_token_overlap:
+                    pool.append(cand)
+                    seen.add(sig)
+
+        log.info(
+            f"  Freeform instruction pool: {len(pool)} passed SBERT filter "
+            f"({len(candidates)} lines parsed from LLM output)"
+        )
+
+        if len(pool) < n:
+            log.warning(
+                f"  Freeform pool too small ({len(pool)} < {n}); "
+                "supplementing with strategy-based generation."
+            )
+            supplement = self._instruction_pool_strategies(n - len(pool), canonical, log)
+            for s in supplement:
+                if len(pool) >= n:
+                    break
+                sig = self._first_n_words_sig(s)
+                if sig not in seen:
+                    pool.append(s)
+                    seen.add(sig)
+
+        return pool
+
+    def _instruction_pool_strategies(
+        self, n: int, canonical: str, log: logging.Logger
+    ) -> List[str]:
+        """Strategy-based fallback: paraphrase the canonical instruction 16-way."""
+        dummy = {
+            "instance_id": "_summ_instr_pool",
+            "task":        "summarization",
+            "base_text":   canonical,
+            "base_prompt": canonical,
+            "metadata":    {},
+        }
+        orig_max = self.max_per_strategy
+        self.max_per_strategy = max(orig_max, (n // len(STRATEGY_INSTRUCTIONS)) + 2)
+        try:
+            paraphrases = self.generate_paraphrases(dummy, n_variants=n - 1, max_retries=5)
+        finally:
+            self.max_per_strategy = orig_max
+        pool = [canonical] + [p["paraphrased_text"] for p in paraphrases]
+        log.info(f"  Strategy instruction pool: {len(pool)} generated (target={n})")
+        return pool
 
     # ── SBERT helpers ─────────────────────────────────────────
 

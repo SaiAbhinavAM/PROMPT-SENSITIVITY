@@ -8,11 +8,13 @@ pipeline for each article:
   1. Detect sensitive layer ℓ* via S(ℓ) curve
   2. Identify anchor tokens at ℓ*
   3. Compute consensus hidden state across K variants
-  4. Generate PIRC-stabilized output
+  4. Generate PIRC-stabilized outputs for every paraphrase variant
+  5. Compute real post-PIRC ROUGE-L variance across variants
 
-Auto-retry logic:
-- If ROUGE-L variance reduction < 10%, retry with τ ∈ [1.5, 2.0, 3.0]
-- If mean ROUGE-L drops > 2 points, switch to soft clamping (α=0.5)
+Hyperparameters:
+- Test-time per-article ROUGE selection is disabled. Use fixed alpha/tau from
+  config, or set pirc_selection.dev_tune_articles > 0 to choose alpha/tau on a
+  held-out dev prefix before evaluating the remaining articles.
 
 Saves results to results/pirc.json
 
@@ -29,7 +31,7 @@ import time
 import logging
 import argparse
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 
 import yaml
 import torch
@@ -133,6 +135,160 @@ def format_prompt(instruction: str, article: str, config: dict) -> str:
     return template.format(instruction=instruction, article=article[:2000])
 
 
+def load_article_text(config: dict, article_idx: int) -> str:
+    """Load the article text for one baseline article index."""
+    from datasets import load_dataset
+
+    dataset = load_dataset(
+        config['experiment']['dataset_name'],
+        config['experiment']['dataset_config'],
+        split=f"test[{article_idx}:{article_idx+1}]"
+    )
+    return dataset[0]['article']
+
+
+def build_prompts_from_baseline_result(br: Dict, config: dict) -> List[str]:
+    """Reconstruct full prompts for the paraphrase instructions in baseline.json."""
+    article_text = load_article_text(config, br['article_idx'])
+    return [
+        format_prompt(instr, article_text, config)
+        for instr in br['paraphrase_instructions']
+    ]
+
+
+def score_outputs_rouge_l(outputs: List[str], gold_summary: str) -> List[float]:
+    """Compute ROUGE-L for each output against the gold summary."""
+    return [compute_rouge_l(output or "", gold_summary) for output in outputs]
+
+
+def run_pirc_for_article(
+    pirc_generator,
+    prompts: List[str],
+    gold_summary: str,
+    tau: float,
+    alpha: float,
+) -> Dict:
+    """Run PIRC for all variants and return scored per-variant outputs."""
+    pirc_result = pirc_generator.run_pipeline_all_variants(
+        paraphrases=prompts,
+        tau_override=tau,
+        alpha_override=alpha,
+    )
+    outputs = pirc_result.get('outputs', [])
+    rouge_scores = score_outputs_rouge_l(outputs, gold_summary)
+    rouge_mean = float(np.mean(rouge_scores)) if rouge_scores else None
+    rouge_var = float(np.var(rouge_scores)) if rouge_scores else None
+
+    return {
+        'pirc_outputs': outputs,
+        'pirc_rouge_scores': rouge_scores,
+        'pirc_rouge_mean': rouge_mean,
+        'pirc_rouge_var': rouge_var,
+        'ell_star': pirc_result['ell_star'],
+        'S_curve': pirc_result['S_curve'],
+        'num_anchors': pirc_result['num_anchors'],
+        'anchor_fraction': pirc_result['anchor_fraction'],
+        'alpha_used': pirc_result['alpha_used'],
+        'tau_used': pirc_result['tau_used'],
+    }
+
+
+def resolve_pirc_hyperparams(
+    config: dict,
+    baseline_results: List[Dict],
+    pirc_generator,
+    dry_run: bool = False,
+) -> Tuple[float, float, int, List[Dict]]:
+    """Resolve alpha/tau without using test-set ROUGE for per-article selection.
+
+    By default, this returns fixed config values. If
+    pirc_selection.dev_tune_articles > 0, the first N baseline articles are used
+    as a dev prefix to choose one global alpha/tau pair; those dev articles are
+    then excluded from the final evaluation set.
+    """
+    selection_cfg = config.get('pirc_selection', {}) or {}
+    tau_candidates = selection_cfg.get('tau_values') or [config['anchor_tokens']['tau']]
+    alpha_candidates = selection_cfg.get('alpha_values') or [config['pirc']['alpha']]
+    dev_tune_articles = int(selection_cfg.get('dev_tune_articles', 0) or 0)
+
+    if dry_run:
+        dev_tune_articles = 0
+
+    fixed_tau = float(tau_candidates[0])
+    fixed_alpha = float(alpha_candidates[0])
+    if dev_tune_articles <= 0:
+        logger.info(
+            f"PIRC hyperparameters fixed before test: "
+            f"tau={fixed_tau}, alpha={fixed_alpha}"
+        )
+        return fixed_tau, fixed_alpha, 0, baseline_results
+
+    dev_n = min(dev_tune_articles, max(0, len(baseline_results) - 1))
+    if dev_n == 0:
+        logger.warning("Dev tuning requested but no held-out articles are available.")
+        return fixed_tau, fixed_alpha, 0, baseline_results
+
+    dev_results = baseline_results[:dev_n]
+    eval_results = baseline_results[dev_n:]
+    logger.info(
+        f"Dev tuning PIRC on {dev_n} article(s); "
+        f"final evaluation uses {len(eval_results)} held-out article(s)."
+    )
+
+    best = None
+    for tau in tau_candidates:
+        for alpha in alpha_candidates:
+            scores = []
+            variances = []
+            for br in dev_results:
+                try:
+                    prompts = build_prompts_from_baseline_result(br, config)
+                    result = run_pirc_for_article(
+                        pirc_generator,
+                        prompts,
+                        br['gold_summary'],
+                        float(tau),
+                        float(alpha),
+                    )
+                    if result['pirc_rouge_mean'] is not None:
+                        scores.append(result['pirc_rouge_mean'])
+                    if result['pirc_rouge_var'] is not None:
+                        variances.append(result['pirc_rouge_var'])
+                except Exception as e:
+                    logger.error(
+                        f"Dev tuning failed for tau={tau}, alpha={alpha}: {e}"
+                    )
+
+            if not scores:
+                continue
+
+            mean_score = float(np.mean(scores))
+            mean_var = float(np.mean(variances)) if variances else 0.0
+            # Prefer quality, lightly penalize residual variance.
+            objective = mean_score - mean_var
+            logger.info(
+                f"Dev candidate tau={tau}, alpha={alpha}: "
+                f"mean_ROUGE-L={mean_score:.4f}, "
+                f"mean_var={mean_var:.6f}, objective={objective:.4f}"
+            )
+            if best is None or objective > best['objective']:
+                best = {
+                    'tau': float(tau),
+                    'alpha': float(alpha),
+                    'objective': objective,
+                }
+
+    if best is None:
+        logger.warning("No dev-tuned PIRC candidate succeeded; using fixed config values.")
+        return fixed_tau, fixed_alpha, dev_n, eval_results
+
+    logger.info(
+        f"Selected global PIRC hyperparameters on dev: "
+        f"tau={best['tau']}, alpha={best['alpha']}"
+    )
+    return best['tau'], best['alpha'], dev_n, eval_results
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # PIRC Pipeline Setup
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -191,20 +347,13 @@ def run_pirc_experiment(config: dict, dry_run: bool = False):
 
     For each article:
     1. Load paraphrase prompts from baseline results
-    2. Run LL-PIRC pipeline (detect ℓ*, find anchors, clamp, generate)
-    3. Compute ROUGE-L for PIRC output
-    4. Apply auto-retry logic if variance reduction is too low
-    5. Apply soft clamping fallback if ROUGE-L drops too much
+    2. Resolve one global alpha/tau pair without test-set oracle selection
+    3. Run LL-PIRC once per article and generate K stabilized outputs
+    4. Compute ROUGE-L mean and variance across the K stabilized outputs
     """
     results_dir = Path(config['experiment']['results_dir'])
     results_dir.mkdir(parents=True, exist_ok=True)
     checkpoint_interval = config['experiment']['checkpoint_interval']
-
-    # Retry / fallback config
-    var_reduction_threshold = config['retry']['variance_reduction_threshold']
-    rouge_drop_threshold = config['retry']['rouge_drop_threshold']
-    tau_values = config['retry']['tau_values']
-    soft_clamp_alpha = config['pirc']['soft_clamp_alpha']
 
     # ─── Load baseline results ────────────────────────────────────────────
     baseline = load_baseline_results(str(results_dir))
@@ -231,6 +380,10 @@ def run_pirc_experiment(config: dict, dry_run: bool = False):
     model, tokenizer = load_target_model(config)
     pirc_generator = setup_pirc_pipeline(model, tokenizer, config)
 
+    selected_tau, selected_alpha, dev_tune_articles, eval_baseline_results = (
+        resolve_pirc_hyperparams(config, baseline_results, pirc_generator, dry_run)
+    )
+
     # ─── Check for existing checkpoint ────────────────────────────────────
     checkpoint_path = results_dir / "pirc_checkpoint.json"
     results = []
@@ -245,139 +398,78 @@ def run_pirc_experiment(config: dict, dry_run: bool = False):
 
     # ─── Main loop ────────────────────────────────────────────────────────
     total_start = time.time()
-    num_articles = len(baseline_results)
+    num_articles = len(eval_baseline_results)
 
     for n in tqdm(range(start_idx, num_articles), desc="PIRC experiment"):
-        br = baseline_results[n]
+        br = eval_baseline_results[n]
         article_idx = br['article_idx']
         gold_summary = br['gold_summary']
-        paraphrase_instructions = br['paraphrase_instructions']
 
         logger.info(f"\n{'='*60}")
         logger.info(f"Article {n+1}/{num_articles} (idx={article_idx})")
         logger.info(f"{'='*60}")
 
-        # Reconstruct full prompts from baseline data
-        # We need the article text — extract from baseline output or reload
-        # The baseline stores paraphrase_instructions; we need the article
-        # Since baseline.json stores outputs but not full article text,
-        # we re-derive the article from the dataset
-        from datasets import load_dataset
-        dataset = load_dataset(
-            config['experiment']['dataset_name'],
-            config['experiment']['dataset_config'],
-            split=f"test[{article_idx}:{article_idx+1}]"
-        )
-        article_text = dataset[0]['article']
-
-        prompts = [
-            format_prompt(instr, article_text, config)
-            for instr in paraphrase_instructions
-        ]
-
-        # ─── Run PIRC pipeline ────────────────────────────────────────────
-        best_result = None
-        best_tau = None
-
-        for tau in tau_values:
-            logger.info(f"  Trying τ={tau}...")
-
-            try:
-                pirc_result = pirc_generator.run_pipeline(
-                    paraphrases=prompts,
-                    tau_override=tau
-                )
-
-                pirc_output = pirc_result['output']
-                pirc_rouge = compute_rouge_l(pirc_output, gold_summary)
-
-                logger.info(
-                    f"  τ={tau}: PIRC ROUGE-L={pirc_rouge:.4f}, "
-                    f"ℓ*={pirc_result['ell_star']}, "
-                    f"anchors={pirc_result['num_anchors']}"
-                )
-
-                if best_result is None or pirc_rouge > best_result['rouge_l']:
-                    best_result = {
-                        'output': pirc_output,
-                        'rouge_l': pirc_rouge,
-                        'ell_star': pirc_result['ell_star'],
-                        'S_curve': pirc_result['S_curve'],
-                        'num_anchors': pirc_result['num_anchors'],
-                        'anchor_fraction': pirc_result['anchor_fraction'],
-                        'alpha_used': pirc_result['alpha_used'],
-                        'tau_used': tau,
-                    }
-                    best_tau = tau
-
-            except Exception as e:
-                logger.error(f"  τ={tau}: PIRC failed: {e}")
-                import traceback
-                traceback.print_exc()
-                continue
-
-        # ─── Soft clamping fallback ───────────────────────────────────────
-        if best_result is not None:
-            rouge_drop = br['rouge_mean'] - best_result['rouge_l']
-
-            if rouge_drop > rouge_drop_threshold:
-                logger.warning(
-                    f"  ROUGE-L dropped by {rouge_drop:.2f} points "
-                    f"(> {rouge_drop_threshold}). Trying soft clamping "
-                    f"with α={soft_clamp_alpha}..."
-                )
-                try:
-                    soft_result = pirc_generator.run_pipeline(
-                        paraphrases=prompts,
-                        tau_override=best_tau,
-                        alpha_override=soft_clamp_alpha
-                    )
-                    soft_output = soft_result['output']
-                    soft_rouge = compute_rouge_l(soft_output, gold_summary)
-
-                    logger.info(
-                        f"  Soft clamping: ROUGE-L={soft_rouge:.4f}"
-                    )
-
-                    if soft_rouge > best_result['rouge_l']:
-                        best_result = {
-                            'output': soft_output,
-                            'rouge_l': soft_rouge,
-                            'ell_star': soft_result['ell_star'],
-                            'S_curve': soft_result['S_curve'],
-                            'num_anchors': soft_result['num_anchors'],
-                            'anchor_fraction': soft_result['anchor_fraction'],
-                            'alpha_used': soft_clamp_alpha,
-                            'tau_used': best_tau,
-                        }
-
-                except Exception as e:
-                    logger.error(f"  Soft clamping failed: {e}")
+        prompts = build_prompts_from_baseline_result(br, config)
 
         # ─── Record result ────────────────────────────────────────────────
-        if best_result is not None:
+        try:
+            pirc_metrics = run_pirc_for_article(
+                pirc_generator,
+                prompts,
+                gold_summary,
+                selected_tau,
+                selected_alpha,
+            )
+            pirc_var = pirc_metrics['pirc_rouge_var']
+            baseline_var = br['rouge_var']
+            variance_reduction = (
+                1.0 - pirc_var / baseline_var
+                if baseline_var and baseline_var > 0 and pirc_var is not None
+                else 0.0
+            )
+
+            logger.info(
+                f"  PIRC ROUGE-L: mean={pirc_metrics['pirc_rouge_mean']:.4f}, "
+                f"var={pirc_var:.6f}, "
+                f"variance_reduction={variance_reduction:.2%}, "
+                f"ell*={pirc_metrics['ell_star']}, "
+                f"anchors={pirc_metrics['num_anchors']}"
+            )
+
             article_result = {
                 'article_idx': article_idx,
-                'pirc_output': best_result['output'],
-                'pirc_rouge_l': best_result['rouge_l'],
+                'split': 'test',
+                'pirc_output': pirc_metrics['pirc_outputs'][0] if pirc_metrics['pirc_outputs'] else None,
+                'pirc_outputs': pirc_metrics['pirc_outputs'],
+                'pirc_rouge_l': pirc_metrics['pirc_rouge_mean'],
+                'pirc_rouge_mean': pirc_metrics['pirc_rouge_mean'],
+                'pirc_rouge_var': pirc_metrics['pirc_rouge_var'],
+                'pirc_rouge_scores': pirc_metrics['pirc_rouge_scores'],
                 'baseline_rouge_mean': br['rouge_mean'],
                 'baseline_rouge_var': br['rouge_var'],
-                'ell_star': best_result['ell_star'],
-                'S_curve': best_result['S_curve'],
-                'num_anchors': best_result['num_anchors'],
-                'anchor_fraction': best_result['anchor_fraction'],
-                'alpha_used': best_result['alpha_used'],
-                'tau_used': best_result['tau_used'],
+                'variance_reduction': variance_reduction,
+                'ell_star': pirc_metrics['ell_star'],
+                'S_curve': pirc_metrics['S_curve'],
+                'num_anchors': pirc_metrics['num_anchors'],
+                'anchor_fraction': pirc_metrics['anchor_fraction'],
+                'alpha_used': pirc_metrics['alpha_used'],
+                'tau_used': pirc_metrics['tau_used'],
             }
-        else:
+        except Exception as e:
             logger.error(f"  All PIRC attempts failed for article {article_idx}")
+            import traceback
+            traceback.print_exc()
             article_result = {
                 'article_idx': article_idx,
+                'split': 'test',
                 'pirc_output': None,
                 'pirc_rouge_l': None,
+                'pirc_rouge_mean': None,
+                'pirc_rouge_var': None,
+                'pirc_rouge_scores': [],
                 'baseline_rouge_mean': br['rouge_mean'],
                 'baseline_rouge_var': br['rouge_var'],
-                'error': 'All PIRC attempts failed',
+                'error': str(e),
             }
 
         results.append(article_result)
@@ -389,37 +481,34 @@ def run_pirc_experiment(config: dict, dry_run: bool = False):
                 json.dump({'results': results, 'last_article': n},
                           f, indent=2, default=str)
 
-    # ─── Compute PIRC variance ────────────────────────────────────────────
-    # For PIRC, we produce ONE output per article (the stabilized one).
-    # var_pirc[n] measures how different the PIRC output is from
-    # each baseline variant's ROUGE-L. Since PIRC produces a single output,
-    # we compute: var_pirc[n] = 0 (one output → zero variance within PIRC).
-    # The meaningful comparison is baseline var vs PIRC quality.
-    #
-    # However, per the methodology, we should compare the PIRC-stabilized
-    # output's ROUGE-L against each variant. Since PIRC uses the primary
-    # prompt (variant 0), we record the single PIRC ROUGE-L and compare
-    # against the baseline variance.
-
     # ─── Save final results ──────────────────────────────────────────────
     total_time = time.time() - total_start
 
-    valid_results = [r for r in results if r.get('pirc_rouge_l') is not None]
-
-    # Compute per-article "PIRC variance" — run PIRC for each variant
-    # and measure output stability (if needed, this can be added later).
-    # For now, we record the single PIRC ROUGE-L per article.
+    valid_results = [
+        r for r in results
+        if r.get('pirc_rouge_mean') is not None
+        and r.get('pirc_rouge_var') is not None
+    ]
 
     pirc_output = {
         'config': {
             'model': config['model']['name'],
             'K': config['paraphrase']['K'],
             'num_articles': len(results),
+            'selected_tau': selected_tau,
+            'selected_alpha': selected_alpha,
+            'dev_tune_articles': dev_tune_articles,
+            'selection_policy': (
+                'dev_tuned_global' if dev_tune_articles > 0 else 'fixed_config'
+            ),
         },
         'results': results,
         'summary': {
             'mean_pirc_rouge_l': float(np.mean([
-                r['pirc_rouge_l'] for r in valid_results
+                r['pirc_rouge_mean'] for r in valid_results
+            ])) if valid_results else None,
+            'mean_pirc_rouge_var': float(np.mean([
+                r['pirc_rouge_var'] for r in valid_results
             ])) if valid_results else None,
             'mean_baseline_rouge_var': float(np.mean([
                 r['baseline_rouge_var'] for r in valid_results
@@ -430,6 +519,10 @@ def run_pirc_experiment(config: dict, dry_run: bool = False):
             'num_successful': len(valid_results),
             'num_failed': len(results) - len(valid_results),
             'total_time_seconds': total_time,
+            'mean_variance_reduction': float(np.mean([
+                r['variance_reduction'] for r in valid_results
+                if 'variance_reduction' in r
+            ])) if valid_results else None,
             'ell_star_values': [
                 r['ell_star'] for r in valid_results if 'ell_star' in r
             ],
@@ -460,6 +553,14 @@ def run_pirc_experiment(config: dict, dry_run: bool = False):
         logger.info(
             f"Mean Baseline ROUGE-L: "
             f"{pirc_output['summary']['mean_baseline_rouge_mean']:.4f}"
+        )
+        logger.info(
+            f"Mean PIRC ROUGE-L variance: "
+            f"{pirc_output['summary']['mean_pirc_rouge_var']:.6f}"
+        )
+        logger.info(
+            f"Mean variance reduction: "
+            f"{pirc_output['summary']['mean_variance_reduction']:.2%}"
         )
         logger.info(
             f"ℓ* range: [{min(ell_stars)}, {max(ell_stars)}], "

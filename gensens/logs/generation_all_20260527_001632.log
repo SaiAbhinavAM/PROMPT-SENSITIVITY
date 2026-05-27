@@ -1,0 +1,50 @@
+2026-05-27 00:16:32,832 [INFO] root: Logging to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/logs/generation_all_20260527_001632.log
+2026-05-27 00:16:32,832 [INFO] __main__: ============================================================
+2026-05-27 00:16:32,832 [INFO] __main__: GenSens Dataset Generation Pipeline
+2026-05-27 00:16:32,832 [INFO] __main__:   Task:             all
+2026-05-27 00:16:32,832 [INFO] __main__:   Instances/task:   4
+2026-05-27 00:16:32,832 [INFO] __main__:   Variants/inst:    4
+2026-05-27 00:16:32,832 [INFO] __main__:   Seed:             42
+2026-05-27 00:16:32,832 [INFO] __main__:   Checkpoint every: 2
+2026-05-27 00:16:32,832 [INFO] __main__:   Model backend:    local
+2026-05-27 00:16:32,832 [INFO] __main__: ============================================================
+2026-05-27 00:16:32,832 [INFO] __main__: Initializing ParaphraseGenerator (backend=local)...
+2026-05-27 00:16:32,832 [INFO] paraphrase_generator: Loading SBERT model: all-mpnet-base-v2
+2026-05-27 00:16:32,848 [INFO] sentence_transformers.base.model: No device provided, using mps
+2026-05-27 00:16:33,379 [INFO] sentence_transformers.base.model: Loading SentenceTransformer model from sentence-transformers/all-mpnet-base-v2.
+2026-05-27 00:16:37,559 [INFO] paraphrase_generator:   SBERT loaded.
+2026-05-27 00:16:37,561 [INFO] paraphrase_generator: Loading Flan-T5: google/flan-t5-large
+2026-05-27 00:16:42,862 [INFO] paraphrase_generator:   Flan-T5 loaded on mps.
+2026-05-27 00:16:42,869 [INFO] __main__: ParaphraseGenerator initialized in 10.0s
+2026-05-27 00:16:42,869 [INFO] __main__: 
+============================================================
+2026-05-27 00:16:42,869 [INFO] __main__: Starting task: summarization
+2026-05-27 00:16:42,869 [INFO] __main__:   n_instances=4, n_variants=4, seed=42
+2026-05-27 00:16:42,869 [INFO] __main__: ============================================================
+2026-05-27 00:16:42,870 [INFO] data_loaders: Loading CNN/DailyMail dataset (3.0.0, test split)...
+2026-05-27 00:16:53,008 [INFO] data_loaders:   Loaded 11490 test articles
+2026-05-27 00:16:53,379 [INFO] data_loaders:   Buckets — short(<400): 2545, medium(400-800): 5418, long(>800): 3527
+2026-05-27 00:16:53,388 [INFO] data_loaders:   Loaded 4 summarization instances
+2026-05-27 00:16:53,388 [INFO] __main__: Loaded 4 source instances for 'summarization'
+2026-05-27 00:16:53,388 [INFO] __main__: Found 0 completed instances in checkpoint
+2026-05-27 00:17:06,415 [INFO] paraphrase_generator:   [summ_0000] n_variants=4, mean_sim=0.858, distinct2=0.510, mean_overlap=0.602, n_strategies=4, time=13.0s
+2026-05-27 00:17:21,171 [INFO] paraphrase_generator:   [summ_0001] n_variants=4, mean_sim=0.854, distinct2=0.511, mean_overlap=0.419, n_strategies=4, time=14.8s
+2026-05-27 00:17:21,172 [INFO] __main__:   ✓ Checkpoint saved at instance 2/4
+2026-05-27 00:17:35,926 [INFO] paraphrase_generator:   [summ_0002] n_variants=4, mean_sim=0.862, distinct2=0.523, mean_overlap=0.419, n_strategies=4, time=14.8s
+2026-05-27 00:17:55,784 [INFO] paraphrase_generator:   [summ_0003] n_variants=4, mean_sim=0.860, distinct2=0.500, mean_overlap=0.426, n_strategies=4, time=19.9s
+2026-05-27 00:17:55,786 [INFO] __main__:   ✓ Checkpoint saved at instance 4/4
+2026-05-27 00:17:55,786 [INFO] __main__: Task 'summarization' completed in 62.4s — 4 records
+2026-05-27 00:17:55,790 [INFO] __main__:   Also wrote flat CSV: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/gensens_summarization_4inst_4var.csv
+2026-05-27 00:17:55,790 [INFO] __main__:   Saved final output to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/gensens_summarization_4inst_4var.jsonl
+2026-05-27 00:17:55,790 [INFO] __main__:   Removed checkpoint: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/gensens_summarization.checkpoint.jsonl
+2026-05-27 00:17:55,790 [INFO] __main__: 
+============================================================
+2026-05-27 00:17:55,790 [INFO] __main__: Starting task: creative
+2026-05-27 00:17:55,790 [INFO] __main__:   n_instances=4, n_variants=4, seed=42
+2026-05-27 00:17:55,790 [INFO] __main__: ============================================================
+2026-05-27 00:17:55,790 [INFO] data_loaders: Loading CNN/DailyMail dataset (3.0.0, test split)...
+2026-05-27 00:18:02,752 [INFO] data_loaders:   Loaded 11490 test articles
+2026-05-27 00:18:03,135 [INFO] data_loaders:   Buckets — short(<400): 2545, medium(400-800): 5418, long(>800): 3527
+2026-05-27 00:18:03,144 [INFO] data_loaders:   Loaded 4 creative instances
+2026-05-27 00:18:03,144 [INFO] __main__: Loaded 4 source instances for 'creative'
+2026-05-27 00:18:03,144 [INFO] __main__: Found 0 completed instances in checkpoint

@@ -11,6 +11,10 @@ load_dotenv(find_dotenv(usecwd=True))
 class Config:
     # Model configuration
     models: List[str] = field(default_factory=lambda: [m.strip() for m in os.getenv("MODEL_NAME", "google/flan-t5-base,google/flan-t5-large,sshleifer/distilbart-cnn-12-6,facebook/bart-large-cnn").split(",")])
+    # Per-model quantization spec; models absent from this dict load in bf16/fp16.
+    subject_quantizations: Dict[str, str] = field(default_factory=lambda: {
+        "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4": "awq_marlin",
+    })
     device: str = os.getenv("DEVICE", "cpu")
     max_new_tokens: int = int(os.getenv("MAX_NEW_TOKENS", "50"))
     temperature: float = float(os.getenv("TEMPERATURE", "0.7"))

@@ -5,6 +5,133 @@
 
 ---
 
+## [2026-05-27] — Add 70B AWQ as a subject model; two-step generate→score pipeline
+
+**Files Modified:** `prompt_robustness/src/config.py`, `prompt_robustness/src/benchmark.py`, `prompt_robustness/src/model_interface.py`, `prompt_robustness/config.yaml`, `run_on_gpu.sh`
+
+**What Changed:**
+- **70B as subject**: `hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4` added to the subjects list alongside the three 8B/7B models. Its responses (summaries, QA answers, etc.) are now generated, stored, and scored — not only used as a judge/faithfulness scorer. This gives a four-model comparison: LLaMA-3.1-8B, Qwen2.5-7B, Mistral-7B, and LLaMA-3.1-70B-AWQ.
+- **`subject_quantizations` config**: New `Dict[str, str]` field in `Config` (default: `{"hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4": "awq_marlin"}`). `benchmark.py` looks up the quantization for each model via `config.subject_quantizations.get(model_name)` and passes it to `ModelInterface(model_name, config, quantization=quant)`. Models absent from the dict load in bf16/fp16.
+- **`_input_device` property**: Added to `ModelInterface` — returns `cuda:0` on CUDA (correct first-layer device for `device_map="auto"` multi-GPU or AWQ sharding), otherwise `self.device`. All internal tensor `.to()` calls updated from `self.device` to `self._input_device`.
+- **Chat-template formatting**: `generate_responses()` now applies `tokenizer.apply_chat_template()` for any instruct model that ships a chat template — ensuring the 70B (and all instruct-tuned models) receive properly formatted `<|user|>` / `<|assistant|>` prompts instead of raw text.
+- **Memory-safe two-step Phase 2**: `run_on_gpu.sh` Phase 2 now runs `--generate-only` (subject model, no judge) then `--responses-csv` (judge + NLI, no subject) so the 70B AWQ subject never co-resides on GPU with the 70B judge.
+
+**Why:**
+- Including the 70B as a subject allows a direct comparison of prompt sensitivity across model sizes (7–8B vs 70B) under identical prompt perturbations. The 70B AWQ quantization is the only way to fit this model on a single 80 GB card.
+- The two-step generate→score split was already available via CLI flags; making it the default for Phase 2 prevents OOM when both the subject 70B and judge 70B would otherwise be loaded simultaneously.
+
+**Impact:**
+- `responses.csv` and `scored_samples.csv` will now contain rows for a fourth model (`hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4`).
+- The `benchmark.csv` ranking table gains a fourth row. Previously generated results with only 3 models are still valid for those models; re-run Phase 2 to add 70B rows.
+- No formula or metric changes — the four-model comparison uses identical PRI/ORI/IFI computations.
+
+---
+
+## [2026-05-27] — Qwen 8B simple-to-complex summarization instruction generator
+
+**Files Modified:** `gensens/scripts/generate_summ_instructions.py` (new), `gensens/scripts/generate_dataset.py`
+
+**What Changed:**
+- Added standalone script `generate_summ_instructions.py` that uses **Qwen/Qwen2.5-7B-Instruct** (or any HF instruct model via `--model-id`) to generate 100 unique summarization instructions across 4 complexity levels ordered simple → complex:
+  - Level 1 **simple** (≤12 words): plain, direct phrasing — 25 instructions
+  - Level 2 **moderate** (12–20 words): standard with basic specificity — 25 instructions
+  - Level 3 **detailed** (20–35 words): professional with explicit content requirements — 25 instructions
+  - Level 4 **complex** (35–60 words): elaborate multi-clause framing — 25 instructions
+- Each level uses a separate targeted system prompt; the model is asked to output one instruction per line (no bullets/numbering). Per-level retry loop (default 4 retries) compensates for SBERT filter loss.
+- All candidates are SBERT-filtered against the canonical instruction (band 0.82–0.98, token Jaccard overlap ≤ 0.85, min 6 words). Deduplication is cross-level via a shared `seen_sigs` set.
+- Output saved to `gensens/data/summ_instruction_pool.jsonl` — one record per line: `{instruction, complexity_level, complexity_label, sbert_similarity}`. Instructions sorted by `complexity_level` ascending so assignments go simple→complex across dataset instances.
+- `generate_dataset.py` now checks for `summ_instruction_pool.jsonl` first (`_load_pool_file`). If found, loads instructions from it (Qwen-generated, level-sorted). If absent, falls back to on-the-fly LLM/strategy generation as before.
+- Supports both `--backend hf` (HF Transformers, bfloat16, device_map=auto) and `--backend vllm` (H100 batched inference).
+
+**Why:**
+- A complexity gradient in the instruction pool tests whether model outputs degrade or change character as prompt complexity increases — a more systematic sensitivity probe than uniformly-diverse instructions.
+- Using a dedicated open-source 8B model (Qwen) for pool generation separates the instruction-design step from the paraphrase-generation step, enabling the pool to be generated once and reused across multiple dataset runs.
+
+**Impact:**
+- Run `python scripts/generate_summ_instructions.py --backend vllm` on H100 once before `generate_dataset.py` to populate the pool file.
+- If pool file is absent, behaviour is unchanged from the previous session (on-the-fly freeform/strategy generation).
+- No changes to evaluation pipeline, metrics, or PIRC.
+
+---
+
+## [2026-05-27] — Summarization unique-instruction pool + Creative highlights paraphrasing
+
+**Files Modified:** `gensens/scripts/data_loaders.py`, `gensens/scripts/paraphrase_generator.py`, `gensens/scripts/generate_dataset.py`
+
+**What Changed:**
+- **Summarization** — instead of all instances sharing the same canonical instruction, a pool of up to 100 unique instructions is pre-generated at the start of the task run using an open-source LLM. Each instance is assigned one unique instruction from this pool (cycling if `n_instances > 100`). The canonical instruction ("Summarize the following news article in 3-4 sentences...") is always index 0.
+  - For `llama`/`vllm` backends (H100): uses `ParaphraseGenerator.generate_instruction_pool → _instruction_pool_freeform`, which sends a **single freeform prompt** to the LLM asking it to generate N diverse instructions in one call, then SBERT-filters the parsed lines (`sim ∈ [0.82, 0.98]`, token overlap ≤ 0.85). Falls back to strategy-based generation if the freeform yield is insufficient.
+  - For `local` backend (Flan-T5, CPU/MPS): uses `_instruction_pool_strategies` which applies all 16 strategy prompts (same as normal paraphrase generation) with a lifted per-strategy cap to reach the target pool size.
+- **Creative** — `base_text` changed from the fixed story-writing instruction to `item["highlights"]` (the summary premise). The instruction is now a hardcoded prefix in `base_prompt` and is no longer paraphrased. The paraphrase generator now receives the highlights as the thing to rephrase. `SYSTEM_PROMPTS["creative"]` updated to "rephrase the news summary/highlights while keeping all facts intact". The Flan task-context label for creative changed from "a story-writing instruction" to "a news summary/highlights". `metadata["instruction"]` added to creative records to preserve the fixed instruction string for downstream readers.
+
+**Why:**
+- **Summarization**: using a single fixed instruction for all instances creates an artificial uniformity — every instance's `base_text` is identical, making cross-instance diversity purely article-driven. Unique instructions per instance make the benchmark more realistic (real prompts vary at instruction level) and increase the population of instruction phrasings seen across the dataset.
+- **Creative**: paraphrasing the instruction for story-writing is less meaningful than paraphrasing the premise (highlights), because the highlights carry the actual content the model must expand. Different phrasings of the same highlights are the more interesting perturbation for creative generation — they directly test whether lexically varied premises produce different stories.
+
+**Impact:**
+- Existing summarization datasets must be regenerated: `base_text` now varies per instance instead of being constant.
+- Existing creative datasets must be regenerated: `base_text` is now the highlights, not the instruction; `full_prompt` structure changes accordingly.
+- The `metadata["instruction"]` key is new for creative records; downstream readers that use only canonical bridge keys (`input_text`, `reference_output`) are unaffected.
+- Evaluation pipeline (`evaluator.py`, `benchmark.py`, metric modules) is **unchanged** — it reads `base_text`, `variants`, and `metadata` fields, all of which still conform to the same schema.
+
+---
+
+## [2026-05-27] — Swap GenSens source datasets to a new four-task set (DATA-LAYER ONLY)
+
+**Files Modified:** `gensens/scripts/data_loaders.py`, `gensens/scripts/generate_dataset.py`, `gensens/scripts/paraphrase_generator.py`, `gensens/scripts/validate_dataset.py`, `prompt_robustness/src/data_loader.py`, `prompt_robustness/src/csv_io.py`, `prompt_robustness/src/prompt_generator.py`, `DATA_PREPARATION.md`, `DATASET_GENERATION.md`
+
+**What Changed:**
+- Replaced the four GenSens source datasets. The new task set is:
+  - **summarization** — `cnn_dailymail` 3.0.0 (*sum_in_brief* framing): paraphrase the summarize instruction; fixed = article; `reference_output` = gold highlights; `input_text` = article.
+  - **creative** — `cnn_dailymail` 3.0.0 (*generate_story* framing, the inverse of summarization): paraphrase the story-writing instruction; fixed = the summary premise (highlights); `reference_output` = the full article (the gold "story"); `input_text` = highlights.
+  - **dialogue** — replaced **MultiWOZ 2.2** with **DREAM** (HF id `dream`): paraphrase the question; fixed = dialogue turns + answer options; `reference_output` = the correct answer choice; `input_text` = the dialogue turns.
+  - **qa** — **new task** (HF id `sentence-transformers/eli5`, config `pair`): paraphrase the question; `reference_output` = the answer/explanation; `input_text` = the question.
+- **Removed the `code` task** (HumanEval + MBPP) entirely, including its loader and docstring extractor.
+- **All four tasks now carry a non-empty `reference_output`** (the old creative/dialogue tasks had `reference_output=None`). Source rows lacking a reference are skipped at load time (hard requirement).
+- Introduced canonical metadata bridge keys **`input_text`** (grounding) and **`reference_output`** (gold), emitted by every loader. The three data-layer readers — `generate_dataset.save_final` CSV writer, `csv_io.gensens_jsonl_to_csv`, and `data_loader.load_gensens_dataset` — now read canonical-first with a legacy `article`/`gold_summary` fallback (so older summarization datasets still load). Summarization additionally keeps `article`/`gold_summary` aliases.
+- Verified real HF paths during inspection: `sum_in_brief`/`generate_story` are **PromptSource template names, not HF configs** (`cnn_dailymail` only exposes `1.0.0`/`2.0.0`/`3.0.0`); DREAM loads from `dream` (`trust_remote_code=True`); ELI5 loads from `sentence-transformers/eli5` config `pair` (columns `question`/`answer`, train split only).
+- Updated `SYSTEM_PROMPTS` and the Flan task-context map to the new four tasks (reword only the instruction/question, preserve exact meaning, return only the rewrite).
+- Added a **7th validator check** (`check_reference_present`) that flags any instance with an empty `reference_output`; updated the validator / generator / CLI task lists to `summarization, creative, dialogue, qa`.
+- Added matching **d1/d2/d3 synthetic fallback templates for `qa` and `dialogue`** in `prompt_robustness/src/prompt_generator.py` so the fallback variant-generation approach still functions for every task.
+
+**Why:**
+- The old creative (WritingPrompts) and dialogue (MultiWOZ) tasks had no reference output, so reference-grounded signals (CS, ROUGE, AUC-E quality, the reference path of faithfulness) had nothing to score against on half the benchmark. The new four-task set closes that gap — every task now has a gold reference — while still spanning four distinct task domains.
+
+**Impact:**
+- **DATA-LAYER ONLY — the evaluation method is unchanged.** No edits to PRI / ORI / IFI / Diagnostic_PRI formulas, weights, thresholds, the faithfulness backends, the LLM-judge, the PIRC/Logit-Lens algorithms, or any statistical test. `scores.py`, `evaluator.py`, `benchmark.py`, `evaluate.py`, the `*_metric.py` modules, and the PIRC stack were not touched.
+- **Breaking for dataset/result comparability:** previously generated GenSens datasets, `responses.csv`, `scored_samples.csv`, and all Phase 2–4 results must be **regenerated**. The `code` task is gone; a new `qa` task appears in every per-task output and table.
+- Creative is now long-form generation (premise → article) with a real reference, not open-ended story writing. Creative and summarization draw from the **same** stratified CNN/DM test selection (seed 42), so they cover the same article/highlights pairs inverted (summarize vs. expand) — input ≠ reference for both.
+- **Ambiguity resolved:** the task spec's creative row listed both "input_text: article / fixed: article" and "reference_output: the story/continuation field". CNN/DM has no separate story field, and input == reference would be circular. Resolved to the PromptSource *generate_story* inversion (grounding = highlights premise, reference = article) to guarantee a non-empty, non-circular reference. ELI5's `pair` split contains some low-quality rows, so the qa loader applies light deterministic quality filters (English question of 5–60 words, answer ≥ 10 words); this only affects which source rows are *selected*, not how anything is scored.
+
+---
+
+## [2026-05-26] — Dual-Pillar Diagnostic PRI + Publishable PIRC Variance
+
+**Files Modified:** `prompt_robustness/src/scores.py`, `prompt_robustness/src/evaluator.py`, `prompt_robustness/src/csv_io.py`, `prompt_robustness/src/benchmark.py`, `prompt_robustness/src/analysis.py`, `prompt_robustness/reaggregate.py`, `prompt_robustness/src/pirc.py`, `prompt_robustness/experiment_pirc.py`, `prompt_robustness/evaluate.py`, `prompt_robustness/config.yaml`, `prompt_robustness/tests/test_scores.py`, `AGENTS.md`
+
+**What Changed:**
+- Added a separate **Diagnostic_PRI** for publication framing while keeping the existing fair-ranking `PRI = 0.40·SMS + 0.35·CS + 0.25·Faithfulness` unchanged.
+- Added harmonic dual-pillar diagnostics: `Diagnostic_ORI = HM(SMS, AUC-E, 1−TRD, KPIG)`, `Diagnostic_IFI = HM(1−PPL_var, 1−BF[, 1−PC_stab])`, and `Diagnostic_PRI = HM(Diagnostic_ORI, Diagnostic_IFI)`.
+- Added a 2×2 diagnosis matrix: Robust, Externally Stable / Internally Fragile, Internally Stable / Output-Sensitive, and Fragile.
+- Wired diagnostic score outputs through live evaluation, sample CSVs, correlation summaries, benchmark aggregation, and no-GPU reaggregation.
+- Added CSV schema migration before resume appends so older `scored_samples.csv` files are not corrupted when new diagnostic columns are introduced.
+- Changed LL-PIRC evaluation to generate one PIRC-stabilized output per paraphrase variant and compute real post-PIRC ROUGE-L variance across variants.
+- Removed test-time per-article tau/alpha selection by ROUGE; PIRC now uses fixed preregistered alpha/tau by default, with optional global dev-prefix tuning via `pirc_selection.dev_tune_articles`.
+- Added bootstrap confidence intervals and paired effect sizes to Phase 4 evaluation.
+
+**Why:**
+- The paper needs novelty in both evaluation and mitigation without corrupting the fair primary ranking metric. A separate harmonic diagnostic score restores the dual-pillar novelty while preserving the de-collinearized PRI.
+- Previous PIRC variance was set to zero because only one PIRC output was produced per article, making variance reduction trivial and not publishable.
+- Per-article tau/alpha selection on test ROUGE was oracle-like and risked overfitting the mitigation result.
+
+**Impact:**
+- Existing `PRI` and `Final_Score` rankings remain comparable.
+- New `Diagnostic_PRI`, `Diagnostic_ORI`, `Diagnostic_IFI`, and `Diagnosis` columns are added to outputs and should be reported as diagnostic/paper-novelty metrics.
+- PIRC results generated by older code are no longer sufficient for Phase 4 variance claims; rerun `experiment_pirc.py` so `pirc.json` contains `pirc_rouge_var` and per-variant `pirc_rouge_scores`.
+- Numerical outputs for diagnostic scores and PIRC variance are new; results need to be rerun for publication tables.
+
+---
+
 ## [2026-05-26] — Single source of truth for PRI formula + central .env
 
 **Files Modified:** new `prompt_robustness/src/scores.py`, `prompt_robustness/src/evaluator.py`, `prompt_robustness/reaggregate.py`, `prompt_robustness/src/config.py`, new `.env` / `.env.example`, `run_h100_eval.sh`, `start.sh`

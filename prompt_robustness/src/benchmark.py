@@ -43,6 +43,30 @@ def evaluate_sample_wrapper(args):
     sample, config, model_interface, cache_manager = args
     return evaluate_sample(sample, config, model_interface, cache_manager)
 
+def _save_task_split_csvs(resp_path: str, scored_path: str, results_dir: str) -> None:
+    """Split responses.csv and scored_samples.csv into per-task files.
+
+    Writes:
+      results/responses_<task>.csv        — full prompt+response+judge cols per task
+      results/scored_samples_<task>.csv   — all metric cols per task
+    """
+    for src_path, prefix in [(resp_path, "responses"), (scored_path, "scored_samples")]:
+        if not os.path.exists(src_path):
+            continue
+        try:
+            df = pd.read_csv(src_path, dtype=str)
+        except Exception:
+            continue
+        label_col = "topic_label" if "topic_label" in df.columns else None
+        if label_col is None:
+            continue
+        for task in df[label_col].dropna().unique():
+            task_df = df[df[label_col] == task]
+            out = os.path.join(results_dir, f"{prefix}_{task}.csv")
+            task_df.to_csv(out, index=False)
+            print(f"  📄 {prefix}_{task}.csv — {len(task_df)} rows → {out}")
+
+
 def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Optional[Dict]]:
     """
     Run the full benchmark pipeline.
@@ -103,9 +127,10 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
         logger.info(f" Benchmarking model: {model_name}")
         start_time = time.time()
         
-        # Load model interface
+        # Load model interface (pass quantization spec for AWQ/GPTQ models)
+        quant = getattr(config, "subject_quantizations", {}).get(model_name)
         try:
-            model_interface = ModelInterface(model_name, config)
+            model_interface = ModelInterface(model_name, config, quantization=quant)
         except Exception as e:
             logger.error(f"Cannot load model '{model_name}'. Skipping... Error: {e}")
             print(f"Model {model_name} failed. Continuing...")
@@ -159,6 +184,10 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
                 "PRI": r.get("pri", 0),
                 "ORI": r.get("ori_score", 0),
                 "IFI": r.get("ifi_score", 0),
+                "Diagnostic_PRI": r.get("diagnostic_pri", 0),
+                "Diagnostic_ORI": r.get("diagnostic_ori", 0),
+                "Diagnostic_IFI": r.get("diagnostic_ifi", 0),
+                "Diagnosis": r.get("diagnosis", ""),
                 "CS": r.get("cs", 0),
                 "HS": r.get("hs_score", 0),
                 "Faithfulness": r.get("faithfulness", 0),
@@ -214,6 +243,10 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
     scored_writer.close()
     print(f"💾 CSV layers persisted: {resp_path}, {scored_path}")
 
+    # Split responses.csv and scored_samples.csv by task (topic_label) so each
+    # task's outputs are available as a dedicated file for easy analysis/reuse.
+    _save_task_split_csvs(resp_path, scored_path, config.results_dir)
+
     # =========================================================================
     # STEP 6: Correlation Analysis
     # =========================================================================
@@ -250,6 +283,9 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
             "PRI": sum(r.get("pri", 0) for r in model_runs) / len(model_runs),
             "ORI": sum(r.get("ori_score", 0) for r in model_runs) / len(model_runs),
             "IFI": sum(r.get("ifi_score", 0) for r in model_runs) / len(model_runs),
+            "Diagnostic_PRI": sum(r.get("diagnostic_pri", 0) for r in model_runs) / len(model_runs),
+            "Diagnostic_ORI": sum(r.get("diagnostic_ori", 0) for r in model_runs) / len(model_runs),
+            "Diagnostic_IFI": sum(r.get("diagnostic_ifi", 0) for r in model_runs) / len(model_runs),
             "CS": sum(r.get("cs", 0) for r in model_runs) / len(model_runs),
             "HS": sum(r.get("hs_score", 0) for r in model_runs) / len(model_runs),
             "Faithfulness": sum(r.get("faithfulness", 0) for r in model_runs) / len(model_runs),
@@ -302,8 +338,9 @@ def generate_responses_to_csv(config: Config) -> str:
 
     for model_name in config.models:
         print(f"\n🚀 Generating responses: {model_name}")
+        quant = getattr(config, "subject_quantizations", {}).get(model_name)
         try:
-            mi = ModelInterface(model_name, config)
+            mi = ModelInterface(model_name, config, quantization=quant)
         except Exception as e:
             logger.error(f"Cannot load model '{model_name}': {e}")
             continue
@@ -369,4 +406,3 @@ def score_from_responses_csv(csv_path: str, config: Config) -> pd.DataFrame:
     writer.close()
     print(f"💾 scored_samples.csv updated → {scored_path}")
     return pd.DataFrame(rows)
-

@@ -20,7 +20,7 @@ import argparse
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 import numpy as np
 
@@ -29,6 +29,20 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from data_loaders import load_all_tasks, TASK_LOADERS
 from paraphrase_generator import ParaphraseGenerator
+
+# Canonical base instruction for summarization — used to seed the unique-instruction pool.
+_CANONICAL_SUMM_INSTRUCTION = (
+    "Summarize the following news article in 3-4 sentences, "
+    "capturing the main events and key details."
+)
+_SUMM_UNIQUE_POOL_SIZE = 100  # max unique instructions to pre-generate
+
+# Pre-generated pool file produced by generate_summ_instructions.py.
+# When present, generate_dataset.py loads instructions from it instead of
+# generating them on-the-fly with the paraphrase model.
+_SUMM_POOL_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "data", "summ_instruction_pool.jsonl"
+)
 
 
 def setup_logging(task: str, log_dir: str) -> logging.Logger:
@@ -101,6 +115,10 @@ def save_final(records: List[Dict[str, Any]], output_path: str):
         w.writeheader()
         for rec in records:
             meta = rec.get("metadata", {})
+            # Canonical bridge keys first; fall back to the legacy summarization
+            # aliases so older datasets still export correctly.
+            input_text = meta.get("input_text", meta.get("article", ""))
+            reference_output = meta.get("reference_output", meta.get("gold_summary", ""))
             for v in rec.get("variants", []) or []:
                 w.writerow({
                     "instance_id": rec.get("instance_id", ""),
@@ -111,8 +129,8 @@ def save_final(records: List[Dict[str, Any]], output_path: str):
                     "paraphrased_text": v.get("paraphrased_text", ""),
                     "sbert_similarity": v.get("sbert_similarity", 0.0),
                     "full_prompt": v.get("full_prompt", ""),
-                    "input_text": meta.get("article", ""),
-                    "reference_output": meta.get("gold_summary", ""),
+                    "input_text": input_text,
+                    "reference_output": reference_output,
                 })
     logging.getLogger(__name__).info(f"  Also wrote flat CSV: {csv_path}")
 
@@ -208,6 +226,62 @@ def print_stats_table(stats: Dict[str, Any]):
     print("=" * 100)
 
 
+def _load_pool_file(path: str, n: int, logger: logging.Logger) -> Optional[List[str]]:
+    """Load pre-generated instructions from summ_instruction_pool.jsonl if it exists.
+
+    Instructions are sorted by complexity_level (1→4) so assignments go
+    simple-to-complex across instances. Returns None if the file is absent.
+    """
+    if not os.path.exists(path):
+        return None
+    records = []
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                records.append(json.loads(line))
+    if not records:
+        return None
+    records.sort(key=lambda r: (r.get("complexity_level", 2), r.get("sbert_similarity", 0)))
+    pool = [r["instruction"] for r in records]
+    logger.info(
+        f"  Loaded {len(pool)} instructions from pre-generated pool "
+        f"({path}) — levels: "
+        + ", ".join(
+            f"{lvl}×{sum(1 for r in records if r.get('complexity_level') == lvl)}"
+            for lvl in sorted({r.get('complexity_level', 0) for r in records})
+        )
+    )
+    return pool
+
+
+def _generate_unique_instructions(
+    generator: ParaphraseGenerator,
+    n: int,
+    logger: logging.Logger,
+) -> List[str]:
+    """Return n unique summarization instructions for per-instance assignment.
+
+    Priority order:
+      1. Load from gensens/data/summ_instruction_pool.jsonl if produced by
+         generate_summ_instructions.py (Qwen 8B, simple→complex).
+      2. Fall back to ParaphraseGenerator.generate_instruction_pool (LLM
+         freeform for llama/vllm, strategy-based for local/Flan-T5).
+    Cycles if the pool is smaller than n.
+    """
+    pool = _load_pool_file(_SUMM_POOL_FILE, n, logger)
+
+    if pool is None:
+        logger.info("  Pre-generated pool not found; generating on-the-fly...")
+        pool = generator.generate_instruction_pool(n, _CANONICAL_SUMM_INSTRUCTION, logger)
+
+    if len(pool) < n:
+        logger.warning(f"  Pool smaller than target ({len(pool)} < {n}); cycling to fill.")
+        while len(pool) < n:
+            pool += pool[: n - len(pool)]
+    return pool[:n]
+
+
 def run_task(
     task_name: str,
     generator: ParaphraseGenerator,
@@ -236,6 +310,22 @@ def run_task(
         return []
 
     logger.info(f"Loaded {len(instances)} source instances for '{task_name}'")
+
+    # Summarization: assign one unique instruction paraphrase per instance so
+    # cross-instance diversity is at instruction level, not just variant level.
+    if task_name == "summarization":
+        pool_size = min(len(instances), _SUMM_UNIQUE_POOL_SIZE)
+        logger.info(f"  Generating unique instruction pool (pool_size={pool_size})...")
+        unique_instructions = _generate_unique_instructions(generator, pool_size, logger)
+        for i, instance in enumerate(instances):
+            instr = unique_instructions[i % len(unique_instructions)]
+            instance["base_text"] = instr
+            instance["base_prompt"] = (
+                instr
+                + "\n\nArticle:\n"
+                + instance["metadata"]["input_text"]
+                + "\n\nSummary:"
+            )
 
     # Check for existing checkpoint
     checkpoint_path = os.path.join(data_dir, f"gensens_{task_name}.checkpoint.jsonl")
@@ -298,7 +388,7 @@ def main():
         "--task",
         type=str,
         default="all",
-        choices=["all", "summarization", "code", "creative", "dialogue"],
+        choices=["all", "summarization", "creative", "dialogue", "qa"],
         help="Task to generate (default: all)",
     )
     parser.add_argument("--n_instances", type=int, default=200, help="Instances per task")
@@ -317,9 +407,13 @@ def main():
         ),
     )
     parser.add_argument("--model-id", type=str, default=None,
-                        help="HF repo id for the vLLM backend (e.g. an AWQ-INT4 70B repo)")
+                        help="HF repo id for the vLLM backend (e.g. Qwen/Qwen2.5-7B-Instruct)")
     parser.add_argument("--quantization", type=str, default=None,
                         help="vLLM quantization, e.g. awq_marlin / gptq_marlin (None for bf16)")
+    parser.add_argument("--gpu-memory-utilization", type=float, default=0.90,
+                        help="vLLM fraction of GPU memory to use (default: 0.90)")
+    parser.add_argument("--max-model-len", type=int, default=4096,
+                        help="vLLM max model sequence length (default: 4096)")
     parser.add_argument("--similarity-threshold", type=float, default=0.82,
                         help="lower SBERT band edge")
     parser.add_argument("--similarity-upper", type=float, default=0.98,
@@ -352,7 +446,7 @@ def main():
 
     # Determine tasks
     if args.task == "all":
-        tasks = ["summarization", "code", "creative", "dialogue"]
+        tasks = ["summarization", "creative", "dialogue", "qa"]
     else:
         tasks = [args.task]
 
@@ -367,6 +461,8 @@ def main():
         max_per_strategy=args.max_per_strategy,
         model_id=args.model_id,
         quantization=args.quantization,
+        gpu_memory_utilization=args.gpu_memory_utilization,
+        max_model_len=args.max_model_len,
     )
     logger.info(f"ParaphraseGenerator initialized in {time.time() - t_init:.1f}s")
 

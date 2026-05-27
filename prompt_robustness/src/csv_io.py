@@ -33,6 +33,9 @@ DATASET_COLS = [
 RESPONSES_COLS = [
     "model", "instance_id", "topic_label", "variant_idx", "strategy",
     "prompt", "response", "input_text", "reference_output",
+    # 70B judge outputs stored per variant so results are auditable without re-running
+    "judge_raw_output",   # exact text the judge model produced
+    "judge_score",        # normalised 0–1 score parsed from raw output
 ]
 
 # Raw per-(model,instance) metric components. Composites are derived from these.
@@ -42,7 +45,11 @@ SCORED_COLS = [
     "cs", "hs", "faithfulness", "human_score",
     "avg_length", "avg_coverage", "usd",
     "trd_semantic", "kpig_advanced",
+    "diagnostic_ori", "diagnostic_ifi", "diagnostic_pri", "diagnosis",
     "rouge1", "rouge2", "rougeL",
+    # 70B raw outputs stored at instance level (JSON arrays) for full auditability
+    "judge_raw_outputs",          # JSON: [{"raw_output": str, "score": float}, ...]
+    "faithfulness_raw_outputs",   # JSON: [{"entail_prob/raw_label": ..., "score": float}, ...]
 ]
 
 
@@ -58,6 +65,9 @@ def gensens_jsonl_to_csv(jsonl_path: str, csv_path: str) -> int:
                 continue
             rec = json.loads(line)
             meta = rec.get("metadata", {})
+            # Canonical bridge keys first; legacy summarization aliases as fallback.
+            input_text = meta.get("input_text", meta.get("article", ""))
+            reference_output = meta.get("reference_output", meta.get("gold_summary", ""))
             for v in rec.get("variants", []) or []:
                 rows.append({
                     "instance_id": rec.get("instance_id", ""),
@@ -68,8 +78,8 @@ def gensens_jsonl_to_csv(jsonl_path: str, csv_path: str) -> int:
                     "paraphrased_text": v.get("paraphrased_text", ""),
                     "sbert_similarity": v.get("sbert_similarity", 0.0),
                     "full_prompt": v.get("full_prompt", ""),
-                    "input_text": meta.get("article", ""),
-                    "reference_output": meta.get("gold_summary", ""),
+                    "input_text": input_text,
+                    "reference_output": reference_output,
                 })
     df = pd.DataFrame(rows, columns=DATASET_COLS)
     Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
@@ -93,17 +103,21 @@ def responses_rows_from_result(result: Dict) -> List[Dict]:
     prompts = result.get("prompts", [])
     responses = result.get("responses", [])
     strategies = result.get("strategies") or [None] * len(prompts)
+    judge_raw = result.get("judge_raw_outputs") or []   # per-variant 70B judge outputs
     for i, (p, r) in enumerate(zip(prompts, responses)):
+        judge_entry = judge_raw[i] if i < len(judge_raw) else {}
         rows.append({
-            "model": result.get("model", ""),
-            "instance_id": result.get("instance_id", ""),
-            "topic_label": result.get("topic_label", result.get("task", "")),
-            "variant_idx": i,
-            "strategy": strategies[i] if i < len(strategies) else None,
-            "prompt": p,
-            "response": r,
-            "input_text": result.get("input_text", ""),
+            "model":            result.get("model", ""),
+            "instance_id":      result.get("instance_id", ""),
+            "topic_label":      result.get("topic_label", result.get("task", "")),
+            "variant_idx":      i,
+            "strategy":         strategies[i] if i < len(strategies) else None,
+            "prompt":           p,
+            "response":         r,
+            "input_text":       result.get("input_text", ""),
             "reference_output": result.get("reference_output", ""),
+            "judge_raw_output": judge_entry.get("raw_output", ""),
+            "judge_score":      judge_entry.get("score", ""),
         })
     return rows
 
@@ -159,9 +173,15 @@ def scored_row_from_result(result: Dict) -> Dict:
         "usd": result.get("usd", 0.0),
         "trd_semantic": result.get("trd_semantic", 0.0),
         "kpig_advanced": result.get("kpig_advanced", 0.0),
+        "diagnostic_ori": result.get("diagnostic_ori", 0.0),
+        "diagnostic_ifi": result.get("diagnostic_ifi", 0.0),
+        "diagnostic_pri": result.get("diagnostic_pri", 0.0),
+        "diagnosis": result.get("diagnosis", ""),
         "rouge1": rouge.get("rouge1", 0.0),
         "rouge2": rouge.get("rouge2", 0.0),
         "rougeL": rouge.get("rougeL", 0.0),
+        "judge_raw_outputs":        json.dumps(result.get("judge_raw_outputs") or []),
+        "faithfulness_raw_outputs": json.dumps(result.get("faithfulness_raw_outputs") or []),
     }
 
 
@@ -231,11 +251,33 @@ class IncrementalCSVWriter:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         file_exists = os.path.exists(path) and os.path.getsize(path) > 0
         append = resume and file_exists
+        if append:
+            self._migrate_schema_if_needed()
         self._f = open(path, "a" if append else "w", newline="", encoding="utf-8")
         self._w = csv.DictWriter(self._f, fieldnames=columns, quoting=csv.QUOTE_MINIMAL)
         if not append:
             self._w.writeheader()
             self._flush()
+
+    def _migrate_schema_if_needed(self) -> None:
+        """Add newly introduced columns before appending to an existing CSV."""
+        with open(self.path, "r", newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            existing_header = next(reader, [])
+
+        if existing_header == self.columns:
+            return
+
+        missing = [c for c in self.columns if c not in existing_header]
+        extra = [c for c in existing_header if c not in self.columns]
+        if not missing and not extra:
+            return
+
+        df = pd.read_csv(self.path, dtype=str).fillna("")
+        for col in missing:
+            df[col] = ""
+        df = df[[c for c in self.columns if c in df.columns]]
+        df.to_csv(self.path, index=False, quoting=csv.QUOTE_MINIMAL)
 
     def write_rows(self, rows: List[Dict]) -> None:
         for r in rows:

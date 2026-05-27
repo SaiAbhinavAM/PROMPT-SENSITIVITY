@@ -120,6 +120,7 @@ def compute_full_correlation_analysis(all_results: List[Dict]) -> Dict:
 
     # Extract score vectors from results
     pri_scores = [r.get('pri', 0.0) for r in all_results]
+    diagnostic_pri_scores = [r.get('diagnostic_pri', 0.0) for r in all_results]
     human_scores = [r.get('human_score', 0.0) for r in all_results]
     cs_scores = [r.get('cs', 0.0) for r in all_results]
     faith_scores = [r.get('faithfulness', 0.0) for r in all_results]
@@ -145,6 +146,11 @@ def compute_full_correlation_analysis(all_results: List[Dict]) -> Dict:
         (faith_scores, human_scores, 'Faithfulness', 'Human_Score'),
         (trd_scores, human_scores, 'TRD', 'Human_Score'),
     ]
+    if any(s != 0.0 for s in diagnostic_pri_scores):
+        metric_pairs.insert(1, (
+            diagnostic_pri_scores, human_scores,
+            'Diagnostic_PRI', 'Human_Score'
+        ))
 
     # Advanced metric correlations (only if they contain non-zero values)
     if any(s != 0.0 for s in trd_sem_scores):
@@ -203,7 +209,8 @@ def compute_metric_summary_statistics(all_results: List[Dict]) -> Dict:
         return {}
 
     # Collect all available numeric fields
-    metric_keys = ['pri', 'cs', 'hs_score', 'consistency', 'human_score',
+    metric_keys = ['pri', 'diagnostic_pri', 'diagnostic_ori', 'diagnostic_ifi',
+                   'cs', 'hs_score', 'consistency', 'human_score',
                    'final_score', 'avg_length', 'avg_coverage', 'confidence',
                    'sms_wasserstein', 'trd_semantic', 'kpig_advanced', 'usd']
 

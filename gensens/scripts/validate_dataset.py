@@ -220,6 +220,30 @@ def check_full_prompt_substitution(
     return warnings
 
 
+def check_reference_present(
+    records: List[Dict[str, Any]], task_name: str
+) -> List[str]:
+    """Flag any instance whose metadata lacks a non-empty reference_output.
+
+    The new four-task set requires EVERY task to carry a gold reference, so an
+    empty reference is a data-quality problem worth surfacing (warning).
+    Reads the canonical ``reference_output`` key, with the legacy
+    ``gold_summary`` alias as a fallback.
+    """
+    warnings = []
+
+    for rec in records:
+        meta = rec.get("metadata", {}) or {}
+        reference = meta.get("reference_output", meta.get("gold_summary", ""))
+        if not reference or not str(reference).strip():
+            warnings.append(
+                f"[{task_name}] Instance {rec['instance_id']} — "
+                f"EMPTY reference_output (no gold output)"
+            )
+
+    return warnings
+
+
 # ─────────────────────────────────────────────────────────────
 # Main validation
 # ─────────────────────────────────────────────────────────────
@@ -237,7 +261,7 @@ def validate_dataset(
     )
 
     if tasks is None:
-        tasks = ["summarization", "code", "creative", "dialogue"]
+        tasks = ["summarization", "creative", "dialogue", "qa"]
     report = {}
     summary_table = []
 
@@ -315,6 +339,11 @@ def validate_dataset(
         w = check_full_prompt_substitution(records, task_name)
         task_warnings.extend(w)
         logger.info(f"  [6] Prompt substitution: {len(w)} warnings")
+
+        # 7. Reference-present check (every task must carry a gold reference)
+        w = check_reference_present(records, task_name)
+        task_warnings.extend(w)
+        logger.info(f"  [7] Reference present: {len(w)} warnings")
 
         # Determine pass/fail
         passed = len(task_errors) == 0

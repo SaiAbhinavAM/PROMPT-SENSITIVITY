@@ -1,0 +1,38 @@
+# ─────────────────────────────────────────────────────────────
+# requirements_gpu.txt — H100 / A100 (Jarvis Labs)
+#
+# Install:
+#   pip install -r requirements_gpu.txt
+#
+# PyTorch is NOT pinned here — Jarvis Labs images ship a pre-built
+# CUDA-matched torch; installing a second copy causes conflicts.
+# If starting from a plain Ubuntu image, install torch first:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+# ─────────────────────────────────────────────────────────────
+
+# ── Core model stack ─────────────────────────────────────────
+transformers>=4.44.0
+accelerate>=0.30.0
+vllm>=0.5.0
+tokenizers>=0.19.0
+
+# ── Embeddings & similarity ───────────────────────────────────
+sentence-transformers>=3.0.0
+
+# ── Dataset loading ───────────────────────────────────────────
+datasets>=2.20.0
+
+# ── Evaluation metrics ────────────────────────────────────────
+rouge-score>=0.1.2
+scikit-learn>=1.4.0
+scipy>=1.13.0
+nltk>=3.8.0
+
+# ── Data / numeric ────────────────────────────────────────────
+numpy>=1.26.0
+pandas>=2.2.0
+
+# ── Config & utils ────────────────────────────────────────────
+pyyaml>=6.0
+python-dotenv>=1.0.0
+tqdm>=4.66.0

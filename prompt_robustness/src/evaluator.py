@@ -189,10 +189,11 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
 
     # 6. Faithfulness axis (R3) — NLI entailment of each response by the source.
     # Falls back to the legacy (1 - HS) bag-of-words signal if NLI is unavailable.
-    from .faithfulness_metric import compute_faithfulness
-    faithfulness = compute_faithfulness(responses, input_text)
+    from .faithfulness_metric import compute_faithfulness_with_raw
+    faithfulness, faithfulness_raw_outputs = compute_faithfulness_with_raw(responses, input_text)
     if faithfulness is None:
         faithfulness = 1.0 - hs_score
+        faithfulness_raw_outputs = []
     faithfulness = max(0.0, min(1.0, faithfulness))
 
     # 7. PRI from three non-collinear axes (R3):
@@ -240,8 +241,8 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
     # 6. LLM-as-a-Judge (Human_Score approximation).
     # R5: judge ALL prompt variants and average — the quality signal must span
     # every variant, not just responses[0]. Uses flan-t5-large (see llm_judge).
-    from .llm_judge import llm_judge_mean
-    human_score = llm_judge_mean(input_text, responses)
+    from .llm_judge import llm_judge_with_raw
+    human_score, judge_raw_outputs = llm_judge_with_raw(input_text, responses)
 
     # STEP 5: Utility-Stability Divergence
     usd_val = compute_usd(pri, human_score)
@@ -255,6 +256,16 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
     # ORI — observable robustness (canonical formula in src/scores.py).
     ori_score = _scores.compute_ori(metrics["sms"], metrics["auc_e"], metrics["trd"], metrics["kpig"])
 
+    # Dual-pillar diagnostic score for the publication framing. The existing
+    # PRI remains the fair ranking score; Diagnostic_PRI is a strict harmonic
+    # synthesis that exposes output-vs-internal failure modes.
+    diagnostic_ori = _scores.compute_diagnostic_ori(
+        metrics["sms"], metrics["auc_e"], metrics["trd"], metrics["kpig"]
+    )
+    diagnostic_ifi = _scores.compute_diagnostic_ifi(metrics["ppl_var"], metrics["bf"])
+    diagnostic_pri = _scores.compute_diagnostic_pri(diagnostic_ori, diagnostic_ifi)
+    diagnosis = _scores.compute_dual_pillar_diagnosis(diagnostic_ori, diagnostic_ifi)
+
     # STEP 7: Baseline metrics (ROUGE, BERTScore)
     rouge_scores = {}
     bertscore_scores = {}
@@ -265,7 +276,7 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
     if config.enable_bertscore:
         bertscore_scores = compute_bertscore(responses, reference)
 
-    print(f"[{label}] PRI: {pri:.3f} | ORI: {ori_score:.3f} | IFI: {ifi_score:.3f} | Consistency: {consistency_score:.3f} | Correctness (CS): {correctness_score:.3f} | Faithfulness: {faithfulness:.3f} | HS(diag): {hs_score:.3f} | Human Score: {human_score:.3f} | Final: {final_score:.3f}")
+    print(f"[{label}] PRI: {pri:.3f} | ORI: {ori_score:.3f} | IFI: {ifi_score:.3f} | Diagnostic_PRI: {diagnostic_pri:.3f} | Consistency: {consistency_score:.3f} | Correctness (CS): {correctness_score:.3f} | Faithfulness: {faithfulness:.3f} | HS(diag): {hs_score:.3f} | Human Score: {human_score:.3f} | Final: {final_score:.3f}")
     if interpretability_logs:
         for ilog in interpretability_logs:
             print(f"      -> {ilog}")
@@ -297,6 +308,10 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
         "pri": pri,
         "ori_score": ori_score,
         "ifi_score": ifi_score,
+        "diagnostic_ori": diagnostic_ori,
+        "diagnostic_ifi": diagnostic_ifi,
+        "diagnostic_pri": diagnostic_pri,
+        "diagnosis": diagnosis,
         "sms": metrics["sms"],
         "trd": metrics["trd"],
         "kpig": metrics["kpig"],
@@ -305,6 +320,8 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
         "cs": cs_score,
         "hs_score": hs_score,
         "faithfulness": faithfulness,
+        "faithfulness_raw_outputs": faithfulness_raw_outputs,   # per-variant NLI raw scores
+        "judge_raw_outputs": judge_raw_outputs,                 # per-variant 70B judge text + score
         "trd_length": trd_length,
         "human_score": human_score,
         "final_score": final_score,

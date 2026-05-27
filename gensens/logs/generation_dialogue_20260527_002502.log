@@ -1,0 +1,53 @@
+2026-05-27 00:25:02,411 [INFO] root: Logging to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/logs/generation_dialogue_20260527_002502.log
+2026-05-27 00:25:02,412 [INFO] __main__: ============================================================
+2026-05-27 00:25:02,412 [INFO] __main__: GenSens Dataset Generation Pipeline
+2026-05-27 00:25:02,412 [INFO] __main__:   Task:             dialogue
+2026-05-27 00:25:02,412 [INFO] __main__:   Instances/task:   4
+2026-05-27 00:25:02,412 [INFO] __main__:   Variants/inst:    4
+2026-05-27 00:25:02,412 [INFO] __main__:   Seed:             42
+2026-05-27 00:25:02,412 [INFO] __main__:   Checkpoint every: 2
+2026-05-27 00:25:02,412 [INFO] __main__:   Model backend:    local
+2026-05-27 00:25:02,412 [INFO] __main__: ============================================================
+2026-05-27 00:25:02,412 [INFO] __main__: Initializing ParaphraseGenerator (backend=local)...
+2026-05-27 00:25:02,412 [INFO] paraphrase_generator: Loading SBERT model: all-mpnet-base-v2
+2026-05-27 00:25:02,438 [INFO] sentence_transformers.base.model: No device provided, using mps
+2026-05-27 00:25:02,994 [INFO] sentence_transformers.base.model: Loading SentenceTransformer model from sentence-transformers/all-mpnet-base-v2.
+2026-05-27 00:25:07,072 [INFO] paraphrase_generator:   SBERT loaded.
+2026-05-27 00:25:07,074 [INFO] paraphrase_generator: Loading Flan-T5: google/flan-t5-large
+2026-05-27 00:25:12,150 [INFO] paraphrase_generator:   Flan-T5 loaded on mps.
+2026-05-27 00:25:12,151 [INFO] __main__: ParaphraseGenerator initialized in 9.7s
+2026-05-27 00:25:12,151 [INFO] __main__: 
+============================================================
+2026-05-27 00:25:12,151 [INFO] __main__: Starting task: dialogue
+2026-05-27 00:25:12,151 [INFO] __main__:   n_instances=4, n_variants=4, seed=42
+2026-05-27 00:25:12,151 [INFO] __main__: ============================================================
+2026-05-27 00:25:12,151 [INFO] data_loaders: Loading DREAM dataset (train split)...
+2026-05-27 00:25:15,135 [INFO] data_loaders:   Loaded 6116 DREAM instances
+2026-05-27 00:25:15,284 [INFO] data_loaders:   After filtering (non-empty dialogue/question/answer): 6116
+2026-05-27 00:25:15,285 [INFO] data_loaders:   Loaded 4 dialogue instances
+2026-05-27 00:25:15,287 [INFO] __main__: Loaded 4 source instances for 'dialogue'
+2026-05-27 00:25:15,287 [INFO] __main__: Found 0 completed instances in checkpoint
+2026-05-27 00:25:28,325 [INFO] paraphrase_generator:   [dial_0000] Retry 1: 0/4 — trying all strategies again
+2026-05-27 00:25:38,724 [INFO] paraphrase_generator:   [dial_0000] Retry 2: 0/4 — trying all strategies again
+2026-05-27 00:25:49,239 [INFO] paraphrase_generator:   [dial_0000] n_variants=0, mean_sim=0.000, distinct2=0.000, mean_overlap=0.000, n_strategies=0, time=34.0s
+2026-05-27 00:25:59,783 [INFO] paraphrase_generator:   [dial_0001] Retry 1: 1/4 — trying all strategies again
+2026-05-27 00:26:09,981 [INFO] paraphrase_generator:   [dial_0001] Retry 2: 1/4 — trying all strategies again
+2026-05-27 00:26:20,924 [INFO] paraphrase_generator:   [dial_0001] n_variants=1, mean_sim=0.900, distinct2=0.000, mean_overlap=0.000, n_strategies=1, time=31.7s
+2026-05-27 00:26:20,925 [INFO] __main__:   ✓ Checkpoint saved at instance 2/4
+2026-05-27 00:26:30,618 [INFO] paraphrase_generator:   [dial_0002] Retry 1: 0/4 — trying all strategies again
+2026-05-27 00:26:39,675 [INFO] paraphrase_generator:   [dial_0002] Retry 2: 0/4 — trying all strategies again
+2026-05-27 00:26:47,795 [INFO] paraphrase_generator:   [dial_0002] n_variants=0, mean_sim=0.000, distinct2=0.000, mean_overlap=0.000, n_strategies=0, time=26.9s
+2026-05-27 00:27:05,717 [INFO] paraphrase_generator:   [dial_0003] Retry 1: 2/4 — trying all strategies again
+2026-05-27 00:27:23,241 [INFO] paraphrase_generator:   [dial_0003] Retry 2: 2/4 — trying all strategies again
+2026-05-27 00:27:40,666 [INFO] paraphrase_generator:   [dial_0003] n_variants=2, mean_sim=0.870, distinct2=0.765, mean_overlap=0.583, n_strategies=2, time=52.9s
+2026-05-27 00:27:40,667 [INFO] __main__:   ✓ Checkpoint saved at instance 4/4
+2026-05-27 00:27:40,667 [INFO] __main__: Task 'dialogue' completed in 145.4s — 4 records
+2026-05-27 00:27:40,668 [INFO] __main__:   Also wrote flat CSV: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/gensens_dialogue_4inst_4var.csv
+2026-05-27 00:27:40,668 [INFO] __main__:   Saved final output to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/gensens_dialogue_4inst_4var.jsonl
+2026-05-27 00:27:40,668 [INFO] __main__:   Removed checkpoint: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/gensens_dialogue.checkpoint.jsonl
+2026-05-27 00:27:40,670 [INFO] __main__: Stats saved to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/gensens_stats.json
+2026-05-27 00:27:40,670 [INFO] __main__: 
+✓ ALL DONE — Total pipeline time: 148.5s
+2026-05-27 00:27:40,670 [INFO] __main__:   Output files in: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/data/
+2026-05-27 00:27:40,670 [INFO] __main__:   Total instances: 4
+2026-05-27 00:27:40,670 [INFO] __main__:   Total variants:  3

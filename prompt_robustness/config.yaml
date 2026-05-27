@@ -12,10 +12,13 @@
 roles:
   generator:        "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4"  # Phase 1 paraphrases
   generator_quant:  "awq_marlin"
-  subjects:         # Phase 2 models UNDER TEST (cross-family 8B)
+  subjects:         # Phase 2 models UNDER TEST (cross-family 8B + 70B AWQ)
     - "meta-llama/Llama-3.1-8B-Instruct"
     - "Qwen/Qwen2.5-7B-Instruct"
     - "mistralai/Mistral-7B-Instruct-v0.3"
+    - "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4"
+  subject_quantizations:    # AWQ/GPTQ quant spec per model (absent = bf16/fp16)
+    "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4": "awq_marlin"
   judge:            "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4"  # independent of subjects
   judge_quant:      "awq_marlin"
   faithfulness:     "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4"  # LLM-as-NLI, reuses judge
@@ -79,6 +82,15 @@ pirc:
   alpha: 1.0                  # clamping strength: 1.0 = full replacement, 0.5 = soft clamping
                               # h_clamped = alpha * mean_h + (1 - alpha) * h_original
   soft_clamp_alpha: 0.5       # alpha to use when soft clamping fallback is triggered
+
+# --- PIRC Hyperparameter Selection ---
+# Publication-safe default: use fixed preregistered values. To tune, set
+# dev_tune_articles > 0; the first N baseline articles are used as dev and
+# excluded from the final PIRC evaluation.
+pirc_selection:
+  dev_tune_articles: 0
+  tau_values: [3.0]
+  alpha_values: [1.0]
 
 # --- Experiment Settings ---
 experiment:

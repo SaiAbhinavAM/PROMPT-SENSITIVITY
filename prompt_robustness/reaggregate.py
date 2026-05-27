@@ -28,6 +28,14 @@ def reaggregate(df: pd.DataFrame, w_c: float, w_q: float, w_f: float) -> pd.Data
                                 w_c, w_q, w_f), axis=1)
     d["ORI"] = d.apply(lambda r: S.compute_ori(r["sms"], r["auc_e"], r["trd"], r["kpig"]), axis=1)
     d["IFI"] = d.apply(lambda r: S.compute_ifi(r["ppl_var"], r["bf"]), axis=1)
+    d["Diagnostic_ORI"] = d.apply(
+        lambda r: S.compute_diagnostic_ori(r["sms"], r["auc_e"], r["trd"], r["kpig"]), axis=1)
+    d["Diagnostic_IFI"] = d.apply(
+        lambda r: S.compute_diagnostic_ifi(r["ppl_var"], r["bf"]), axis=1)
+    d["Diagnostic_PRI"] = d.apply(
+        lambda r: S.compute_diagnostic_pri(r["Diagnostic_ORI"], r["Diagnostic_IFI"]), axis=1)
+    d["Diagnosis"] = d.apply(
+        lambda r: S.compute_dual_pillar_diagnosis(r["Diagnostic_ORI"], r["Diagnostic_IFI"]), axis=1)
     d["Final_Score"] = d.apply(lambda r: S.compute_final_static(r["PRI"], r["human_score"]), axis=1)
     d["iPRI"] = (d["PRI"] * d["cs"].clip(0, 1)).clip(0, 1)
     d["Consistency"] = d["sms"].clip(0, 1)
@@ -62,6 +70,9 @@ def main():
 
     agg = d.groupby("model").agg(
         PRI=("PRI", "mean"), ORI=("ORI", "mean"), IFI=("IFI", "mean"),
+        Diagnostic_PRI=("Diagnostic_PRI", "mean"),
+        Diagnostic_ORI=("Diagnostic_ORI", "mean"),
+        Diagnostic_IFI=("Diagnostic_IFI", "mean"),
         Consistency=("Consistency", "mean"), CS=("cs", "mean"),
         Faithfulness=("faithfulness", "mean"), HS=("hs", "mean"),
         Human=("human_score", "mean"), Final=("Final_Score", "mean"),
@@ -73,7 +84,7 @@ def main():
     print(agg.to_string())
 
     print("\n=== Honest correlations vs Human (non-circular) ===")
-    for col in ["PRI", "Consistency", "cs", "faithfulness"]:
+    for col in ["PRI", "Diagnostic_PRI", "Consistency", "cs", "faithfulness"]:
         print(f"  {col:14s} vs Human : {_corr(d[col], d['human_score']):+}")
     print("  (Final_Score vs Human intentionally omitted — circular)")
 

@@ -20,7 +20,7 @@ whether the model is usable.
 
 import os
 import logging
-from typing import List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -109,7 +109,82 @@ def compute_faithfulness(
     return float(np.mean(scores)) if scores else 0.0
 
 
+def compute_faithfulness_with_raw(
+    responses: List[str],
+    source_text: str,
+    max_chars: int = 2000,
+) -> Tuple[Optional[float], List[Dict]]:
+    """Like compute_faithfulness but also returns per-variant raw NLI outputs.
+
+    Returns (mean_score, per_variant_list).
+    NLI backend  → each dict: {"entail_prob": float, "neutral_prob": float, "score": float}
+    LLM-as-NLI  → each dict: {"raw_label": str, "score": float}
+    Returns (None, []) if neither backend is available.
+    """
+    premise = (source_text or "").strip()[:max_chars]
+    if not premise:
+        return None, []
+
+    if _BACKEND == "llm" and _LLM_MODEL:
+        try:
+            score, per_variant = _faithfulness_llm_with_raw(responses, premise)
+            return score, per_variant
+        except Exception as e:
+            logger.warning(f"LLM faithfulness failed ({e}); falling back to NLI")
+
+    model = _get_model()
+    if model is None:
+        return None, []
+
+    pairs = [(premise, (r or "").strip()) for r in responses if (r or "").strip()]
+    if not pairs:
+        return 0.0, []
+
+    logits = model.predict(pairs)
+    logits = np.atleast_2d(np.asarray(logits, dtype=float))
+
+    per_variant: List[Dict] = []
+    for row in logits:
+        probs = _softmax(row)          # [contradiction, entailment, neutral]
+        faith = float(probs[1] + 0.5 * probs[2])
+        per_variant.append({
+            "entail_prob":   round(float(probs[1]), 4),
+            "neutral_prob":  round(float(probs[2]), 4),
+            "contra_prob":   round(float(probs[0]), 4),
+            "score":         round(max(0.0, min(1.0, faith)), 4),
+        })
+
+    mean = float(np.mean([d["score"] for d in per_variant])) if per_variant else 0.0
+    return mean, per_variant
+
+
 _LABEL_TO_SCORE = {"entailment": 1.0, "neutral": 0.5, "contradiction": 0.0}
+
+
+def _faithfulness_llm_with_raw(responses: List[str], premise: str) -> Tuple[float, List[Dict]]:
+    """LLM-as-NLI: returns (mean_score, per_variant_list) including raw labels."""
+    from .llm_backend import get_chat_llm
+    llm = get_chat_llm(_LLM_MODEL, quantization=os.getenv("JUDGE_QUANTIZATION"))
+    valid = [(r or "").strip() for r in responses if (r or "").strip()]
+    msgs = [
+        [
+            {"role": "system", "content": "You check summary faithfulness. Given a "
+             "SOURCE and a SUMMARY, reply with exactly one word: entailment (fully "
+             "supported), neutral (not contradicted but not stated), or contradiction."},
+            {"role": "user", "content": f"SOURCE:\n{premise}\n\nSUMMARY:\n{r}\n\nLabel:"},
+        ]
+        for r in valid
+    ]
+    if not msgs:
+        return 0.0, []
+    outs = llm.chat_batch(msgs, max_new_tokens=4)
+    per_variant: List[Dict] = []
+    for raw in outs:
+        low = raw.strip().lower()
+        score = next((v for k, v in _LABEL_TO_SCORE.items() if k in low), 0.5)
+        per_variant.append({"raw_label": raw.strip(), "score": round(score, 4)})
+    mean = sum(d["score"] for d in per_variant) / len(per_variant) if per_variant else 0.0
+    return mean, per_variant
 
 
 def _faithfulness_llm(responses: List[str], premise: str) -> float:

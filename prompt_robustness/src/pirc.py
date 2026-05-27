@@ -263,7 +263,8 @@ class PIRCGenerator:
         paraphrases: List[str],
         device: Optional[str] = None,
         tau_override: Optional[float] = None,
-        alpha_override: Optional[float] = None
+        alpha_override: Optional[float] = None,
+        primary_index: int = 0,
     ) -> Dict:
         """
         Run the full LL-PIRC pipeline end-to-end.
@@ -279,6 +280,7 @@ class PIRCGenerator:
             device: Device for computation.
             tau_override: Optional tau override for anchor detection (retry).
             alpha_override: Optional alpha override for clamping strength.
+            primary_index: Which paraphrase to use for the generated output.
 
         Returns:
             result: Dict with:
@@ -289,6 +291,45 @@ class PIRCGenerator:
                 - 'anchor_fraction': fraction of anchor positions
                 - 'alpha_used': clamping alpha actually used
                 - 'tau_used': anchor threshold actually used
+        """
+        all_result = self.run_pipeline_all_variants(
+            paraphrases=paraphrases,
+            device=device,
+            tau_override=tau_override,
+            alpha_override=alpha_override,
+        )
+        primary_index = max(0, min(primary_index, len(all_result["outputs"]) - 1))
+
+        result = {
+            'output': all_result['outputs'][primary_index],
+            'ell_star': all_result['ell_star'],
+            'S_curve': all_result['S_curve'],
+            'num_anchors': all_result['num_anchors'],
+            'anchor_fraction': all_result['anchor_fraction'],
+            'anchor_tokens_decoded': all_result.get('anchor_tokens_decoded', []),
+            'anchor_positions': all_result.get('anchor_positions', []),
+            'anchor_method': all_result.get('anchor_method', 'unknown'),
+            'alpha_used': all_result['alpha_used'],
+            'tau_used': all_result['tau_used'],
+            'primary_index': primary_index,
+        }
+
+        return result
+
+    def run_pipeline_all_variants(
+        self,
+        paraphrases: List[str],
+        device: Optional[str] = None,
+        tau_override: Optional[float] = None,
+        alpha_override: Optional[float] = None,
+    ) -> Dict:
+        """
+        Run LL-PIRC once, then generate a stabilized output for every
+        paraphrase variant using the same ℓ*, anchors, and consensus hidden
+        representation.
+
+        This is the publication-grade evaluation path: post-PIRC variance is
+        measured across K stabilized outputs, not set to zero by construction.
         """
         # Step 1: Find sensitive layer
         logger.info("Step 1: Detecting sensitive layer...")
@@ -313,20 +354,24 @@ class PIRCGenerator:
         # Step 4: Generate with clamping
         alpha = alpha_override if alpha_override is not None else self.alpha
         logger.info(
-            f"Step 4: Generating with PIRC clamping "
+            f"Step 4: Generating all variants with PIRC clamping "
             f"(α={alpha}, {anchor_stats['num_anchors']} anchors)..."
         )
-        output_text = self.generate_with_clamping(
-            primary_prompt=paraphrases[0],
-            mean_h=mean_h,
-            anchor_mask=anchor_mask,
-            ell_star=ell_star,
-            alpha=alpha,
-            device=device
-        )
+        outputs = []
+        for i, prompt in enumerate(paraphrases):
+            logger.info(f"  PIRC generation for variant {i+1}/{len(paraphrases)}")
+            outputs.append(self.generate_with_clamping(
+                primary_prompt=prompt,
+                mean_h=mean_h,
+                anchor_mask=anchor_mask,
+                ell_star=ell_star,
+                alpha=alpha,
+                device=device
+            ))
 
         result = {
-            'output': output_text,
+            'outputs': outputs,
+            'output': outputs[0] if outputs else "",
             'ell_star': ell_star,
             'S_curve': {int(k): float(v) for k, v in S_curve.items()},
             'num_anchors': anchor_stats['num_anchors'],
@@ -341,7 +386,7 @@ class PIRCGenerator:
         logger.info(
             f"PIRC pipeline complete: ℓ*={ell_star}, "
             f"anchors={anchor_stats['num_anchors']}, "
-            f"output_len={len(output_text)} chars"
+            f"outputs={len(outputs)}"
         )
 
         return result

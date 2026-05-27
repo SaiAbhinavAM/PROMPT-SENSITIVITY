@@ -1,4 +1,4 @@
-# CLAUDE.md — Project Instructions for AI Assistants
+# AGENTS.md — Project Instructions for AI Assistants
 
 > **Read this file first. It is the single source of truth for how this project works and how changes must be documented.**
 
@@ -11,13 +11,13 @@
 **What this project does:**
 This project investigates and mitigates **prompt sensitivity** in large language models — the phenomenon where semantically equivalent but lexically different prompts produce inconsistent outputs. It implements a complete research pipeline with 4 phases:
 
-1. **GenSens (Dataset Generation)** — Generates benchmark datasets of semantically equivalent prompt paraphrases across 4 task domains (Summarization & Creative from CNN/DailyMail, Dialogue from DREAM, QA from ELI5) using LLaMA-3, filtered through SBERT similarity (cosine ≥ 0.82). All four tasks carry a gold reference output.
+1. **GenSens (Dataset Generation)** — Generates benchmark datasets of semantically equivalent prompt paraphrases across 4 task domains (Summarization, Code, Creative, Dialogue) using LLaMA-3, filtered through SBERT similarity (cosine ≥ 0.82).
 
 2. **PRI Benchmark (Prompt Robustness Evaluation)** — Quantifies how robust a model's outputs are using 6 core metrics (SMS, AUC-E, TRD, KPIG, PPL Variance, Branching Factor), 4 advanced metrics (Semantic TRD, Wasserstein SMS, Advanced KPIG, USD), plus quality metrics (Correctness, Hallucination, LLM-as-a-Judge).
 
 3. **LL-PIRC (Logit-Lens Paraphrase-Invariant Residual Clamping)** — An inference-time intervention that detects the model's sensitive layer (ℓ*) via Logit Lens per-layer PPL analysis, identifies anchor token positions, and clamps their hidden states to a cross-paraphrase consensus representation.
 
-4. **Statistical Evaluation** — Validates the intervention using Wilcoxon signed-rank tests on ROUGE-L variance and quality, plus ℓ* distribution analysis, 95% bootstrap confidence intervals, and paired Cohen's dz effect sizes.
+4. **Statistical Evaluation** — Validates the intervention using Wilcoxon signed-rank tests on ROUGE-L variance and quality, plus ℓ* distribution analysis.
 
 ---
 
@@ -43,8 +43,7 @@ PROMPT SENSITIVITY/
 │   ├── src/
 │   │   ├── evaluator.py              # Core per-sample evaluation pipeline
 │   │   ├── benchmark.py              # Multi-model benchmark orchestration
-│   │   ├── scores.py                 # Canonical composite-score formulas (single source of truth)
-│   │   ├── pri_calculator.py         # PRI weighted harmonic mean (legacy; scores.py is canonical)
+│   │   ├── pri_calculator.py         # PRI weighted harmonic mean
 │   │   ├── prompt_generator.py       # d1/d2/d3 prompt perturbation levels
 │   │   ├── model_interface.py        # HuggingFace model wrapper
 │   │   ├── embeddings.py             # Sentence-BERT embeddings
@@ -72,7 +71,7 @@ PROMPT SENSITIVITY/
 │
 ├── local_pirc_smoke_test.py          # Standalone LL-PIRC test (GPT-2)
 ├── run_local_smoke_test.sh           # 4-phase local test runner
-├── CLAUDE.md                         # ← YOU ARE HERE (project instructions)
+├── AGENTS.md                         # ← YOU ARE HERE (project instructions)
 └── method.md                         # ← Methodology changelog (MUST maintain)
 ```
 
@@ -139,26 +138,23 @@ Keep these in mind — if any of these change, `method.md` must be updated:
 
 | Formula | Definition | Location |
 |---------|-----------|----------|
-| **PRI** | `0.40 × Consistency(SMS) + 0.35 × Quality(CS) + 0.25 × Faithfulness(NLI)` (R3; canonical ranking score) | `src/scores.py` |
+| **PRI** | `0.40 × Consistency(SMS) + 0.35 × Quality(CS) + 0.25 × Faithfulness(NLI)` (R3; CS no longer multiplied by KPIG/HS) | `src/evaluator.py` |
 | **Faithfulness** | NLI `P(entail) + 0.5·P(neutral)` of source→response, mean over variants; fallback `1 − HS` | `src/faithfulness_metric.py` |
-| **Final Score** | `0.6 × PRI + 0.4 × Human_Score` | `src/scores.py` |
+| **Final Score** | `0.6 × PRI + 0.4 × Human_Score` | `src/evaluator.py:82` |
 | **SMS** | `mean(cosine_sim) − 0.5 × Var(L2_normed_embeddings)` | `src/sms_metric.py` |
 | **TRD** | `Var(lengths) / mean(lengths)²` | `src/trd_metric.py` |
 | **KPIG** | `mean(|facts_i ∩ all_facts| / |all_facts|)` | `src/kpig_metric.py` |
-| **ORI** | `(SMS + AUC-E + (1−TRD) + KPIG) / 4` (arithmetic mean; cross-model ranking) | `src/scores.py` |
-| **IFI** | `1 − (PPL_var + BF) / 2` (arithmetic mean; intra-model diagnostic) | `src/scores.py` |
-| **Diagnostic_ORI** | `HM(SMS, AUC-E, 1−TRD, KPIG)` (weighted harmonic mean; publication diagnostic) | `src/scores.py` |
-| **Diagnostic_IFI** | `HM(1−PPL_var, 1−BF[, 1−PC_stab])` (weighted harmonic mean; publication diagnostic) | `src/scores.py` |
-| **Diagnostic_PRI** | `HM(Diagnostic_ORI, Diagnostic_IFI)` with equal weights 0.50/0.50 | `src/scores.py` |
-| **Diagnosis** | 2×2 matrix: ORI≥0.70 ∧ IFI≥0.70 → Robust; ORI≥0.70 only → Ext. Stable/Int. Fragile; IFI≥0.70 only → Int. Stable/Output-Sensitive; else → Fragile | `src/scores.py` |
+| **ORI** | `(SMS + AUC-E + (1−TRD_semantic) + KPIG_coverage) / 4` (R6: TRD=semantic, KPIG=coverage) | `src/evaluator.py` |
+| **IFI** | `1 − (PPL_var + BF) / 2` | `src/evaluator.py:240` |
+| **Diagnostic ORI** | `HM(SMS, AUC-E, 1−TRD_semantic, KPIG_coverage)` | `src/scores.py` |
+| **Diagnostic IFI** | `HM(1−PPL_var, 1−BF[, 1−PC_stab])` | `src/scores.py` |
+| **Diagnostic PRI** | `HM(Diagnostic_ORI, Diagnostic_IFI)` | `src/scores.py` |
+| **2×2 Diagnosis** | ORI/IFI threshold at 0.70 → Robust, Externally Stable/Internal Fragile, Internally Stable/Output-Sensitive, Fragile | `src/scores.py` |
 | **S(ℓ)** | `Var_k[mean_token_PPL at layer ℓ]` | `src/sensitive_layer.py` |
 | **ℓ*** | `argmax_ℓ [S(ℓ) − S(ℓ−1)]` | `src/sensitive_layer.py` |
 | **Anchor Selection** | Bottom 30% by `rank(mean_ppl) + rank(var_ppl)` | `src/anchor_tokens.py` |
 | **Clamping** | `h[anchors] = α × mean_h + (1−α) × h_original` | `src/pirc.py` |
-| **PIRC Variance** | `Var(ROUGE-L scores across K PIRC-stabilized outputs)` — one output per paraphrase variant, real variance (not zero-by-construction) | `experiment_pirc.py` |
-| **Variance Reduction** | `1 − mean(var_pirc) / mean(var_baseline)` | `evaluate.py` |
-| **Bootstrap CI** | 95% CI on mean paired difference (10 000 resamples, seed=42) | `evaluate.py` |
-| **Effect Size dz** | Paired Cohen's dz = `mean(diff) / std(diff)` for variance and ROUGE-L changes | `evaluate.py` |
+| **Variance Reduction** | `1 − mean(var_pirc) / mean(var_baseline)`, with `var_pirc` computed over K PIRC outputs | `evaluate.py` |
 
 ---
 
@@ -167,20 +163,16 @@ Keep these in mind — if any of these change, `method.md` must be updated:
 | Parameter | Value | Location |
 |-----------|-------|----------|
 | SBERT similarity gate | ≥ 0.82 | `gensens/scripts/paraphrase_generator.py` |
-| Hallucination penalty threshold | HS > 0.5 → PRI × 0.6 | `src/evaluator.py` |
-| Short output penalty | avg_len < 12 → PRI × 0.85 | `src/scores.py` (`SHORT_OUTPUT_LEN`, `SHORT_OUTPUT_PENALTY`) |
+| Hallucination penalty threshold | HS > 0.5 → PRI × 0.6 | `src/evaluator.py:183` |
+| Short output penalty | avg_len < 12 → PRI × 0.85 | `src/evaluator.py:188` |
 | Entity coverage penalty | coverage < 20% | `src/correctness_metric.py` |
 | Anchor percentile | 30% | `src/anchor_tokens.py` |
 | Layer scan start | 25% depth | `src/sensitive_layer.py` |
 | Z-score fallback threshold | 2.0 | `src/sensitive_layer.py` |
 | Wilcoxon significance level | α = 0.01 | `evaluate.py` |
-| PRI weights | Consistency=0.40, CS=0.35, Faithfulness=0.25 | `src/scores.py` (`PRI_W_*` constants) |
-| Final Score weights | PRI=0.60, Human=0.40 | `src/scores.py` (`FINAL_W_*` constants) |
+| PRI weights | Consistency=0.40, CS=0.35, exp(-HS)=0.25 | `src/evaluator.py` |
+| Final Score weights | PRI=0.60, Human=0.40 | `src/evaluator.py` |
 | Dynamic weighting cap | trust_human ≤ 0.70 | `src/evaluator.py` |
-| Diagnostic dual-pillar threshold | 0.70 (both ORI and IFI) | `src/scores.py` (`DIAGNOSIS_THRESHOLD`) |
-| Diagnostic ORI/IFI weights | 0.50 / 0.50 (equal) | `src/scores.py` (`DIAG_W_ORI`, `DIAG_W_IFI`) |
-| PIRC selection policy | `fixed_config` (default); `dev_tuned_global` when `pirc_selection.dev_tune_articles > 0` | `config.yaml`, `experiment_pirc.py` |
-| PIRC default tau / alpha | tau=3.0, alpha=1.0 | `config.yaml` (`pirc_selection`) |
 
 ---
 

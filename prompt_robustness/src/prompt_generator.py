@@ -49,6 +49,32 @@ def generate_prompt_variants(input_text: str, seed: int = 42, max_per_level: int
         d1_templates = ["Write a simple story about: {}", "Draft a creative text on: {}"]
         d2_templates = ["Write a poetic interpretation of: {}", "Create an emotional narrative for: {}"]
         d3_templates = ["Offer a humorous, sarcastic take on: {}", "Explain this concept as if we are in the year 2100: {}"]
+    elif task_type == "dialogue":
+        d1_templates = [
+            "Read the dialogue and answer the question: {}",
+            "Based on the conversation, answer: {}",
+        ]
+        d2_templates = [
+            "Using the dialogue below, provide the correct answer: {}",
+            "Answer the question about this conversation: {}",
+        ]
+        d3_templates = [
+            "Carefully analyze the dialogue and determine the answer: {}",
+            "Given the conversation, reason step by step and answer: {}",
+        ]
+    elif task_type == "qa":
+        d1_templates = [
+            "Answer the following question: {}",
+            "Provide an answer to this question: {}",
+        ]
+        d2_templates = [
+            "Give a clear and direct answer to: {}",
+            "Respond helpfully to the following question: {}",
+        ]
+        d3_templates = [
+            "Explain in simple terms the answer to: {}",
+            "As an expert, thoroughly answer this question: {}",
+        ]
     else:
         # Fallback to defaults
         d1_templates, d2_templates, d3_templates = [], [], []

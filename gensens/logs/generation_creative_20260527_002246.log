@@ -1,0 +1,30 @@
+2026-05-27 00:22:46,044 [INFO] root: Logging to: /Users/saiabhinav/Desktop/PROMPT SENSITIVITY/gensens/logs/generation_creative_20260527_002246.log
+2026-05-27 00:22:46,044 [INFO] __main__: ============================================================
+2026-05-27 00:22:46,044 [INFO] __main__: GenSens Dataset Generation Pipeline
+2026-05-27 00:22:46,044 [INFO] __main__:   Task:             creative
+2026-05-27 00:22:46,044 [INFO] __main__:   Instances/task:   4
+2026-05-27 00:22:46,044 [INFO] __main__:   Variants/inst:    4
+2026-05-27 00:22:46,044 [INFO] __main__:   Seed:             42
+2026-05-27 00:22:46,044 [INFO] __main__:   Checkpoint every: 2
+2026-05-27 00:22:46,044 [INFO] __main__:   Model backend:    local
+2026-05-27 00:22:46,044 [INFO] __main__: ============================================================
+2026-05-27 00:22:46,044 [INFO] __main__: Initializing ParaphraseGenerator (backend=local)...
+2026-05-27 00:22:46,044 [INFO] paraphrase_generator: Loading SBERT model: all-mpnet-base-v2
+2026-05-27 00:22:46,061 [INFO] sentence_transformers.base.model: No device provided, using mps
+2026-05-27 00:22:46,680 [INFO] sentence_transformers.base.model: Loading SentenceTransformer model from sentence-transformers/all-mpnet-base-v2.
+2026-05-27 00:22:50,591 [INFO] paraphrase_generator:   SBERT loaded.
+2026-05-27 00:22:50,593 [INFO] paraphrase_generator: Loading Flan-T5: google/flan-t5-large
+2026-05-27 00:22:55,762 [INFO] paraphrase_generator:   Flan-T5 loaded on mps.
+2026-05-27 00:22:55,763 [INFO] __main__: ParaphraseGenerator initialized in 9.7s
+2026-05-27 00:22:55,763 [INFO] __main__: 
+============================================================
+2026-05-27 00:22:55,763 [INFO] __main__: Starting task: creative
+2026-05-27 00:22:55,763 [INFO] __main__:   n_instances=4, n_variants=4, seed=42
+2026-05-27 00:22:55,763 [INFO] __main__: ============================================================
+2026-05-27 00:22:55,763 [INFO] data_loaders: Loading CNN/DailyMail dataset (3.0.0, test split)...
+2026-05-27 00:23:05,563 [INFO] data_loaders:   Loaded 11490 test articles
+2026-05-27 00:23:05,938 [INFO] data_loaders:   Buckets — short(<400): 2545, medium(400-800): 5418, long(>800): 3527
+2026-05-27 00:23:05,947 [INFO] data_loaders:   Loaded 4 creative instances
+2026-05-27 00:23:05,947 [INFO] __main__: Loaded 4 source instances for 'creative'
+2026-05-27 00:23:05,947 [INFO] __main__: Found 0 completed instances in checkpoint
+2026-05-27 00:23:57,113 [INFO] paraphrase_generator:   [crea_0000] Retry 1: 0/4 — trying all strategies again

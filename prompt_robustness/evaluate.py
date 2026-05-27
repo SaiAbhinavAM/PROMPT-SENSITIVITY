@@ -185,6 +185,39 @@ def run_rouge_wilcoxon_test(
     }
 
 
+def bootstrap_mean_ci(
+    values: np.ndarray,
+    n_boot: int = 10000,
+    confidence: float = 0.95,
+    seed: int = 42,
+) -> Dict:
+    """Bootstrap confidence interval for the mean of a paired difference."""
+    values = np.asarray(values, dtype=float)
+    values = values[~np.isnan(values)]
+    if len(values) == 0:
+        return {'mean': None, 'low': None, 'high': None, 'n': 0}
+
+    rng = np.random.default_rng(seed)
+    samples = rng.choice(values, size=(n_boot, len(values)), replace=True)
+    means = samples.mean(axis=1)
+    tail = (1.0 - confidence) / 2.0
+    return {
+        'mean': float(values.mean()),
+        'low': float(np.quantile(means, tail)),
+        'high': float(np.quantile(means, 1.0 - tail)),
+        'confidence': confidence,
+        'n': int(len(values)),
+    }
+
+
+def paired_effect_size_dz(before: np.ndarray, after: np.ndarray) -> Optional[float]:
+    """Paired Cohen's dz for before-after differences."""
+    diff = np.asarray(before, dtype=float) - np.asarray(after, dtype=float)
+    if len(diff) < 2 or diff.std(ddof=1) < 1e-12:
+        return None
+    return float(diff.mean() / diff.std(ddof=1))
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Plotting
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -355,6 +388,17 @@ def print_summary_table(eval_summary: Dict):
         f"{'Relative variance reduction':<40} "
         f"{eval_summary['relative_var_reduction']:.2%}"
     )
+    var_ci = eval_summary.get('variance_reduction_ci', {})
+    if var_ci.get('low') is not None:
+        print(
+            f"{'Variance reduction 95% CI':<40} "
+            f"[{var_ci['low']:.6f}, {var_ci['high']:.6f}]"
+        )
+    if eval_summary.get('variance_effect_size_dz') is not None:
+        print(
+            f"{'Variance effect size dz':<40} "
+            f"{eval_summary['variance_effect_size_dz']:.3f}"
+        )
 
     print(f"\n--- Statistical Tests ---")
     var_test = eval_summary['wilcoxon_variance']
@@ -377,6 +421,17 @@ def print_summary_table(eval_summary: Dict):
     if rouge_test.get('p_value') is not None:
         print(
             f"{'ROUGE-L Wilcoxon p-value':<40} {rouge_test['p_value']:.6f}"
+        )
+    rouge_ci = eval_summary.get('rouge_change_ci', {})
+    if rouge_ci.get('low') is not None:
+        print(
+            f"{'ROUGE-L change 95% CI':<40} "
+            f"[{rouge_ci['low']:.6f}, {rouge_ci['high']:.6f}]"
+        )
+    if eval_summary.get('rouge_effect_size_dz') is not None:
+        print(
+            f"{'ROUGE-L effect size dz':<40} "
+            f"{eval_summary['rouge_effect_size_dz']:.3f}"
         )
 
     print(f"\n--- Sensitive Layer (ℓ*) ---")
@@ -426,7 +481,11 @@ def run_evaluation(config: dict):
     )
     valid_indices = [
         idx for idx in common_indices
-        if pirc_by_idx[idx].get('pirc_rouge_l') is not None
+        if pirc_by_idx[idx].get('pirc_rouge_var') is not None
+        and (
+            pirc_by_idx[idx].get('pirc_rouge_mean') is not None
+            or pirc_by_idx[idx].get('pirc_rouge_l') is not None
+        )
     ]
 
     logger.info(
@@ -446,21 +505,12 @@ def run_evaluation(config: dict):
         baseline_by_idx[idx]['rouge_mean'] for idx in valid_indices
     ])
     rouge_pirc = np.array([
-        pirc_by_idx[idx]['pirc_rouge_l'] for idx in valid_indices
+        pirc_by_idx[idx].get('pirc_rouge_mean', pirc_by_idx[idx].get('pirc_rouge_l'))
+        for idx in valid_indices
     ])
-
-    # For PIRC, variance is 0 (single output per article).
-    # But the meaningful comparison is:
-    # var_pirc[n] = 0 since PIRC produces one deterministic output.
-    # The variance reduction is then: 1 - 0 / mean(var_baseline)
-    # = 1.0 (100%). This is trivially true and not informative.
-    #
-    # A more meaningful metric: compare the PIRC output quality vs
-    # baseline mean quality, and show that baseline variance is reduced.
-    # Since PIRC guarantees ONE output, variance = 0 by definition.
-    #
-    # We report both interpretations clearly.
-    var_pirc = np.zeros_like(var_baseline)  # PIRC → single output → 0 var
+    var_pirc = np.array([
+        pirc_by_idx[idx]['pirc_rouge_var'] for idx in valid_indices
+    ])
 
     # ─── Compute metrics ──────────────────────────────────────────────────
     baseline_mean_var = float(var_baseline.mean())
@@ -485,6 +535,18 @@ def run_evaluation(config: dict):
     )
     wilcoxon_rouge = run_rouge_wilcoxon_test(
         rouge_baseline_mean, rouge_pirc, significance_level
+    )
+    variance_reduction_diff = var_baseline - var_pirc
+    rouge_change_diff = rouge_pirc - rouge_baseline_mean
+    variance_reduction_ci = bootstrap_mean_ci(variance_reduction_diff)
+    rouge_change_ci = bootstrap_mean_ci(rouge_change_diff)
+    variance_effect_size_dz = paired_effect_size_dz(var_baseline, var_pirc)
+    # For ROUGE, positive means PIRC improved; paired_effect_size_dz uses
+    # before-after, so invert the sign for interpretability.
+    rouge_effect_size_dz_raw = paired_effect_size_dz(rouge_baseline_mean, rouge_pirc)
+    rouge_effect_size_dz = (
+        -rouge_effect_size_dz_raw
+        if rouge_effect_size_dz_raw is not None else None
     )
 
     # ─── ℓ* statistics ────────────────────────────────────────────────────
@@ -519,15 +581,18 @@ def run_evaluation(config: dict):
         'relative_var_reduction': relative_var_reduction,
         'wilcoxon_variance': wilcoxon_var,
         'wilcoxon_rouge': wilcoxon_rouge,
+        'variance_reduction_ci': variance_reduction_ci,
+        'rouge_change_ci': rouge_change_ci,
+        'variance_effect_size_dz': variance_effect_size_dz,
+        'rouge_effect_size_dz': rouge_effect_size_dz,
         'ell_star_stats': ell_star_stats,
         'interpretation': {
             'note': (
-                "PIRC produces a single deterministic output per article, "
-                "so var_pirc = 0 by construction. The meaningful result is "
-                "that PIRC eliminates cross-paraphrase output variance while "
-                "maintaining ROUGE-L quality within the baseline range."
+                "PIRC variance is measured across K PIRC-stabilized outputs "
+                "for the same K paraphrase variants used by the baseline. "
+                "It is no longer set to zero by construction."
             ),
-            'variance_eliminated': True,
+            'variance_eliminated': pirc_mean_var == 0.0,
             'quality_preserved': abs(rouge_change) < 2.0,
         }
     }

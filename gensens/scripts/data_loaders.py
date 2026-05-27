@@ -2,19 +2,24 @@
 GenSens Data Loaders
 ====================
 Loads source instances for all 4 tasks:
-  - Summarization  (CNN/DailyMail)
-  - Code Generation (HumanEval + MBPP)
-  - Creative Writing (WritingPrompts)
-  - Dialogue       (MultiWOZ 2.2)
+  - Summarization  (CNN/DailyMail 3.0.0 — "sum_in_brief" framing)
+  - Creative       (CNN/DailyMail 3.0.0 — "generate_story" framing)
+  - Dialogue       (DREAM reading-comprehension)
+  - QA             (sentence-transformers/eli5, "pair" config)
 
 Each loader returns a list of dicts with the unified schema:
   {
     "instance_id": str,
     "task":        str,
-    "base_text":   str,    # TEXT THAT GETS PARAPHRASED
-    "base_prompt": str,    # full prompt = base_text + context
-    "metadata":    dict
+    "base_text":   str,    # TEXT THAT GETS PARAPHRASED (instruction OR question)
+    "base_prompt": str,    # full prompt = base_text embedded in the template
+    "metadata":    dict    # MUST carry input_text (grounding) + reference_output (gold)
   }
+
+Bridge contract (closes the reference gap — ALL FOUR tasks carry a reference):
+  metadata["input_text"]        → grounding source (article / summary / dialogue / question)
+  metadata["reference_output"]  → gold output     (highlights / article / answer / answer)
+Both are non-empty for every emitted record; rows lacking a reference are skipped.
 """
 
 import re
@@ -28,23 +33,37 @@ logger = logging.getLogger(__name__)
 
 
 # ─────────────────────────────────────────────────────────────
-# TASK 1 — Summarization (CNN/DailyMail)
+# Shared helpers
 # ─────────────────────────────────────────────────────────────
 
-def load_summarization(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
+def _is_likely_english(text: str) -> bool:
+    """Simple ASCII-ratio heuristic for English detection."""
+    ascii_chars = sum(1 for c in text if ord(c) < 128)
+    return ascii_chars / max(len(text), 1) > 0.90
+
+
+def _select_cnndm_stratified(n: int, seed: int) -> List[Dict[str, Any]]:
+    """Load CNN/DailyMail test split and stratify by article length.
+
+    Shared by both CNN/DM tasks (summarization + creative) so the same
+    length-stratified sampler (short <400 / medium 400–800 / long >800 words,
+    seed 42) is applied to each, per the task spec.
+
+    Returns a list of {article, highlights, word_count} dicts.
     """
-    Load CNN/DailyMail test split, stratify by article length,
-    and return n instances.
-    """
-    logger.info("Loading CNN/DailyMail dataset...")
+    logger.info("Loading CNN/DailyMail dataset (3.0.0, test split)...")
     ds = load_dataset("cnn_dailymail", "3.0.0", split="test", trust_remote_code=True)
     logger.info(f"  Loaded {len(ds)} test articles")
 
-    # Compute word counts and bucket
     short, medium, long = [], [], []
     for item in ds:
-        wc    = len(item["article"].split())
-        entry = {**item, "word_count": wc}
+        article = item["article"]
+        highlights = item["highlights"]
+        # HARD REQUIREMENT: both grounding and reference must be non-empty.
+        if not article or not article.strip() or not highlights or not highlights.strip():
+            continue
+        wc = len(article.split())
+        entry = {"article": article, "highlights": highlights, "word_count": wc}
         if wc < 400:
             short.append(entry)
         elif wc <= 800:
@@ -58,10 +77,8 @@ def load_summarization(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
     )
 
     rng = random.Random(seed)
-
-    # Stratified sampling: roughly equal from each bucket
     per_bucket = n // 3
-    remainder  = n - per_bucket * 3
+    remainder = n - per_bucket * 3
 
     rng.shuffle(short)
     rng.shuffle(medium)
@@ -73,10 +90,10 @@ def load_summarization(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
         + long[:per_bucket + remainder]
     )
 
-    # If any bucket too small, fill from the rest
+    # If any bucket too small, fill from the rest.
     if len(selected) < n:
-        all_items  = short + medium + long
-        ids_seen   = {id(x) for x in selected}
+        all_items = short + medium + long
+        ids_seen = {id(x) for x in selected}
         rng.shuffle(all_items)
         for item in all_items:
             if id(item) not in ids_seen:
@@ -87,6 +104,19 @@ def load_summarization(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
 
     selected = selected[:n]
     rng.shuffle(selected)
+    return selected
+
+
+# ─────────────────────────────────────────────────────────────
+# TASK 1 — Summarization (CNN/DailyMail, "sum_in_brief")
+# ─────────────────────────────────────────────────────────────
+
+def load_summarization(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
+    """
+    CNN/DailyMail "sum_in_brief": paraphrase the summarization instruction.
+    Fixed: the article. Reference: the gold highlights.
+    """
+    selected = _select_cnndm_stratified(n, seed)
 
     instruction = (
         "Summarize the following news article in 3-4 sentences, "
@@ -95,7 +125,7 @@ def load_summarization(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
 
     records = []
     for i, item in enumerate(selected):
-        base_text   = instruction
+        base_text = instruction
         base_prompt = (
             base_text
             + "\n\nArticle:\n"
@@ -108,9 +138,13 @@ def load_summarization(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
             "base_text":   base_text,
             "base_prompt": base_prompt,
             "metadata": {
+                "input_text":       item["article"],      # grounding
+                "reference_output": item["highlights"],   # gold
+                "source":           "cnn_dailymail:3.0.0/sum_in_brief",
+                "word_count":       item["word_count"],
+                # Legacy aliases (kept so any older summarization reader still works):
                 "article":      item["article"],
                 "gold_summary": item["highlights"],
-                "word_count":   item["word_count"],
             },
         })
 
@@ -119,155 +153,33 @@ def load_summarization(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
 
 
 # ─────────────────────────────────────────────────────────────
-# TASK 2 — Code Generation (HumanEval + MBPP)
+# TASK 2 — Creative (CNN/DailyMail, "generate_story")
 # ─────────────────────────────────────────────────────────────
-
-def _extract_docstring(prompt: str) -> str:
-    """Extract the triple-quoted docstring from a HumanEval prompt."""
-    match = re.search(r'"""(.*?)"""', prompt, re.DOTALL)
-    if match:
-        # Strip out example lines (>>> ...) to keep pure description
-        lines = [
-            l for l in match.group(1).strip().splitlines()
-            if not l.strip().startswith(">>>")
-        ]
-        return "\n".join(lines).strip()
-    match = re.search(r"'''(.*?)'''", prompt, re.DOTALL)
-    if match:
-        return match.group(1).strip()
-    # Fallback: extract lines after the def signature, before any >>>
-    lines, in_body, desc = prompt.strip().split("\n"), False, []
-    for line in lines:
-        stripped = line.strip()
-        if stripped.startswith("def "):
-            in_body = True
-            continue
-        if in_body and stripped and not stripped.startswith(">>>"):
-            desc.append(stripped)
-    return " ".join(desc) if desc else prompt.strip()
-
-
-def load_code(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
-    """
-    Load HumanEval (164 problems) + MBPP (36 to reach 200).
-    """
-    logger.info("Loading HumanEval dataset...")
-    he_ds = load_dataset("openai_humaneval", split="test", trust_remote_code=True)
-    logger.info(f"  Loaded {len(he_ds)} HumanEval problems")
-
-    logger.info("Loading MBPP dataset...")
-    mbpp_ds = load_dataset("mbpp", split="test", trust_remote_code=True)
-    logger.info(f"  Loaded {len(mbpp_ds)} MBPP problems")
-
-    rng     = random.Random(seed)
-    records = []
-
-    # ── HumanEval ──────────────────────────────────────────
-    for item in he_ds:
-        docstring = _extract_docstring(item["prompt"])
-        records.append({
-            "instance_id": f"code_{len(records):04d}",
-            "task":        "code",
-            "base_text":   docstring,
-            "base_prompt": item["prompt"],
-            "metadata": {
-                "task_id":            item["task_id"],
-                "test_code":          item["test"],
-                "entry_point":        item["entry_point"],
-                "source":             "humaneval",
-                "canonical_solution": item["canonical_solution"],
-            },
-        })
-
-    # ── MBPP (fill remaining) ──────────────────────────────
-    n_mbpp_needed = n - len(records)
-    mbpp_list     = list(mbpp_ds)
-    rng.shuffle(mbpp_list)
-
-    for item in mbpp_list[:n_mbpp_needed]:
-        description = item["text"]
-        base_prompt = f"# {description}\n\ndef solution():\n"
-        records.append({
-            "instance_id": f"code_{len(records):04d}",
-            "task":        "code",
-            "base_text":   description,
-            "base_prompt": base_prompt,
-            "metadata": {
-                "task_id":     f"mbpp_{item['task_id']}",
-                "test_list":   item["test_list"],
-                "entry_point": "solution",
-                "source":      "mbpp",
-            },
-        })
-
-    records = records[:n]
-    logger.info(f"  Loaded {len(records)} code instances (HumanEval + MBPP)")
-    return records
-
-
-# ─────────────────────────────────────────────────────────────
-# TASK 3 — Creative Writing (WritingPrompts)
-# ─────────────────────────────────────────────────────────────
-
-# Matches [WP], [ CW ], [TT], [Writing Prompt], etc. (space-padded or not)
-_REDDIT_TAG_RE = re.compile(
-    r'\[\s*(?:WP|TT|EU|CW|RF|MK|PI|CC|OT|TH|PM|SP|MP|LP|HP|DP|FP|EP|IP|WS|NS|NF|'
-    r'TI|DC|RT|FF|Prompt\s+Me|Writing\s+Prompt|Theme\s+Thursday|Serial|[A-Z]{1,3})\s*\]',
-    re.IGNORECASE,
-)
-_URL_RE      = re.compile(r'https?://\S+')
-_EXTRA_SPACE = re.compile(r'\s+')
-
-
-def _clean_writing_prompt(text: str) -> str:
-    """Remove Reddit tag artifacts, URLs, and normalise whitespace."""
-    text = _REDDIT_TAG_RE.sub('', text)
-    text = _URL_RE.sub('', text)
-    text = _EXTRA_SPACE.sub(' ', text).strip()
-    return text
-
-
-def _is_likely_english(text: str) -> bool:
-    """Simple ASCII-ratio heuristic for English detection."""
-    ascii_chars = sum(1 for c in text if ord(c) < 128)
-    return ascii_chars / max(len(text), 1) > 0.90
-
 
 def load_creative(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
     """
-    Load WritingPrompts train split, filter for English prompts of 10-60 words,
-    clean Reddit artifacts, select n random prompts (seed=42).
+    CNN/DailyMail "generate_story": paraphrase the highlights (summary premise).
+    Fixed: the story-writing instruction. Reference: the full news story (article).
+
+    The instruction is constant across all instances and variants; only the
+    highlights are paraphrased. This tests whether lexically different phrasings
+    of the same facts/premise lead to different generated stories.
     """
-    logger.info("Loading WritingPrompts dataset...")
-    ds = load_dataset("euclaise/writingprompts", split="train", trust_remote_code=True)
-    logger.info(f"  Loaded {len(ds)} writing prompts")
+    selected = _select_cnndm_stratified(n, seed)
 
-    candidates = []
-    for item in ds:
-        # The dataset uses "prompt" field (not "title")
-        raw     = item.get("prompt") or item.get("title") or item.get("text") or ""
-        cleaned = _clean_writing_prompt(raw)
-        wc      = len(cleaned.split())
-        if 10 <= wc <= 60 and _is_likely_english(cleaned) and len(cleaned) > 20:
-            candidates.append({"text": cleaned, "word_count": wc})
-
-    logger.info(f"  After filtering (10-60 words, English): {len(candidates)} prompts")
-
-    rng = random.Random(seed)
-    rng.shuffle(candidates)
-    selected = candidates[:n]
-
-    if len(selected) < n:
-        logger.warning(
-            f"  Only {len(selected)} qualifying prompts found (wanted {n})."
-        )
+    instruction = (
+        "Write a detailed news story that expands on the following summary points, "
+        "elaborating them into a complete article."
+    )
 
     records = []
     for i, item in enumerate(selected):
-        base_text   = item["text"]
+        base_text = item["highlights"]   # PARAPHRASE THIS
         base_prompt = (
-            "Write a short story (150-200 words) that expands on the following prompt.\n\n"
-            f"Prompt: {base_text}\n\nStory:"
+            instruction
+            + "\n\nSummary:\n"
+            + base_text
+            + "\n\nStory:"
         )
         records.append({
             "instance_id": f"crea_{i:04d}",
@@ -275,90 +187,81 @@ def load_creative(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
             "base_text":   base_text,
             "base_prompt": base_prompt,
             "metadata": {
-                "original_prompt": item["text"],
-                "word_count":      item["word_count"],
+                "input_text":       item["highlights"],   # grounding (premise)
+                "reference_output": item["article"],       # gold story
+                "source":           "cnn_dailymail:3.0.0/generate_story",
+                "word_count":       item["word_count"],
+                "instruction":      instruction,           # fixed; stored for readers
             },
         })
 
-    logger.info(f"  Loaded {len(records)} creative writing instances")
+    logger.info(f"  Loaded {len(records)} creative instances")
     return records
 
 
 # ─────────────────────────────────────────────────────────────
-# TASK 4 — Dialogue (MultiWOZ 2.2)
+# TASK 3 — Dialogue (DREAM)
 # ─────────────────────────────────────────────────────────────
+
+def _format_choices(choices: List[str]) -> str:
+    return "\n".join(f"- {c}" for c in choices)
+
 
 def load_dialogue(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
     """
-    Load MultiWOZ 2.2 test split, filter for dialogues with 4-8 total turns.
-    MultiWOZ always ends with a system turn, so the last USER utterance is
-    the penultimate speaker=0 turn — that becomes base_text.
-    History = all turns before that last user turn (kept fixed across variants).
+    DREAM dialogue reading-comprehension: paraphrase the question.
+    Fixed: the dialogue turns (+ answer options). Reference: the correct answer choice.
     """
-    logger.info("Loading MultiWOZ 2.2 dataset...")
-    ds = load_dataset("multi_woz_v22", split="test", trust_remote_code=True)
-    logger.info(f"  Loaded {len(ds)} dialogues")
+    logger.info("Loading DREAM dataset (train split)...")
+    ds = load_dataset("dream", split="train", trust_remote_code=True)
+    logger.info(f"  Loaded {len(ds)} DREAM instances")
 
     candidates = []
     for item in ds:
-        turns      = item.get("turns", {})
-        utterances = turns.get("utterance", [])
-        speakers   = turns.get("speaker",   [])
+        dialogue = item.get("dialogue") or []
+        question = (item.get("question") or "").strip()
+        choices = item.get("choice") or []
+        answer = (item.get("answer") or "").strip()
 
-        if not utterances or not speakers:
+        # HARD REQUIREMENT: non-empty reference (answer) + usable grounding/question.
+        if not dialogue or not question or not answer or not choices:
             continue
 
-        n_turns = len(utterances)
-        if not (4 <= n_turns <= 8):
+        dialogue_text = "\n".join(t.strip() for t in dialogue if t and t.strip())
+        if not dialogue_text:
             continue
-
-        # Find last USER turn (speaker == 0)
-        last_user_idx = None
-        for idx in range(len(speakers) - 1, -1, -1):
-            if int(speakers[idx]) == 0:
-                last_user_idx = idx
-                break
-
-        # Skip if no user turn found, or it's the very first turn (no history)
-        if last_user_idx is None or last_user_idx == 0:
-            continue
-
-        last_question = utterances[last_user_idx]
-
-        # Build history string (all turns before the last user turn)
-        history_lines = []
-        for j in range(last_user_idx):
-            role = "[USER]" if int(speakers[j]) == 0 else "[ASSISTANT]"
-            history_lines.append(f"{role}: {utterances[j]}")
-        history = "\n".join(history_lines)
 
         candidates.append({
-            "dial_id":       item.get("dialogue_id", f"dial_{len(candidates)}"),
-            "history":       history,
-            "last_question": last_question,
-            "n_turns":       n_turns,
+            "dialogue_id":   item.get("dialogue_id", f"dream_{len(candidates)}"),
+            "dialogue_text": dialogue_text,
+            "question":      question,
+            "choices":       list(choices),
+            "answer":        answer,
         })
 
-    logger.info(f"  After filtering (4-8 turns, ends with user): {len(candidates)} dialogues")
+    logger.info(f"  After filtering (non-empty dialogue/question/answer): {len(candidates)}")
 
     rng = random.Random(seed)
     rng.shuffle(candidates)
     selected = candidates[:n]
 
     if len(selected) < n:
-        logger.warning(
-            f"  Only {len(selected)} qualifying dialogues found (wanted {n})."
-        )
+        logger.warning(f"  Only {len(selected)} qualifying dialogues found (wanted {n}).")
+
+    system_msg = (
+        "[SYSTEM]: Read the dialogue and answer the question using the options provided.\n\n"
+    )
 
     records = []
     for i, item in enumerate(selected):
-        base_text   = item["last_question"]
-        system_msg  = "[SYSTEM]: You are a helpful assistant for travel, hotel, and restaurant bookings.\n\n"
+        base_text = item["question"]
         base_prompt = (
             system_msg
-            + item["history"]
-            + "\n"
-            + f"[USER]: {base_text}\n[ASSISTANT]:"
+            + "Dialogue:\n"
+            + item["dialogue_text"]
+            + "\n\nQuestion: " + base_text
+            + "\nOptions:\n" + _format_choices(item["choices"])
+            + "\nAnswer:"
         )
         records.append({
             "instance_id": f"dial_{i:04d}",
@@ -366,13 +269,82 @@ def load_dialogue(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
             "base_text":   base_text,
             "base_prompt": base_prompt,
             "metadata": {
-                "dial_id":       item["dial_id"],
-                "history":       item["history"],
-                "last_question": item["last_question"],
+                "input_text":       item["dialogue_text"],  # grounding (the turns)
+                "reference_output": item["answer"],          # gold answer choice
+                "source":           "dream",
+                "dialogue_id":      item["dialogue_id"],
+                "choices":          item["choices"],
             },
         })
 
     logger.info(f"  Loaded {len(records)} dialogue instances")
+    return records
+
+
+# ─────────────────────────────────────────────────────────────
+# TASK 4 — QA (sentence-transformers/eli5)
+# ─────────────────────────────────────────────────────────────
+
+def load_qa(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
+    """
+    ELI5 long-form QA: paraphrase the question.
+    Reference: the answer/explanation. Grounding (input_text): the question.
+    """
+    logger.info("Loading sentence-transformers/eli5 (pair config, train split)...")
+    ds = load_dataset("sentence-transformers/eli5", "pair", split="train", trust_remote_code=True)
+    logger.info(f"  Loaded {len(ds)} ELI5 question/answer pairs")
+
+    candidates = []
+    for item in ds:
+        question = (item.get("question") or "").strip()
+        answer = (item.get("answer") or "").strip()
+
+        # HARD REQUIREMENT: non-empty reference (answer). Light quality filters:
+        #   - question must be a real, paraphrasable question (5–60 words, English)
+        #   - answer must be a usable reference (≥ 10 words)
+        if not question or not answer:
+            continue
+        q_wc = len(question.split())
+        a_wc = len(answer.split())
+        if not (5 <= q_wc <= 60):
+            continue
+        if a_wc < 10:
+            continue
+        if not _is_likely_english(question) or not _is_likely_english(answer):
+            continue
+
+        candidates.append({"question": question, "answer": answer})
+
+    logger.info(f"  After filtering (5-60 word EN question, ≥10 word answer): {len(candidates)}")
+
+    rng = random.Random(seed)
+    rng.shuffle(candidates)
+    selected = candidates[:n]
+
+    if len(selected) < n:
+        logger.warning(f"  Only {len(selected)} qualifying QA pairs found (wanted {n}).")
+
+    records = []
+    for i, item in enumerate(selected):
+        base_text = item["question"]
+        base_prompt = (
+            "Answer the following question clearly and accurately.\n\n"
+            + "Question: " + base_text
+            + "\n\nAnswer:"
+        )
+        records.append({
+            "instance_id": f"qa_{i:04d}",
+            "task":        "qa",
+            "base_text":   base_text,
+            "base_prompt": base_prompt,
+            "metadata": {
+                "input_text":       item["question"],  # grounding (the question)
+                "reference_output": item["answer"],     # gold answer/explanation
+                "source":           "sentence-transformers/eli5:pair",
+            },
+        })
+
+    logger.info(f"  Loaded {len(records)} QA instances")
     return records
 
 
@@ -382,9 +354,9 @@ def load_dialogue(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
 
 TASK_LOADERS = {
     "summarization": load_summarization,
-    "code":          load_code,
     "creative":      load_creative,
     "dialogue":      load_dialogue,
+    "qa":            load_qa,
 }
 
 
@@ -423,5 +395,7 @@ if __name__ == "__main__":
         print(f"\n{'='*60}")
         print(f"Task: {task} — {len(recs)} records")
         if recs:
-            print(f"  base_text[:100]:   {recs[0]['base_text'][:100]}")
-            print(f"  base_prompt[:150]: {recs[0]['base_prompt'][:150]}")
+            print(f"  base_text[:100]:        {recs[0]['base_text'][:100]}")
+            print(f"  base_prompt[:150]:      {recs[0]['base_prompt'][:150]}")
+            print(f"  input_text[:80]:        {recs[0]['metadata']['input_text'][:80]}")
+            print(f"  reference_output[:80]:  {recs[0]['metadata']['reference_output'][:80]}")
