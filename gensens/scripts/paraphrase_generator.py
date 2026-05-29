@@ -88,6 +88,102 @@ STRATEGY_NAMES: List[str] = [
 
 assert len(STRATEGY_INSTRUCTIONS) == len(STRATEGY_NAMES) == 16
 
+# ─────────────────────────────────────────────────────────────
+# Per-task strategy whitelist (improvement #3)
+# ─────────────────────────────────────────────────────────────
+# Several strategies are nonsensical or harmful for specific tasks:
+#   * `question_form` on qa/dialogue: base_text is already a question → trivial restate
+#   * `imperative` on qa: turns a question into a command, changing the expected answer form
+#   * `role_prefix` on dialogue/qa: leaks meta-text the model must then ignore
+#   * `passive_voice` on qa: can swap subject/object → changes the answer
+#   * `concise`/`merged_sentences` on short questions: very high risk of intent loss
+# The lists below select the strategies that are safe for each task.
+
+STRATEGY_BY_TASK: Dict[str, List[str]] = {
+    "summarization": [
+        "formal_tone", "casual_tone", "reordered_clauses", "synonyms",
+        "concise", "different_structure", "different_opening", "role_prefix",
+        "passive_voice", "imperative", "elaborated",
+        "technical_vocab", "simple_vocab", "split_sentences", "merged_sentences",
+    ],
+    "creative": [
+        # Paraphrases news highlights (facts). Drop strategies that reshape facts
+        # or invent commentary; keep tone/structure/lexicon changes.
+        "formal_tone", "casual_tone", "reordered_clauses", "synonyms",
+        "different_structure", "different_opening",
+        "passive_voice", "elaborated",
+        "technical_vocab", "simple_vocab", "split_sentences", "merged_sentences",
+    ],
+    "dialogue": [
+        # base_text is the question. Exclude question_form (no-op), imperative
+        # (changes form), role_prefix (leaks meta-text), passive_voice (can swap
+        # subj/obj of the question).
+        "formal_tone", "casual_tone", "reordered_clauses", "synonyms",
+        "different_structure", "different_opening",
+        "elaborated", "technical_vocab", "simple_vocab",
+    ],
+    "qa": [
+        # Same constraints as dialogue. Questions are typically short — avoid
+        # `concise`/`merged_sentences`/`split_sentences` which over-compress or
+        # over-fragment, both of which corrupt intent.
+        "formal_tone", "casual_tone", "reordered_clauses", "synonyms",
+        "different_structure", "different_opening",
+        "elaborated", "technical_vocab", "simple_vocab",
+    ],
+}
+
+
+# ─────────────────────────────────────────────────────────────
+# Bidirectional NLI semantic gate (improvement #1)
+# ─────────────────────────────────────────────────────────────
+# SBERT cosine alone is too weak for QA/dialogue: a passive↔active flip in a
+# question can keep cos-sim ≥ 0.85 while changing the answer. We require
+# bidirectional NLI entailment between base_text and candidate so paraphrases
+# that change intent are rejected.
+#
+# Model: cross-encoder/nli-deberta-v3-small (~140M params; same as the eval
+# faithfulness gate). Lazy global cache; if it can't load (offline), we fall
+# back to SBERT-only behavior with a warning.
+
+_NLI_MODEL_NAME = "cross-encoder/nli-deberta-v3-small"
+_nli_model = None
+_nli_load_failed = False
+# Tasks where bidirectional NLI is mandatory (intent-changing paraphrases are
+# the dominant failure mode). Summarization/creative paraphrase non-question
+# text, so NLI is advisory only there.
+_NLI_REQUIRED_TASKS = {"qa", "dialogue"}
+
+
+def _get_nli_model():
+    """Lazily load the NLI cross-encoder; cache load failures."""
+    global _nli_model, _nli_load_failed
+    if _nli_model is not None or _nli_load_failed:
+        return _nli_model
+    try:
+        from sentence_transformers import CrossEncoder
+        logger.info(f"Loading paraphrase NLI gate: {_NLI_MODEL_NAME}")
+        _nli_model = CrossEncoder(_NLI_MODEL_NAME)
+    except Exception as e:  # pragma: no cover - environment dependent
+        logger.warning(
+            f"NLI paraphrase gate unavailable ({e}); falling back to SBERT-only filtering"
+        )
+        _nli_load_failed = True
+        _nli_model = None
+    return _nli_model
+
+
+def _nli_entail_prob(model, premise: str, hypothesis: str) -> float:
+    """Return P(entailment) for premise → hypothesis under the deberta model.
+
+    Label order on this model: {0: contradiction, 1: entailment, 2: neutral}.
+    """
+    import numpy as _np
+    logits = model.predict([(premise, hypothesis)])
+    arr = _np.atleast_2d(_np.asarray(logits, dtype=float))[0]
+    e = _np.exp(arr - _np.max(arr))
+    probs = e / e.sum()
+    return float(probs[1])
+
 
 # ─────────────────────────────────────────────────────────────
 # Flan-T5 prompt builder  (plain text, no chat template)
@@ -142,6 +238,11 @@ class ParaphraseGenerator:
         similarity_upper:     float = 0.98,   # reject near-identical restatements
         max_token_overlap:    float = 0.85,   # reject lexically-too-close candidates
         max_per_strategy:     int   = 2,      # cap variants from any single strategy
+        # --- Bidirectional NLI gate (improvement #1) ---
+        # Minimum P(entailment) in BOTH directions for qa/dialogue candidates.
+        # 0.50 is a conservative default — entailment must beat
+        # contradiction+neutral combined for the candidate to pass.
+        nli_entail_threshold: float = 0.50,
         # --- vLLM backend (H100) ---
         model_id:             Optional[str] = None,
         quantization:         Optional[str] = None,
@@ -156,6 +257,7 @@ class ParaphraseGenerator:
         self.similarity_upper     = similarity_upper
         self.max_token_overlap    = max_token_overlap
         self.max_per_strategy     = max_per_strategy
+        self.nli_entail_threshold = nli_entail_threshold
         self.gpu_memory_utilization = gpu_memory_utilization
         self.max_model_len        = max_model_len
 
@@ -525,6 +627,26 @@ class ParaphraseGenerator:
         seen_sigs: set = {self._first_n_words_sig(base_text)}
         strategy_counts: Dict[str, int] = {}
 
+        # Improvement #3: restrict to task-appropriate strategies. Falls back to
+        # the full 16-strategy set if the task isn't in the whitelist (defensive
+        # default for unknown tasks).
+        allowed_strategies = STRATEGY_BY_TASK.get(task, STRATEGY_NAMES)
+        task_strategy_pairs = [
+            (name, instr)
+            for name, instr in zip(STRATEGY_NAMES, STRATEGY_INSTRUCTIONS)
+            if name in allowed_strategies
+        ]
+
+        # Improvement #1: bidirectional NLI gate is mandatory for qa/dialogue
+        # (intent-changing paraphrases are the dominant failure mode there).
+        # For summarization/creative the NLI model is not consulted — SBERT band
+        # + token-overlap floor are sufficient and avoid the extra cost.
+        nli_required = task in _NLI_REQUIRED_TASKS
+        nli_model = _get_nli_model() if nli_required else None
+        # Silent degradation: if the NLI model can't load we skip the bidirectional
+        # gate rather than dropping all qa/dialogue paraphrases. The warning was
+        # already logged by _get_nli_model.
+
         for retry in range(max_retries):
             if len(valid_paraphrases) >= n_variants:
                 break
@@ -532,14 +654,12 @@ class ParaphraseGenerator:
             if retry > 0:
                 logger.info(
                     f"  [{instance_id}] Retry {retry}: "
-                    f"{len(valid_paraphrases)}/{n_variants} — trying all strategies again"
+                    f"{len(valid_paraphrases)}/{n_variants} — trying allowed strategies again"
                 )
 
-            for strat_idx, strategy_instruction in enumerate(STRATEGY_INSTRUCTIONS):
+            for strategy_name, strategy_instruction in task_strategy_pairs:
                 if len(valid_paraphrases) >= n_variants:
                     break
-
-                strategy_name = STRATEGY_NAMES[strat_idx]
 
                 # Diversity: cap how many variants any single strategy contributes.
                 if strategy_counts.get(strategy_name, 0) >= self.max_per_strategy:
@@ -582,14 +702,43 @@ class ParaphraseGenerator:
                     ):
                         continue
 
+                    # Improvement #1: bidirectional NLI gate for qa/dialogue.
+                    # A passive↔active flip in a question can keep SBERT cosine
+                    # ≥ 0.85 while reversing the answer; bidirectional entailment
+                    # rejects such candidates by requiring base ⊨ cand AND cand ⊨ base.
+                    nli_entail_fwd = nli_entail_bwd = None
+                    if nli_model is not None:
+                        try:
+                            nli_entail_fwd = _nli_entail_prob(nli_model, base_text, candidate)
+                            nli_entail_bwd = _nli_entail_prob(nli_model, candidate, base_text)
+                        except Exception as e:  # pragma: no cover
+                            logger.warning(
+                                f"  [{instance_id}] NLI gate failed for '{strategy_name}': {e}"
+                            )
+                            nli_entail_fwd = nli_entail_bwd = None
+
+                        if nli_entail_fwd is not None and (
+                            nli_entail_fwd < self.nli_entail_threshold
+                            or nli_entail_bwd < self.nli_entail_threshold
+                        ):
+                            logger.debug(
+                                f"  [{instance_id}] '{strategy_name}' NLI gate: "
+                                f"fwd={nli_entail_fwd:.3f}, bwd={nli_entail_bwd:.3f} — rejected"
+                            )
+                            continue
+
                     seen_sigs.add(sig)
                     strategy_counts[strategy_name] = strategy_counts.get(strategy_name, 0) + 1
-                    valid_paraphrases.append({
+                    variant_record = {
                         "variant_idx":      len(valid_paraphrases),
                         "paraphrased_text": candidate,
                         "sbert_similarity": round(similarity, 4),
                         "strategy":         strategy_name,
-                    })
+                    }
+                    if nli_entail_fwd is not None:
+                        variant_record["nli_entail_fwd"] = round(nli_entail_fwd, 4)
+                        variant_record["nli_entail_bwd"] = round(nli_entail_bwd, 4)
+                    valid_paraphrases.append(variant_record)
 
                 except Exception as e:
                     logger.warning(

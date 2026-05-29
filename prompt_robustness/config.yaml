@@ -40,7 +40,7 @@ model:
 # generator; kept only for older baseline scripts. Diversity band defaults:
 #   similarity ∈ [0.82, 0.98], max_token_overlap 0.85, max_per_strategy 2.
 paraphrase:
-  K: 5                        # number of paraphrase variants per prompt
+  K: 8                        # number of paraphrase variants per prompt (R/improvement: was 5; raised to 8 to align with GenSens default and give SMS/TRD/AUC-E enough variance degrees-of-freedom)
   method: "back_translation"  # legacy; current generator uses LLM strategies
   similarity_threshold: 0.85  # min cosine similarity to keep a paraphrase
   max_retries: 10             # max attempts to generate valid paraphrases

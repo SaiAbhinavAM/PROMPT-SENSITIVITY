@@ -5,6 +5,34 @@
 
 ---
 
+## [2026-05-29] — Tighten GenSens paraphrase gates: per-task strategy whitelist, bidirectional NLI gate, K=8
+
+**Files Modified:** `gensens/scripts/paraphrase_generator.py`, `prompt_robustness/config.yaml`
+
+**What Changed:**
+- **Per-task strategy whitelist (improvement #3).** Added `STRATEGY_BY_TASK: Dict[str, List[str]]` in `paraphrase_generator.py`. Previously all 16 strategies were applied to every task. Now:
+  - `summarization`: 15 strategies (drops `question_form` — base_text is an instruction, not a question, so converting to a question changes intent).
+  - `creative`: 12 strategies (drops `question_form`, `imperative`, `role_prefix` — they reshape news highlights into commentary or commands, distorting facts).
+  - `dialogue`, `qa`: 9 strategies (drops `question_form` (no-op on questions), `imperative` (turns question into command, changes expected answer form), `role_prefix` (leaks meta-text), `passive_voice` (can swap subject/object of the question), `concise`, `split_sentences`, `merged_sentences` (over-compress/fragment short questions, corrupting intent)).
+  `generate_paraphrases` now iterates only over the task-appropriate `(strategy_name, instruction)` pairs; unknown tasks fall back to the full 16-strategy set.
+- **Bidirectional NLI semantic gate (improvement #1).** Added a global lazy-loaded `cross-encoder/nli-deberta-v3-small` model (`_get_nli_model`) and a per-call helper `_nli_entail_prob`. For tasks in `_NLI_REQUIRED_TASKS = {"qa", "dialogue"}`, every candidate that passes the SBERT band and token-overlap floor must additionally satisfy `P(entail)(base→cand) ≥ τ` **and** `P(entail)(cand→base) ≥ τ`, with `τ = nli_entail_threshold = 0.50` (new `__init__` parameter). Candidates failing either direction are rejected as intent-changing paraphrases (e.g., passive↔active question flips that swap the answer). For `summarization`/`creative` the NLI model is not consulted (cost-saving; the SBERT band + overlap floor already work well for non-question text). If the NLI model fails to load, the gate silently degrades to SBERT-only filtering with a warning. Accepted variants now carry `nli_entail_fwd` and `nli_entail_bwd` fields for downstream auditing.
+- **K standardized to 8.** `prompt_robustness/config.yaml` `paraphrase.K` raised from `5` → `8`, aligning the evaluator with the GenSens `--n_variants` CLI default and giving SMS / TRD / AUC-E enough degrees of freedom for stable variance estimates (df=7 instead of df=4).
+
+**Why:**
+- **NLI gate.** SBERT cosine ≥ 0.82 with mpnet-base is a weak semantic gate for QA/dialogue. A surface-level rewrite like "What did X tell Y?" → "What was Y told?" can score cos ≥ 0.85 while reversing the answer the model should produce. Such paraphrases inflate the SMS/Faithfulness variance — the model is being marked "inconsistent" when the paraphrase itself changed intent. Bidirectional entailment of base ⟷ candidate is the standard test for semantic equivalence and matches the NLI model already used for `faithfulness_metric.py`.
+- **Per-task whitelist.** Several of the 16 strategies are nonsensical or harmful for specific tasks (e.g., applying `question_form` to a base_text that's already a question is a near-no-op; applying `imperative` to a QA question turns "What is X?" into "Tell me X" which changes the expected answer form). Removing these per task improves the *quality* of the surviving variants without harming diversity, because the dropped strategies were producing near-duplicates anyway.
+- **K=8.** Three different defaults coexisted (GenSens CLI default 8, eval config 5, on-disk smoke files 4). K=5 is the bare minimum for variance; K=8 is the practical sweet spot — bigger K hits diminishing returns vs. compute, especially with a 70B judge. Aligning all three on K=8 removes a long-standing inconsistency.
+
+**Impact:**
+- **Breaking for QA/dialogue paraphrase regeneration.** Old QA/dialogue datasets generated before this change may contain intent-changing paraphrases; regenerate to benefit from the NLI gate. Existing summarization/creative datasets are unaffected (no NLI applied there).
+- **Reject rate up ~10–20% for QA/dialogue.** The 3-retry loop in `generate_paraphrases` usually absorbs the extra rejections; monitor logs and raise `max_retries` if instance yield drops below `n_variants`.
+- **Variant yield slightly lower on dialogue/qa** because the whitelist trims the strategy pool from 16 to 9 — `max_per_strategy` may need to be raised from 2 → 3 if you target n_variants ≥ 9 on those tasks.
+- **Per-variant audit fields.** New `nli_entail_fwd` / `nli_entail_bwd` in QA/dialogue variants; the JSONL→CSV exporter ignores unknown keys so existing readers still load.
+- **Re-run required.** PRI / SMS / Faithfulness results on QA/dialogue should be re-run after regenerating the dataset; summarization/creative results are unchanged. K=5 → 8 also implies re-running the evaluator (more variants per sample = more model calls).
+- **No formula changes** — PRI / ORI / IFI definitions are untouched. Only the paraphrase generation gate and variant count change.
+
+---
+
 ## [2026-05-27] — Add 70B AWQ as a subject model; two-step generate→score pipeline
 
 **Files Modified:** `prompt_robustness/src/config.py`, `prompt_robustness/src/benchmark.py`, `prompt_robustness/src/model_interface.py`, `prompt_robustness/config.yaml`, `run_on_gpu.sh`
