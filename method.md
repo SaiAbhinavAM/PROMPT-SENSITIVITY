@@ -5,6 +5,51 @@
 
 ---
 
+## [2026-05-29] — Remove all small models from project; GPU-only pipeline
+
+**Files Modified:** `prompt_robustness/src/config.py`, `prompt_robustness/src/llm_judge.py`, `prompt_robustness/src/embeddings.py`, `prompt_robustness/src/faithfulness_metric.py`, `gensens/scripts/paraphrase_generator.py`, `gensens/scripts/generate_dataset.py`
+
+**What Changed:**
+- **`paraphrase_generator.py`**: Removed `local` backend (flan-t5-large), `_load_flan()`, `_generate_single_flan()`, `_build_flan_prompt()`, deberta NLI gate (`_NLI_MODEL_NAME`, `_get_nli_model()`, `_nli_entail_prob()`), and all NLI-gate logic in `generate_paraphrases()`. Only `"vllm"` and `"llama"` backends remain. Default backend changed from `"local"` → `"vllm"`.
+- **`generate_dataset.py`**: `--model` default changed from `"local"` → `"vllm"`; `"local"` removed from choices.
+- **`llm_judge.py`**: Removed seq2seq judge path entirely — `judge_model`/`judge_tokenizer`/`judge_device` globals, `_judge_is_seq2seq()`, `get_judge()`, `llm_judge()`, `AutoModelForSeq2SeqLM` import. `JUDGE_MODEL` now hardcodes `hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4` as default. `llm_judge_with_raw()` always uses the causal 70B path.
+- **`embeddings.py`**: Removed `all-MiniLM-L6-v2` (22M) default and `_default_embedder()` conditional. Default is now always `Alibaba-NLP/gte-Qwen2-7B-instruct`.
+- **`faithfulness_metric.py`**: Removed deberta NLI backend entirely — `_MODEL_NAME`, `_model`, `_load_failed`, `_get_model()`, `_softmax()`, `nli_available()`, `_resolve_faithfulness_backend()`, and all `"nli"` backend code paths in `compute_faithfulness()` and `compute_faithfulness_with_raw()`. Only the LLM-as-NLI path remains. `_LLM_MODEL` defaults to the 70B-AWQ judge.
+- **`config.py`**: Removed `_LOCAL_DEFAULT_MODELS`, runtime CUDA check, and RuntimeError guard. `_resolve_default_models()` simply returns the GPU subject list when `MODEL_NAME` env is unset. `device` default changed from `"cpu"` → `"cuda"`.
+
+**Why:**
+- All small models are removed so they cannot accidentally activate on GPU — via missing env vars, wrong defaults, or code paths that were never explicitly disabled.
+- Small-model code will be reconnected later when a local-dev / CPU path is needed again.
+
+**Impact:**
+- Local / CPU / MPS execution is broken until small models are reconnected. This is intentional.
+- No formula or metric changes. Re-run required if any prior runs used small-model defaults.
+
+---
+
+## [2026-05-29] — Enforce ≥4B models on CUDA; eliminate all <4B silent fallbacks on GPU
+
+**Files Modified:** `prompt_robustness/src/config.py`, `prompt_robustness/src/llm_judge.py`, `prompt_robustness/src/embeddings.py`, `prompt_robustness/src/faithfulness_metric.py`, `gensens/scripts/paraphrase_generator.py`
+
+**What Changed:**
+- **`config.py`**: `models` field no longer defaults to the <2B laptop list on CUDA. New `_resolve_default_models()` auto-detects `torch.cuda.is_available()`: on GPU it defaults to the four ≥7B subjects from `config.yaml roles.subjects`; on CPU/MPS it keeps the original laptop models. Raises `RuntimeError` at startup if `MODEL_NAME` is explicitly set to any <4B model on a CUDA machine.
+- **`llm_judge.py`**: `JUDGE_MODEL` no longer hard-defaults to `flan-t5-large`. New `_resolve_judge_model()` returns `hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4` on CUDA and `flan-t5-large` on CPU/MPS.
+- **`embeddings.py`**: `EmbeddingHelper` no longer hard-defaults to `all-MiniLM-L6-v2` (22M). New `_default_embedder()` returns `Alibaba-NLP/gte-Qwen2-7B-instruct` on CUDA and `all-MiniLM-L6-v2` on CPU/MPS.
+- **`faithfulness_metric.py`**: `_BACKEND` no longer hard-defaults to `"nli"` (deberta-small, 140M). New `_resolve_faithfulness_backend()` returns `"llm"` on CUDA (70B judge as NLI) and `"nli"` on CPU/MPS.
+- **`paraphrase_generator.py`**: Added `RuntimeError` in `__init__` if `model_backend == "local"` and `torch.cuda.is_available()` — flan-t5-large (770M) is forbidden on GPU machines.
+
+**Why:**
+- All five components had small-model defaults that would silently activate on GPU if the corresponding env var was not set in `.env`. This means a user who forgets `JUDGE_MODEL`, `EMBEDDER_MODEL`, or `FAITHFULNESS_BACKEND` in their Jarvis `.env` would unknowingly run flan-t5/MiniLM for scoring, producing scores incomparable to the GPU baseline.
+- Auto-detection by `torch.cuda.is_available()` is the safest approach: it infers the correct model tier from hardware without requiring any extra config on the GPU machine.
+
+**Impact:**
+- On CUDA machines with no `.env`: pipeline now auto-loads the correct ≥7B models without any manual configuration.
+- On CUDA machines with a misconfigured `.env` (small models): startup raises `RuntimeError` immediately, preventing a silent bad run.
+- On laptop (no CUDA): behavior is identical to before — all small models still load as defaults.
+- No formula or metric changes. Re-run required if you previously ran with small-model defaults on GPU (scores will differ due to embedder/judge quality change).
+
+---
+
 ## [2026-05-29] — Tighten GenSens paraphrase gates: per-task strategy whitelist, bidirectional NLI gate, K=8
 
 **Files Modified:** `gensens/scripts/paraphrase_generator.py`, `prompt_robustness/config.yaml`

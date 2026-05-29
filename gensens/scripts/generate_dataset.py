@@ -398,12 +398,11 @@ def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="local",
-        choices=["local", "llama", "vllm"],
+        default="vllm",
+        choices=["llama", "vllm"],
         help=(
-            "'local' = google/flan-t5-large (CPU/MPS, dev on Mac); "
-            "'llama' = HF transformers Llama (single-seq, slow); "
-            "'vllm'  = batched vLLM generator (H100; use --model-id + --quantization)"
+            "'vllm'  = batched vLLM generator (H100/A100, recommended); "
+            "'llama' = HF transformers Llama 8B (single-seq, slower)"
         ),
     )
     parser.add_argument("--model-id", type=str, default=None,

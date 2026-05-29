@@ -1,13 +1,13 @@
 """
 GenSens Paraphrase Generator
 =============================
-Supports two generation backends:
+Supports two generation backends (both GPU-only, H100/A100):
 
-  "local"  (default) → google/flan-t5-large      (~770 MB, CPU/MPS, for development on Mac)
-  "llama"            → meta-llama/Meta-Llama-3.1-8B-Instruct  (bfloat16, H100, for production)
+  "vllm"  (recommended) → vLLM batched engine, 70B-AWQ or any HF model
+  "llama"               → HF transformers Llama 8B, single-sequence
 
 Both backends share:
-  • 16 diverse strategy instructions
+  • 16 diverse strategy instructions (per-task whitelist applied)
   • Task-specific system prompts
   • SBERT "all-mpnet-base-v2" similarity filter ≥ 0.82
   • Deduplication by first-8-word signature
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 # ─────────────────────────────────────────────────────────────
-# Task-specific system prompts  (used by LLaMA chat template)
+# Task-specific system prompts  (used by LLaMA/vLLM chat template)
 # ─────────────────────────────────────────────────────────────
 
 SYSTEM_PROMPTS: Dict[str, str] = {
@@ -89,15 +89,8 @@ STRATEGY_NAMES: List[str] = [
 assert len(STRATEGY_INSTRUCTIONS) == len(STRATEGY_NAMES) == 16
 
 # ─────────────────────────────────────────────────────────────
-# Per-task strategy whitelist (improvement #3)
+# Per-task strategy whitelist
 # ─────────────────────────────────────────────────────────────
-# Several strategies are nonsensical or harmful for specific tasks:
-#   * `question_form` on qa/dialogue: base_text is already a question → trivial restate
-#   * `imperative` on qa: turns a question into a command, changing the expected answer form
-#   * `role_prefix` on dialogue/qa: leaks meta-text the model must then ignore
-#   * `passive_voice` on qa: can swap subject/object → changes the answer
-#   * `concise`/`merged_sentences` on short questions: very high risk of intent loss
-# The lists below select the strategies that are safe for each task.
 
 STRATEGY_BY_TASK: Dict[str, List[str]] = {
     "summarization": [
@@ -107,25 +100,17 @@ STRATEGY_BY_TASK: Dict[str, List[str]] = {
         "technical_vocab", "simple_vocab", "split_sentences", "merged_sentences",
     ],
     "creative": [
-        # Paraphrases news highlights (facts). Drop strategies that reshape facts
-        # or invent commentary; keep tone/structure/lexicon changes.
         "formal_tone", "casual_tone", "reordered_clauses", "synonyms",
         "different_structure", "different_opening",
         "passive_voice", "elaborated",
         "technical_vocab", "simple_vocab", "split_sentences", "merged_sentences",
     ],
     "dialogue": [
-        # base_text is the question. Exclude question_form (no-op), imperative
-        # (changes form), role_prefix (leaks meta-text), passive_voice (can swap
-        # subj/obj of the question).
         "formal_tone", "casual_tone", "reordered_clauses", "synonyms",
         "different_structure", "different_opening",
         "elaborated", "technical_vocab", "simple_vocab",
     ],
     "qa": [
-        # Same constraints as dialogue. Questions are typically short — avoid
-        # `concise`/`merged_sentences`/`split_sentences` which over-compress or
-        # over-fragment, both of which corrupt intent.
         "formal_tone", "casual_tone", "reordered_clauses", "synonyms",
         "different_structure", "different_opening",
         "elaborated", "technical_vocab", "simple_vocab",
@@ -134,164 +119,61 @@ STRATEGY_BY_TASK: Dict[str, List[str]] = {
 
 
 # ─────────────────────────────────────────────────────────────
-# Bidirectional NLI semantic gate (improvement #1)
-# ─────────────────────────────────────────────────────────────
-# SBERT cosine alone is too weak for QA/dialogue: a passive↔active flip in a
-# question can keep cos-sim ≥ 0.85 while changing the answer. We require
-# bidirectional NLI entailment between base_text and candidate so paraphrases
-# that change intent are rejected.
-#
-# Model: cross-encoder/nli-deberta-v3-small (~140M params; same as the eval
-# faithfulness gate). Lazy global cache; if it can't load (offline), we fall
-# back to SBERT-only behavior with a warning.
-
-_NLI_MODEL_NAME = "cross-encoder/nli-deberta-v3-small"
-_nli_model = None
-_nli_load_failed = False
-# Tasks where bidirectional NLI is mandatory (intent-changing paraphrases are
-# the dominant failure mode). Summarization/creative paraphrase non-question
-# text, so NLI is advisory only there.
-_NLI_REQUIRED_TASKS = {"qa", "dialogue"}
-
-
-def _get_nli_model():
-    """Lazily load the NLI cross-encoder; cache load failures."""
-    global _nli_model, _nli_load_failed
-    if _nli_model is not None or _nli_load_failed:
-        return _nli_model
-    try:
-        from sentence_transformers import CrossEncoder
-        logger.info(f"Loading paraphrase NLI gate: {_NLI_MODEL_NAME}")
-        _nli_model = CrossEncoder(_NLI_MODEL_NAME)
-    except Exception as e:  # pragma: no cover - environment dependent
-        logger.warning(
-            f"NLI paraphrase gate unavailable ({e}); falling back to SBERT-only filtering"
-        )
-        _nli_load_failed = True
-        _nli_model = None
-    return _nli_model
-
-
-def _nli_entail_prob(model, premise: str, hypothesis: str) -> float:
-    """Return P(entailment) for premise → hypothesis under the deberta model.
-
-    Label order on this model: {0: contradiction, 1: entailment, 2: neutral}.
-    """
-    import numpy as _np
-    logits = model.predict([(premise, hypothesis)])
-    arr = _np.atleast_2d(_np.asarray(logits, dtype=float))[0]
-    e = _np.exp(arr - _np.max(arr))
-    probs = e / e.sum()
-    return float(probs[1])
-
-
-# ─────────────────────────────────────────────────────────────
-# Flan-T5 prompt builder  (plain text, no chat template)
-# ─────────────────────────────────────────────────────────────
-
-def _build_flan_prompt(task: str, base_text: str, strategy_instruction: str) -> str:
-    task_context = {
-        "summarization": "a summarization instruction",
-        "creative":      "a news summary/highlights",
-        "dialogue":      "a reading-comprehension question",
-        "qa":            "a question",
-    }.get(task, "a text")
-
-    return (
-        f"{strategy_instruction}\n\n"
-        f"This is {task_context}.\n\n"
-        f"Original: {base_text}\n\n"
-        f"Rephrased version:"
-    )
-
-
-# ─────────────────────────────────────────────────────────────
 # ParaphraseGenerator
 # ─────────────────────────────────────────────────────────────
 
 class ParaphraseGenerator:
     """
-    Generates paraphrase variants using LLaMA-3.1-8B-Instruct (H100)
-    or Flan-T5-large (local Mac/CPU), filtered with SBERT cos-sim ≥ 0.82.
+    Generates paraphrase variants using vLLM (recommended, batched) or
+    HF-transformers LLaMA (single-sequence). Both backends are GPU-only.
 
     Args:
-        model_backend : "local"  → google/flan-t5-large   (CPU/MPS friendly)
-                        "llama"  → Meta-Llama-3.1-8B-Instruct (H100, bfloat16)
-        sbert_model   : SBERT model name (default: all-mpnet-base-v2)
+        model_backend : "vllm"  → batched vLLM engine (H100/A100, recommended)
+                        "llama" → HF transformers LLaMA 8B (single-seq, slower)
+        sbert_model   : SBERT model for similarity filtering (default: all-mpnet-base-v2)
         similarity_threshold : minimum SBERT cos-sim to keep a candidate (default: 0.82)
         min_word_count       : minimum words in a valid paraphrase (default: 5)
     """
 
-    LOCAL_MODEL_ID = "google/flan-t5-large"
     LLAMA_MODEL_ID = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-    # Default H100 generator (override via model_id). 70B must be a quantized
-    # (AWQ/GPTQ-INT4) repo to fit a single 80GB card; bf16 70B needs >1 GPU.
-    VLLM_MODEL_ID = "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4"
+    VLLM_MODEL_ID  = "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4"
 
     def __init__(
         self,
-        model_backend:        str   = "local",
-        sbert_model:          str   = "all-mpnet-base-v2",
-        similarity_threshold: float = 0.82,
-        min_word_count:       int   = 5,
-        # --- Diversity controls (quality fix) ---
-        similarity_upper:     float = 0.98,   # reject near-identical restatements
-        max_token_overlap:    float = 0.85,   # reject lexically-too-close candidates
-        max_per_strategy:     int   = 2,      # cap variants from any single strategy
-        # --- Bidirectional NLI gate (improvement #1) ---
-        # Minimum P(entailment) in BOTH directions for qa/dialogue candidates.
-        # 0.50 is a conservative default — entailment must beat
-        # contradiction+neutral combined for the candidate to pass.
-        nli_entail_threshold: float = 0.50,
-        # --- vLLM backend (H100) ---
-        model_id:             Optional[str] = None,
-        quantization:         Optional[str] = None,
+        model_backend:          str   = "vllm",
+        sbert_model:            str   = "all-mpnet-base-v2",
+        similarity_threshold:   float = 0.82,
+        min_word_count:         int   = 5,
+        similarity_upper:       float = 0.98,
+        max_token_overlap:      float = 0.85,
+        max_per_strategy:       int   = 2,
+        model_id:               Optional[str] = None,
+        quantization:           Optional[str] = None,
         gpu_memory_utilization: float = 0.90,
-        max_model_len:        int   = 4096,
+        max_model_len:          int   = 4096,
     ):
-        assert model_backend in ("local", "llama", "vllm"), \
-            "model_backend must be 'local', 'llama', or 'vllm'"
-        self.backend              = model_backend
-        self.similarity_threshold = similarity_threshold
-        self.min_word_count       = min_word_count
-        self.similarity_upper     = similarity_upper
-        self.max_token_overlap    = max_token_overlap
-        self.max_per_strategy     = max_per_strategy
-        self.nli_entail_threshold = nli_entail_threshold
-        self.gpu_memory_utilization = gpu_memory_utilization
-        self.max_model_len        = max_model_len
+        assert model_backend in ("llama", "vllm"), \
+            "model_backend must be 'vllm' or 'llama' (GPU-only backends)"
 
-        # Load SBERT first (small, always needed)
+        self.backend                = model_backend
+        self.similarity_threshold   = similarity_threshold
+        self.min_word_count         = min_word_count
+        self.similarity_upper       = similarity_upper
+        self.max_token_overlap      = max_token_overlap
+        self.max_per_strategy       = max_per_strategy
+        self.gpu_memory_utilization = gpu_memory_utilization
+        self.max_model_len          = max_model_len
+
         logger.info(f"Loading SBERT model: {sbert_model}")
         self.sbert = SentenceTransformer(sbert_model)
         logger.info("  SBERT loaded.")
 
-        # Load generation model
-        if model_backend == "local":
-            self._load_flan()
-        elif model_backend == "vllm":
+        if model_backend == "vllm":
             self._load_vllm(model_id or self.VLLM_MODEL_ID, quantization)
         else:
             self._load_llama()
 
     # ── Model loaders ─────────────────────────────────────────
-
-    def _load_flan(self):
-        from transformers import T5ForConditionalGeneration, AutoTokenizer
-        logger.info(f"Loading Flan-T5: {self.LOCAL_MODEL_ID}")
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            self.LOCAL_MODEL_ID, use_fast=True
-        )
-        # Prefer MPS on Apple Silicon; fall back to CPU
-        if torch.backends.mps.is_available():
-            self._device = torch.device("mps")
-        else:
-            self._device = torch.device("cpu")
-        self.model = T5ForConditionalGeneration.from_pretrained(
-            self.LOCAL_MODEL_ID
-        ).to(self._device)
-        self.model.eval()
-        logger.info(f"  Flan-T5 loaded on {self._device}.")
 
     def _load_llama(self):
         from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -303,39 +185,32 @@ class ParaphraseGenerator:
             self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = AutoModelForCausalLM.from_pretrained(
             self.LLAMA_MODEL_ID,
-            torch_dtype  = torch.bfloat16,
-            device_map   = "auto",
-            local_files_only = True,
+            torch_dtype=torch.bfloat16,
+            device_map="auto",
+            local_files_only=True,
         )
         self.model.eval()
         logger.info("  LLaMA loaded in bfloat16 with device_map='auto'.")
 
     def _load_vllm(self, model_id: str, quantization: Optional[str]):
-        """Load a generator via vLLM (H100). Batched, 10-50x faster than HF.
-
-        For a 70B target on one 80GB card, pass an AWQ/GPTQ-INT4 repo and
-        quantization="awq_marlin" (or "gptq_marlin"); ~40GB weights leave room
-        for the KV cache. vLLM is imported lazily so the laptop flan-t5 path
-        does not require vllm to be installed.
-        """
         from transformers import AutoTokenizer
         try:
             from vllm import LLM, SamplingParams
-        except ImportError as e:  # pragma: no cover - H100-only path
+        except ImportError as e:
             raise RuntimeError(
                 "vLLM backend requested but vllm is not installed. "
-                "On the H100: pip install vllm"
+                "pip install vllm"
             ) from e
 
         logger.info(f"Loading vLLM generator: {model_id} (quant={quantization})")
-        self.model_id = model_id
+        self.model_id  = model_id
         self.tokenizer = AutoTokenizer.from_pretrained(model_id)
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
         llm_kwargs = dict(
             model=model_id,
-            tensor_parallel_size=1,           # single 80GB H100
+            tensor_parallel_size=1,
             gpu_memory_utilization=self.gpu_memory_utilization,
             max_model_len=self.max_model_len,
             dtype="auto",
@@ -347,16 +222,14 @@ class ParaphraseGenerator:
         self._SamplingParams = SamplingParams
         logger.info("  vLLM generator ready.")
 
+    # ── Batched generation (vLLM) ─────────────────────────────
+
     def generate_batch(self, prompts: List[str]) -> List[str]:
-        """Batched generation for the vLLM backend (one engine call)."""
-        sp = self._SamplingParams(
-            temperature=0.8, top_p=0.95, max_tokens=256, seed=42,
-        )
+        sp = self._SamplingParams(temperature=0.8, top_p=0.95, max_tokens=256, seed=42)
         outs = self.llm.generate(prompts, sp)
         return [self._clean_output(o.outputs[0].text) or "" for o in outs]
 
     def _build_chat_prompt(self, task: str, base_text: str, strategy_instruction: str) -> str:
-        """Render the instruct chat template to a single string for vLLM."""
         messages = [
             {"role": "system", "content": SYSTEM_PROMPTS.get(task, SYSTEM_PROMPTS["summarization"])},
             {"role": "user", "content": f"{strategy_instruction}\n\nOriginal:\n{base_text}\n\nRephrased version:"},
@@ -369,13 +242,11 @@ class ParaphraseGenerator:
         prompt = self._build_chat_prompt(task, base_text, strategy_instruction)
         return self.generate_batch([prompt])[0] or None
 
-    # ── Single-candidate generation ───────────────────────────
+    # ── Single-candidate generation (llama) ──────────────────
 
     def _clean_output(self, text: str) -> str:
-        """Strip echoed prefixes, quotes, and model self-commentary."""
         text = re.sub(r'^(Rephrased\s+version\s*:\s*)', '', text, flags=re.IGNORECASE)
         text = text.strip().strip('"\'').strip()
-        # Stop at blank line or model self-commentary
         lines, clean = text.split("\n"), []
         for line in lines:
             s = line.strip()
@@ -389,42 +260,16 @@ class ParaphraseGenerator:
             clean.append(s)
         return " ".join(clean).strip()
 
-    def _generate_single_flan(
-        self, task: str, base_text: str, strategy_instruction: str
-    ) -> Optional[str]:
-        prompt = _build_flan_prompt(task, base_text, strategy_instruction)
-        inputs = self.tokenizer(
-            prompt, return_tensors="pt", truncation=True, max_length=512
-        ).to(self._device)
-        with torch.no_grad():
-            out = self.model.generate(
-                **inputs,
-                max_new_tokens = 200,
-                num_beams      = 4,
-                early_stopping = True,
-                temperature    = 0.85,
-                do_sample      = True,
-                top_p          = 0.92,
-            )
-        raw = self.tokenizer.decode(out[0], skip_special_tokens=True)
-        return self._clean_output(raw) or None
-
     def _generate_single_llama(
         self, task: str, base_text: str, strategy_instruction: str
     ) -> Optional[str]:
         messages = [
-            {
-                "role":    "system",
-                "content": SYSTEM_PROMPTS.get(task, SYSTEM_PROMPTS["summarization"]),
-            },
-            {
-                "role":    "user",
-                "content": (
-                    f"{strategy_instruction}\n\n"
-                    f"Original:\n{base_text}\n\n"
-                    f"Rephrased version:"
-                ),
-            },
+            {"role": "system", "content": SYSTEM_PROMPTS.get(task, SYSTEM_PROMPTS["summarization"])},
+            {"role": "user", "content": (
+                f"{strategy_instruction}\n\n"
+                f"Original:\n{base_text}\n\n"
+                f"Rephrased version:"
+            )},
         ]
         input_ids = self.tokenizer.apply_chat_template(
             messages, return_tensors="pt", add_generation_prompt=True
@@ -435,11 +280,11 @@ class ParaphraseGenerator:
         with torch.no_grad():
             output = self.model.generate(
                 input_ids,
-                max_new_tokens = 300,
-                temperature    = 0.85,
-                top_p          = 0.92,
-                do_sample      = True,
-                pad_token_id   = self.tokenizer.pad_token_id,
+                max_new_tokens=300,
+                temperature=0.85,
+                top_p=0.92,
+                do_sample=True,
+                pad_token_id=self.tokenizer.pad_token_id,
             )
 
         new_tokens = output[0][input_len:]
@@ -449,8 +294,6 @@ class ParaphraseGenerator:
     def _generate_single(
         self, task: str, base_text: str, strategy_instruction: str
     ) -> Optional[str]:
-        if self.backend == "local":
-            return self._generate_single_flan(task, base_text, strategy_instruction)
         if self.backend == "vllm":
             return self._generate_single_vllm(task, base_text, strategy_instruction)
         return self._generate_single_llama(task, base_text, strategy_instruction)
@@ -463,21 +306,13 @@ class ParaphraseGenerator:
         canonical_instruction: str,
         logger: Optional[logging.Logger] = None,
     ) -> List[str]:
-        """Generate n unique summarization instructions using the configured backend.
-
-        llama/vllm → single freeform LLM call (open-source model on H100, fast).
-        local       → strategy-based paraphrase fallback (Flan-T5 on CPU/MPS).
-        The canonical instruction is always index 0 in the returned pool.
-        """
+        """Generate n unique summarization instructions via freeform LLM call."""
         _log = logger or logging.getLogger(__name__)
-        if self.backend == "local":
-            return self._instruction_pool_strategies(n, canonical_instruction, _log)
         return self._instruction_pool_freeform(n, canonical_instruction, _log)
 
     def _instruction_pool_freeform(
         self, n: int, canonical: str, log: logging.Logger
     ) -> List[str]:
-        """Ask the open-source LLM for n diverse instructions in a single call."""
         from sentence_transformers import util as _st_util
 
         prompt_text = (
@@ -515,7 +350,6 @@ class ParaphraseGenerator:
                 )
             raw = self.tokenizer.decode(out[0][input_len:], skip_special_tokens=True)
 
-        # Parse: strip leading numbers/bullets, keep lines with ≥5 words
         candidates: List[str] = []
         for line in raw.split("\n"):
             line = re.sub(r'^\s*\d+[.)]\s*', '', line)
@@ -523,7 +357,6 @@ class ParaphraseGenerator:
             if len(line.split()) >= 5:
                 candidates.append(line)
 
-        # SBERT filter: similarity band [threshold, upper] relative to canonical
         pool: List[str] = [canonical]
         seen: set = {self._first_n_words_sig(canonical)}
         canon_emb = self.sbert.encode(canonical, convert_to_tensor=True)
@@ -564,7 +397,6 @@ class ParaphraseGenerator:
     def _instruction_pool_strategies(
         self, n: int, canonical: str, log: logging.Logger
     ) -> List[str]:
-        """Strategy-based fallback: paraphrase the canonical instruction 16-way."""
         dummy = {
             "instance_id": "_summ_instr_pool",
             "task":        "summarization",
@@ -585,9 +417,7 @@ class ParaphraseGenerator:
     # ── SBERT helpers ─────────────────────────────────────────
 
     def _compute_similarity(self, original: str, candidate: str) -> float:
-        embeddings = self.sbert.encode(
-            [original, candidate], convert_to_tensor=True
-        )
+        embeddings = self.sbert.encode([original, candidate], convert_to_tensor=True)
         return float(util.cos_sim(embeddings[0], embeddings[1]).item())
 
     @staticmethod
@@ -596,11 +426,6 @@ class ParaphraseGenerator:
 
     @staticmethod
     def _token_overlap(a: str, b: str) -> float:
-        """Jaccard overlap of lowercased word sets — a lexical-similarity proxy.
-
-        High overlap means the candidate reuses the same words (low lexical
-        diversity) even if SBERT cosine is acceptable.
-        """
         sa = set(re.findall(r"\w+", a.lower()))
         sb = set(re.findall(r"\w+", b.lower()))
         if not sa or not sb:
@@ -615,10 +440,7 @@ class ParaphraseGenerator:
         n_variants:  int = 8,
         max_retries: int = 3,
     ) -> List[Dict[str, Any]]:
-        """
-        Generate up to n_variants filtered paraphrases for one record.
-        Uses all 16 strategies; retries up to max_retries if not enough pass.
-        """
+        """Generate up to n_variants filtered paraphrases for one record."""
         base_text   = record["base_text"]
         task        = record["task"]
         instance_id = record["instance_id"]
@@ -627,25 +449,12 @@ class ParaphraseGenerator:
         seen_sigs: set = {self._first_n_words_sig(base_text)}
         strategy_counts: Dict[str, int] = {}
 
-        # Improvement #3: restrict to task-appropriate strategies. Falls back to
-        # the full 16-strategy set if the task isn't in the whitelist (defensive
-        # default for unknown tasks).
         allowed_strategies = STRATEGY_BY_TASK.get(task, STRATEGY_NAMES)
         task_strategy_pairs = [
             (name, instr)
             for name, instr in zip(STRATEGY_NAMES, STRATEGY_INSTRUCTIONS)
             if name in allowed_strategies
         ]
-
-        # Improvement #1: bidirectional NLI gate is mandatory for qa/dialogue
-        # (intent-changing paraphrases are the dominant failure mode there).
-        # For summarization/creative the NLI model is not consulted — SBERT band
-        # + token-overlap floor are sufficient and avoid the extra cost.
-        nli_required = task in _NLI_REQUIRED_TASKS
-        nli_model = _get_nli_model() if nli_required else None
-        # Silent degradation: if the NLI model can't load we skip the bidirectional
-        # gate rather than dropping all qa/dialogue paraphrases. The warning was
-        # already logged by _get_nli_model.
 
         for retry in range(max_retries):
             if len(valid_paraphrases) >= n_variants:
@@ -661,39 +470,31 @@ class ParaphraseGenerator:
                 if len(valid_paraphrases) >= n_variants:
                     break
 
-                # Diversity: cap how many variants any single strategy contributes.
                 if strategy_counts.get(strategy_name, 0) >= self.max_per_strategy:
                     continue
+
                 try:
-                    candidate = self._generate_single(
-                        task, base_text, strategy_instruction
-                    )
+                    candidate = self._generate_single(task, base_text, strategy_instruction)
                     if not candidate:
                         continue
 
-                    wc = len(candidate.split())
-                    if wc < self.min_word_count:
+                    if len(candidate.split()) < self.min_word_count:
                         continue
 
                     if candidate.strip().lower() == base_text.strip().lower():
-                        continue   # exact copy
+                        continue
 
                     sig = self._first_n_words_sig(candidate)
                     if sig in seen_sigs:
-                        continue   # near-duplicate
+                        continue
 
                     similarity = self._compute_similarity(base_text, candidate)
-                    # Similarity BAND: too low → meaning drift; too high → trivial
-                    # restatement that adds no real lexical perturbation.
                     if similarity < self.similarity_threshold or similarity > self.similarity_upper:
                         logger.debug(
                             f"  [{instance_id}] '{strategy_name}' sim={similarity:.3f} — out of band"
                         )
                         continue
 
-                    # Lexical-divergence floor: reject candidates that reuse too
-                    # many of the base's words, or are near-lexical-dupes of an
-                    # already-accepted variant.
                     if self._token_overlap(candidate, base_text) > self.max_token_overlap:
                         continue
                     if any(
@@ -702,50 +503,18 @@ class ParaphraseGenerator:
                     ):
                         continue
 
-                    # Improvement #1: bidirectional NLI gate for qa/dialogue.
-                    # A passive↔active flip in a question can keep SBERT cosine
-                    # ≥ 0.85 while reversing the answer; bidirectional entailment
-                    # rejects such candidates by requiring base ⊨ cand AND cand ⊨ base.
-                    nli_entail_fwd = nli_entail_bwd = None
-                    if nli_model is not None:
-                        try:
-                            nli_entail_fwd = _nli_entail_prob(nli_model, base_text, candidate)
-                            nli_entail_bwd = _nli_entail_prob(nli_model, candidate, base_text)
-                        except Exception as e:  # pragma: no cover
-                            logger.warning(
-                                f"  [{instance_id}] NLI gate failed for '{strategy_name}': {e}"
-                            )
-                            nli_entail_fwd = nli_entail_bwd = None
-
-                        if nli_entail_fwd is not None and (
-                            nli_entail_fwd < self.nli_entail_threshold
-                            or nli_entail_bwd < self.nli_entail_threshold
-                        ):
-                            logger.debug(
-                                f"  [{instance_id}] '{strategy_name}' NLI gate: "
-                                f"fwd={nli_entail_fwd:.3f}, bwd={nli_entail_bwd:.3f} — rejected"
-                            )
-                            continue
-
                     seen_sigs.add(sig)
                     strategy_counts[strategy_name] = strategy_counts.get(strategy_name, 0) + 1
-                    variant_record = {
+                    valid_paraphrases.append({
                         "variant_idx":      len(valid_paraphrases),
                         "paraphrased_text": candidate,
                         "sbert_similarity": round(similarity, 4),
                         "strategy":         strategy_name,
-                    }
-                    if nli_entail_fwd is not None:
-                        variant_record["nli_entail_fwd"] = round(nli_entail_fwd, 4)
-                        variant_record["nli_entail_bwd"] = round(nli_entail_bwd, 4)
-                    valid_paraphrases.append(variant_record)
+                    })
 
                 except Exception as e:
-                    logger.warning(
-                        f"  [{instance_id}] Strategy '{strategy_name}' failed: {e}"
-                    )
+                    logger.warning(f"  [{instance_id}] Strategy '{strategy_name}' failed: {e}")
 
-        # Re-index
         for i, v in enumerate(valid_paraphrases):
             v["variant_idx"] = i
 
@@ -755,13 +524,9 @@ class ParaphraseGenerator:
 
     def build_prompt_variants(
         self,
-        record:       Dict[str, Any],
-        paraphrases:  List[Dict[str, Any]],
+        record:      Dict[str, Any],
+        paraphrases: List[Dict[str, Any]],
     ) -> List[Dict[str, Any]]:
-        """
-        Replace base_text in base_prompt with each paraphrased_text
-        to build the full paraphrased prompts.
-        """
         base_text   = record["base_text"]
         base_prompt = record["base_prompt"]
 
@@ -781,23 +546,19 @@ class ParaphraseGenerator:
         record:     Dict[str, Any],
         n_variants: int = 8,
     ) -> Dict[str, Any]:
-        """
-        Full pipeline for a single instance:
-        generate → filter → build full prompts → return enriched record.
-        """
         t_start = time.time()
 
         paraphrases = self.generate_paraphrases(record, n_variants=n_variants)
         paraphrases = self.build_prompt_variants(record, paraphrases)
 
-        elapsed    = time.time() - t_start
-        n_gen      = len(paraphrases)
-        mean_sim   = (
+        elapsed  = time.time() - t_start
+        n_gen    = len(paraphrases)
+        mean_sim = (
             float(np.mean([p["sbert_similarity"] for p in paraphrases]))
             if paraphrases else 0.0
         )
         diversity = self._diversity_stats([p["paraphrased_text"] for p in paraphrases])
-        n_strat = len({p["strategy"] for p in paraphrases})
+        n_strat   = len({p["strategy"] for p in paraphrases})
         diversity["n_strategies"] = n_strat
 
         logger.info(
@@ -820,12 +581,6 @@ class ParaphraseGenerator:
         }
 
     def _diversity_stats(self, texts: List[str]) -> Dict[str, Any]:
-        """Corpus-level lexical diversity over a set of variants.
-
-        distinct_2: fraction of unique bigrams (higher = more diverse).
-        mean_pairwise_overlap: mean token-Jaccard between variant pairs
-                               (lower = more diverse).
-        """
         if len(texts) < 2:
             return {"distinct_2": 0.0, "mean_pairwise_overlap": 0.0, "n_strategies": 0}
         bigrams, total = set(), 0
@@ -842,5 +597,5 @@ class ParaphraseGenerator:
         return {
             "distinct_2": round(distinct_2, 4),
             "mean_pairwise_overlap": round(float(np.mean(overlaps)), 4),
-            "n_strategies": 0,  # filled by caller
+            "n_strategies": 0,
         }
