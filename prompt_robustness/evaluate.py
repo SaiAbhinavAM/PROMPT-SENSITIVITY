@@ -648,6 +648,13 @@ def main():
     args = parser.parse_args()
 
     config = load_config(args.config)
+    # Flaw §4.2 — deterministic seeding for reproducibility (bootstrap CI
+    # resamples + any random tie-breaks).
+    try:
+        from src.utils import set_global_seed
+        set_global_seed(int(config.get("seed", 42)) if isinstance(config, dict) else 42)
+    except Exception:
+        pass
     run_evaluation(config)
 
 

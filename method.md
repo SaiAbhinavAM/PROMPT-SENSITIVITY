@@ -5,6 +5,35 @@
 
 ---
 
+## [2026-05-30] — Phase 3: reproducibility & infrastructure from FLAWS_AND_FIXES.pdf §4
+
+**Files Modified:** `requirements_gpu_pinned.txt` (new), `prompt_robustness/src/utils.py`, `prompt_robustness/main.py`, `prompt_robustness/experiment_baseline.py`, `prompt_robustness/experiment_pirc.py`, `prompt_robustness/evaluate.py`
+
+**What Changed:**
+
+- **§4.1 Dependency pinning** (`requirements_gpu_pinned.txt`)
+  - New strict-pin requirements file alongside the existing range-based one. Locks transformers, vllm, autoawq, gptqmodel (for the AWQ Marlin kernel), sentence-transformers, datasets, rouge-score, scikit-learn, numpy, pandas, etc. to exact versions known to work with torch 2.6.0+cu124 on A100.
+- **§4.2 Deterministic seeding** (`src/utils.py`, all entry points)
+  - Added `set_global_seed(seed=42)` — seeds Python `random`, NumPy, torch (CPU + CUDA), enables cuDNN determinism + warn-only `torch.use_deterministic_algorithms`, sets `PYTHONHASHSEED`.
+  - Wired into `main.py`, `experiment_baseline.py`, `experiment_pirc.py`, `evaluate.py` immediately after the config is loaded.
+- **§4.4 Crash-safe JSON checkpointing** (`src/utils.py`, baseline + pirc experiments)
+  - Added `JsonlCheckpointWriter` — append-only JSONL writer with `flush + os.fsync` after every record, plus a tolerant `read_all` that survives a truncated last line (the typical crash pattern).
+  - `experiment_baseline.py` now streams `baseline.jsonl` + `ifi_metrics.jsonl` (one article per line) alongside the existing all-at-once `baseline.json` / `ifi_metrics.json` final aggregates. The legacy summary `baseline_checkpoint.json` is still consumed for backward compatibility but JSONL is preferred when present.
+  - `experiment_pirc.py` does the same with `pirc.jsonl`.
+- **§4.3 / §4.5 deferred:** Docker image and CI smoke test are deferred to a later commit — they require infra changes (Dockerfile + GitHub Actions workflow) beyond the scope of the code base.
+
+**Why:**
+- Range-pinned requirements broke during the A100 bootstrap (CUDA/torch/vllm lock-step). Exact pins eliminate that whole class of breakage for re-runners.
+- Bootstrapping / NLI / sampling baselines all touch RNGs; without a single seed call, re-runs drift even with `do_sample=False`.
+- All-at-once JSON writes lose every computed article on a single crash; per-article fsync'd JSONL preserves work.
+
+**Impact:**
+- No behavioural change in steady-state results.
+- Re-runs are now bit-reproducible up to non-deterministic GPU kernels (cuDNN determinism is best-effort).
+- Output filenames `baseline.jsonl`, `ifi_metrics.jsonl`, `pirc.jsonl` are new artifacts. Downstream tooling that hard-codes `baseline.json` is unaffected — the JSON aggregate is still written.
+
+---
+
 ## [2026-05-30] — Phase 2: methodological gaps from FLAWS_AND_FIXES.pdf §3
 
 **Files Modified:** `prompt_robustness/src/auc_e_metric.py`, `prompt_robustness/src/evaluator.py`, `prompt_robustness/src/config.py`, `prompt_robustness/src/embeddings.py`

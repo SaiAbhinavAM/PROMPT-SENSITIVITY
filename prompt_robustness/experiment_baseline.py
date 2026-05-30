@@ -399,18 +399,33 @@ def run_baseline_experiment(config: dict, dry_run: bool = False):
     from src.ifi_metrics import compute_ifi_metrics
 
     # ─── Check for existing checkpoint ────────────────────────────────────
-    checkpoint_path = results_dir / "baseline_checkpoint.json"
+    # Flaw §4.4 — JSONL streaming checkpoint (one record per article,
+    # fsync'd immediately). Survives crashes mid-loop, replaces the
+    # all-at-once final write that lost everything on failure.
+    from src.utils import JsonlCheckpointWriter
+    checkpoint_path = results_dir / "baseline_checkpoint.json"   # legacy summary
+    baseline_jsonl = results_dir / "baseline.jsonl"               # per-article stream
+    ifi_jsonl = results_dir / "ifi_metrics.jsonl"                # per-article stream
     results = []
     ifi_results = []
     start_idx = 0
 
-    if checkpoint_path.exists() and not dry_run:
+    if baseline_jsonl.exists() and not dry_run:
+        # Resume from JSONL — authoritative once present.
+        results = JsonlCheckpointWriter.read_all(str(baseline_jsonl))
+        ifi_results = JsonlCheckpointWriter.read_all(str(ifi_jsonl))
+        start_idx = len(results)
+        logger.info(f"Resuming from JSONL checkpoint at article {start_idx}")
+    elif checkpoint_path.exists() and not dry_run:
         with open(checkpoint_path, 'r') as f:
             checkpoint = json.load(f)
         results = checkpoint.get('results', [])
         ifi_results = checkpoint.get('ifi_results', [])
         start_idx = len(results)
-        logger.info(f"Resuming from checkpoint at article {start_idx}")
+        logger.info(f"Resuming from legacy checkpoint at article {start_idx}")
+
+    baseline_stream = JsonlCheckpointWriter(str(baseline_jsonl)) if not dry_run else None
+    ifi_stream = JsonlCheckpointWriter(str(ifi_jsonl)) if not dry_run else None
 
     # ─── Main loop ────────────────────────────────────────────────────────
     total_start = time.time()
@@ -470,6 +485,8 @@ def run_baseline_experiment(config: dict, dry_run: bool = False):
             'gold_summary': gold_summary,
         }
         results.append(article_result)
+        if baseline_stream is not None:
+            baseline_stream.write(article_result)
 
         logger.info(
             f"  ROUGE-L: mean={rouge_mean:.4f}, var={rouge_var:.6f}"
@@ -490,16 +507,18 @@ def run_baseline_experiment(config: dict, dry_run: bool = False):
                 'mean_branching_factors': ifi['mean_branching_factors'],
             }
             ifi_results.append(ifi_result)
+            if ifi_stream is not None:
+                ifi_stream.write(ifi_result)
             logger.info(
                 f"  IFI: PPL_var={ifi['ppl_var']:.4f}, "
                 f"PC_stab={ifi['pc_stab']:.6f}"
             )
         except Exception as e:
             logger.error(f"  IFI computation failed: {e}")
-            ifi_results.append({
-                'article_idx': n,
-                'error': str(e)
-            })
+            err_record = {'article_idx': n, 'error': str(e)}
+            ifi_results.append(err_record)
+            if ifi_stream is not None:
+                ifi_stream.write(err_record)
 
         # ─── Checkpoint ──────────────────────────────────────────────────
         if (n + 1) % checkpoint_interval == 0:
@@ -558,6 +577,12 @@ def run_baseline_experiment(config: dict, dry_run: bool = False):
         json.dump(ifi_output, f, indent=2, default=str)
     logger.info(f"IFI metrics saved to {ifi_path}")
 
+    # Flaw §4.4 — close streaming JSONL checkpoints (data already flushed/fsync'd).
+    if baseline_stream is not None:
+        baseline_stream.close()
+    if ifi_stream is not None:
+        ifi_stream.close()
+
     # Clean up checkpoint
     if checkpoint_path.exists():
         checkpoint_path.unlink()
@@ -593,6 +618,12 @@ def main():
     args = parser.parse_args()
 
     config = load_config(args.config)
+    # Flaw §4.2 — deterministic seeding for reproducibility.
+    try:
+        from src.utils import set_global_seed
+        set_global_seed(int(config.get("seed", 42)) if isinstance(config, dict) else 42)
+    except Exception:
+        pass
     run_baseline_experiment(config, dry_run=args.dry_run)
 
 

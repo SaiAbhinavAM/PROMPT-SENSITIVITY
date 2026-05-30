@@ -385,16 +385,25 @@ def run_pirc_experiment(config: dict, dry_run: bool = False):
     )
 
     # ─── Check for existing checkpoint ────────────────────────────────────
-    checkpoint_path = results_dir / "pirc_checkpoint.json"
+    # Flaw §4.4 — JSONL streaming checkpoint, fsync'd per record.
+    from src.utils import JsonlCheckpointWriter
+    checkpoint_path = results_dir / "pirc_checkpoint.json"  # legacy
+    pirc_jsonl = results_dir / "pirc.jsonl"                  # per-article stream
     results = []
     start_idx = 0
 
-    if checkpoint_path.exists() and not dry_run:
+    if pirc_jsonl.exists() and not dry_run:
+        results = JsonlCheckpointWriter.read_all(str(pirc_jsonl))
+        start_idx = len(results)
+        logger.info(f"Resuming from JSONL checkpoint at article {start_idx}")
+    elif checkpoint_path.exists() and not dry_run:
         with open(checkpoint_path, 'r') as f:
             checkpoint = json.load(f)
         results = checkpoint.get('results', [])
         start_idx = len(results)
-        logger.info(f"Resuming from checkpoint at article {start_idx}")
+        logger.info(f"Resuming from legacy checkpoint at article {start_idx}")
+
+    pirc_stream = JsonlCheckpointWriter(str(pirc_jsonl)) if not dry_run else None
 
     # ─── Main loop ────────────────────────────────────────────────────────
     total_start = time.time()
@@ -473,6 +482,8 @@ def run_pirc_experiment(config: dict, dry_run: bool = False):
             }
 
         results.append(article_result)
+        if pirc_stream is not None:
+            pirc_stream.write(article_result)
 
         # ─── Checkpoint ──────────────────────────────────────────────────
         if (n + 1) % checkpoint_interval == 0:
@@ -538,6 +549,10 @@ def run_pirc_experiment(config: dict, dry_run: bool = False):
     if checkpoint_path.exists():
         checkpoint_path.unlink()
 
+    # Flaw §4.4 — close streaming JSONL checkpoint (data already fsync'd).
+    if pirc_stream is not None:
+        pirc_stream.close()
+
     # ─── Print summary ────────────────────────────────────────────────────
     if valid_results:
         ell_stars = pirc_output['summary']['ell_star_values']
@@ -591,6 +606,12 @@ def main():
     args = parser.parse_args()
 
     config = load_config(args.config)
+    # Flaw §4.2 — deterministic seeding for reproducibility.
+    try:
+        from src.utils import set_global_seed
+        set_global_seed(int(config.get("seed", 42)) if isinstance(config, dict) else 42)
+    except Exception:
+        pass
     run_pirc_experiment(config, dry_run=args.dry_run)
 
 

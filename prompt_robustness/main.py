@@ -9,6 +9,7 @@ import argparse
 import logging
 from src.config import Config
 from src.benchmark import benchmark_models
+from src.utils import set_global_seed
 from src.table_utils import (
     render_performance_table,
     render_advanced_metrics_table,
@@ -37,6 +38,9 @@ def main():
 
     args = parser.parse_args()
     config = Config()
+    # Flaw §4.2 — seed every randomness source up front so re-runs are
+    # bit-reproducible across numpy / python random / torch / cudnn.
+    set_global_seed(getattr(config, "seed", 42))
     if args.models:
         config.models = args.models
     if args.dataset:
