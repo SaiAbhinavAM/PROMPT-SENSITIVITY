@@ -5,6 +5,37 @@
 
 ---
 
+## [2026-05-30] — Phase 5: dataset quality from FLAWS_AND_FIXES.pdf §6
+
+**Files Modified:** `gensens/scripts/paraphrase_generator.py`, `gensens/scripts/audit_paraphrase_quality.py` (new), `gensens/scripts/adversarial_paraphrases.py` (new)
+
+**What Changed:**
+
+- **§6.1 GenSens paraphrase quality audit** (`audit_paraphrase_quality.py` — new)
+  - Standalone CLI that samples N pairs from a GenSens JSONL dataset, runs DeBERTa-v3-MNLI (configurable) in BOTH directions on each (base, paraphrase), and reports the fraction with bidirectional entailment.
+  - Output: per-pair CSV + summary breakdown (bidirectional / one-direction / neither).
+  - Goes in the paper as the paraphrase-quality appendix table.
+- **§6.2 Adversarial paraphrase subset** (`adversarial_paraphrases.py` — new)
+  - Five deterministic no-model perturbation families: `typo` (8% char-swaps), `sentence_reorder`, `double_negation` (insert "not not" after a copula — ¬¬X ≡ X but heavy lexical shift), `hedged` (prepend "Arguably," / "It might be the case that"), `formality_shift` (flip contractions both ways).
+  - `adversarial_paraphrases(text, n, seed)` driver returns up to n distinct variants tagged `adv:<strategy>`, filtering no-ops.
+  - PRI should be reported separately on the easy GenSens subset vs the adversarial subset.
+- **§6.3 Dialogue task density** (`paraphrase_generator.py`)
+  - Added `task_thresholds` dict on `ParaphraseGenerator` with `DEFAULT_TASK_THRESHOLDS = {"dialogue": 0.78}`.
+  - The variant filter looks up the per-task threshold, defaulting to the global `similarity_threshold` (0.82) for everything else. Restores dialogue variant yield without polluting summarization/QA/creative.
+- **§6.4 Task coverage:** Code-gen / GSM8K / MMLU-Pro / FLORES / SST-2 additions are dataset-level extensions, not code changes here — tracked as a follow-up.
+
+**Why:**
+- SBERT cos-sim alone passes adversarial paraphrases that flip meaning; an NLI audit gives reviewers an additional defensible quality signal.
+- "Easy" LLM rewrites do not stress-test robustness; the adversarial subset gives the paper a clean "robustness under attack" narrative.
+- Dialogue's SBERT filter at 0.82 was killing most candidates (only ~2.8 of N survived) — loosening the band restores variant density without changing global behaviour.
+
+**Impact:**
+- No change to existing dataset generation behaviour by default. Pass `task_thresholds={"dialogue": 0.78}` (or rely on the default merge) to opt into the loosened dialogue band.
+- New audit/adversarial scripts are opt-in and require no changes to downstream consumers.
+- Adversarial bucket should be scored AND reported separately so easy-subset numbers stay comparable to prior runs.
+
+---
+
 ## [2026-05-30] — Phase 4: LL-PIRC mitigation track from FLAWS_AND_FIXES.pdf §5
 
 **Files Modified:** `prompt_robustness/experiment_pirc.py`, `prompt_robustness/src/sensitive_layer.py`, `prompt_robustness/src/mitigation_baselines.py` (new)

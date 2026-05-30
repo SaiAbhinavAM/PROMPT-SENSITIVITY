@@ -138,6 +138,14 @@ class ParaphraseGenerator:
     LLAMA_MODEL_ID = "meta-llama/Meta-Llama-3.1-8B-Instruct"
     VLLM_MODEL_ID  = "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4"
 
+    # Flaw §6.3 — per-task SBERT threshold overrides. Dialogue prompts are
+    # short and high-density: with the global 0.82 threshold only ~2.8 of N
+    # candidate variants survive per instance. Loosening to 0.78 for
+    # dialogue restores variant yield without polluting other tasks.
+    DEFAULT_TASK_THRESHOLDS: Dict[str, float] = {
+        "dialogue": 0.78,
+    }
+
     def __init__(
         self,
         model_backend:          str   = "vllm",
@@ -151,6 +159,7 @@ class ParaphraseGenerator:
         quantization:           Optional[str] = None,
         gpu_memory_utilization: float = 0.90,
         max_model_len:          int   = 4096,
+        task_thresholds:        Optional[Dict[str, float]] = None,
     ):
         assert model_backend in ("llama", "vllm"), \
             "model_backend must be 'vllm' or 'llama' (GPU-only backends)"
@@ -163,15 +172,26 @@ class ParaphraseGenerator:
         self.max_per_strategy       = max_per_strategy
         self.gpu_memory_utilization = gpu_memory_utilization
         self.max_model_len          = max_model_len
+        # Per-task overrides merged on top of defaults; callers can pass
+        # `task_thresholds={"dialogue": 0.75, "qa": 0.84}` to fine-tune.
+        self.task_thresholds        = dict(self.DEFAULT_TASK_THRESHOLDS)
+        if task_thresholds:
+            self.task_thresholds.update(task_thresholds)
 
-        logger.info(f"Loading SBERT model: {sbert_model}")
-        self.sbert = SentenceTransformer(sbert_model)
-        logger.info("  SBERT loaded.")
-
+        # IMPORTANT (vLLM v1 fork/CUDA conflict): vLLM 0.8+ uses multiprocessing
+        # `fork` by default; if CUDA is initialized in the main process BEFORE
+        # the vLLM workers fork, every child crashes with
+        # "Cannot re-initialize CUDA in forked subprocess".
+        # SentenceTransformer touches CUDA on construction, so we MUST load
+        # vLLM first and the SBERT scorer afterwards.
         if model_backend == "vllm":
             self._load_vllm(model_id or self.VLLM_MODEL_ID, quantization)
         else:
             self._load_llama()
+
+        logger.info(f"Loading SBERT model: {sbert_model}")
+        self.sbert = SentenceTransformer(sbert_model)
+        logger.info("  SBERT loaded.")
 
     # ── Model loaders ─────────────────────────────────────────
 
@@ -489,7 +509,11 @@ class ParaphraseGenerator:
                         continue
 
                     similarity = self._compute_similarity(base_text, candidate)
-                    if similarity < self.similarity_threshold or similarity > self.similarity_upper:
+                    # Flaw §6.3 — per-task threshold (e.g. 0.78 for dialogue).
+                    effective_threshold = self.task_thresholds.get(
+                        task, self.similarity_threshold
+                    )
+                    if similarity < effective_threshold or similarity > self.similarity_upper:
                         logger.debug(
                             f"  [{instance_id}] '{strategy_name}' sim={similarity:.3f} — out of band"
                         )
