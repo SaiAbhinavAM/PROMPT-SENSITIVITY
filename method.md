@@ -5,6 +5,37 @@
 
 ---
 
+## [2026-05-30] — Phase 4: LL-PIRC mitigation track from FLAWS_AND_FIXES.pdf §5
+
+**Files Modified:** `prompt_robustness/experiment_pirc.py`, `prompt_robustness/src/sensitive_layer.py`, `prompt_robustness/src/mitigation_baselines.py` (new)
+
+**What Changed:**
+
+- **§5.3 ℓ\* ablation knob** (`sensitive_layer.py`, `experiment_pirc.py`)
+  - `SensitiveLayerDetector` gains a `force_ell_star: Optional[int]` constructor argument; when set, `detect()` returns that layer directly and the sensitivity curve still gets computed for logging.
+  - `experiment_pirc.py` exposes `--ell-star L` on the CLI which writes `config['sensitive_layer']['force_ell_star']` and threads it through to the detector. Enables sweeping ℓ\* ∈ {6, 9, 12, 18, 24, 28} from the shell.
+- **§5.4 α ablation knob** (`experiment_pirc.py`)
+  - Added `--alpha A` CLI flag that overrides `config['pirc']['alpha']`. The existing dev-tuning code path also already supports `alpha_values` lists, so both manual single-α runs and grid sweeps are now first-class.
+- **§5.5 Mitigation baselines for the method paper** (`src/mitigation_baselines.py` — new module)
+  - Four no-training inference-time baselines that LL-PIRC must beat:
+    1. `temperature_smoothing` — sample n=4 outputs per paraphrase at T=0.7, aggregate (default: longest).
+    2. `self_consistency_vote` — classification mode returns the modal answer; generation mode picks the ROUGE-L centroid response.
+    3. `system_prompt_stabilize` — prepends a "be stable across rephrasings" system prompt to every paraphrase.
+    4. `in_context_learning` — builds K-1 paraphrase exemplars in context before the real prompt.
+  - All four share a common `(prompts, generate_fn, **kwargs) -> List[str]` signature so they can be plugged into the same evaluation harness as PIRC.
+  - `BASELINES` dict registry for the future `experiment_baselines_comparison.py` driver.
+- **§5.1 / §5.2 / §5.6 deferred:** Scale verification at n=200, article-1 outlier re-check, and the mechanistic story for ℓ\* all require GPU runs (no code changes) and are tracked as follow-ups.
+
+**Why:**
+- The method paper requires both ablations (ℓ\*, α) and comparisons against the strongest no-training baselines. Without these, reviewers cannot tell whether PIRC's gains come from clamping specifically or from "any test-time intervention helps."
+
+**Impact:**
+- No behavioural change for default `experiment_pirc.py` runs.
+- New CLI knobs `--alpha` / `--ell-star` enable ablation matrices from the shell.
+- `mitigation_baselines.py` is library-only — the corresponding experiment driver is still TBD; the four functions are unit-smoke-tested in this commit.
+
+---
+
 ## [2026-05-30] — Phase 3: reproducibility & infrastructure from FLAWS_AND_FIXES.pdf §4
 
 **Files Modified:** `requirements_gpu_pinned.txt` (new), `prompt_robustness/src/utils.py`, `prompt_robustness/main.py`, `prompt_robustness/experiment_baseline.py`, `prompt_robustness/experiment_pirc.py`, `prompt_robustness/evaluate.py`

@@ -312,7 +312,9 @@ def setup_pirc_pipeline(model, tokenizer, config: dict):
         scan_start_fraction=config['sensitive_layer']['scan_start_fraction'],
         scan_end_fraction=config['sensitive_layer']['scan_end_fraction'],
         method=config['sensitive_layer']['method'],
-        zscore_threshold=config['sensitive_layer']['zscore_threshold']
+        zscore_threshold=config['sensitive_layer']['zscore_threshold'],
+        # Flaw §5.3 — honor a CLI/config force_ell_star override for ℓ* ablation.
+        force_ell_star=config['sensitive_layer'].get('force_ell_star'),
     )
 
     # Anchor Token Identifier
@@ -603,9 +605,26 @@ def main():
         "--dry-run", action="store_true",
         help="Process only 2 articles for testing"
     )
+    # Flaw §5.3 / §5.4 — explicit ablation knobs for ℓ* and α. These
+    # override anything in config.yaml, so a single ablation matrix can be
+    # driven from the CLI without forking the config.
+    parser.add_argument(
+        "--alpha", type=float, default=None,
+        help="Override PIRC clamping alpha (e.g. 0.1, 0.25, 0.5, 0.75, 1.0)"
+    )
+    parser.add_argument(
+        "--ell-star", type=int, default=None,
+        help="Force a specific ℓ* (e.g. 6, 9, 12, 18, 24, 28) bypassing detection"
+    )
     args = parser.parse_args()
 
     config = load_config(args.config)
+    if args.alpha is not None:
+        config.setdefault('pirc', {})['alpha'] = float(args.alpha)
+        logger.info(f"[ablation] PIRC alpha overridden via CLI: {args.alpha}")
+    if args.ell_star is not None:
+        config.setdefault('sensitive_layer', {})['force_ell_star'] = int(args.ell_star)
+        logger.info(f"[ablation] ℓ* forced via CLI: {args.ell_star}")
     # Flaw §4.2 — deterministic seeding for reproducibility.
     try:
         from src.utils import set_global_seed

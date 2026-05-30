@@ -36,7 +36,8 @@ class SensitiveLayerDetector:
         scan_start_fraction: float = 0.25,
         scan_end_fraction: float = 1.0,
         method: str = "inflection",
-        zscore_threshold: float = 2.0
+        zscore_threshold: float = 2.0,
+        force_ell_star: Optional[int] = None,
     ):
         """
         Args:
@@ -54,11 +55,16 @@ class SensitiveLayerDetector:
         self.scan_end = int(self.num_layers * scan_end_fraction)
         self.method = method
         self.zscore_threshold = zscore_threshold
+        # Flaw §5.3 — ablation knob: when set, `detect()` returns this
+        # layer instead of computing one. Lets us sweep ℓ* ∈ {6,9,12,18,
+        # 24,28} and show layer 9 is empirically optimal (or not).
+        self.force_ell_star = force_ell_star
 
         logger.info(
             f"SensitiveLayerDetector initialized: scanning layers "
             f"[{self.scan_start}, {self.scan_end}) of {self.num_layers} total. "
             f"Method: {self.method}"
+            + (f" [force_ell_star={force_ell_star}]" if force_ell_star is not None else "")
         )
 
     def compute_sensitivity_curve(
@@ -233,5 +239,11 @@ class SensitiveLayerDetector:
             S: The full sensitivity curve dict.
         """
         S = self.compute_sensitivity_curve(tokenizer, paraphrases, device)
-        ell_star = self.find_sensitive_layer(S)
+        if self.force_ell_star is not None:
+            ell_star = int(self.force_ell_star)
+            logger.info(
+                f"[ablation] ℓ* forced to {ell_star} (skipping detection)"
+            )
+        else:
+            ell_star = self.find_sensitive_layer(S)
         return ell_star, S
