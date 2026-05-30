@@ -5,6 +5,218 @@
 
 ---
 
+## [2026-05-30] — Phase 1: critical bug fixes from FLAWS_AND_FIXES.pdf §2
+
+**Files Modified:** `prompt_robustness/src/anchor_tokens.py`, `prompt_robustness/src/correctness_metric.py`, `prompt_robustness/src/csv_io.py`, `prompt_robustness/src/benchmark.py`, `prompt_robustness/src/scores.py`
+
+**What Changed:**
+
+- **§2.1 Anchor selector NaN/inf handling** (`anchor_tokens.py`)
+  - Added `_sanitize_for_ranking()` helper that masks non-finite mean_ppl / var_ppl with the dtype max (sentinel sorts to the END of argsort), and returns a `finite_mask` for hard exclusion.
+  - Anchor candidate pool is now filtered to finite positions only; non-finite positions can never win the "most stable" lottery again.
+  - Logs the count of non-finite positions excluded at layer ℓ\*.
+- **§2.2 IFI saturation fix** (`csv_io.py`, `benchmark.py`)
+  - Extended `SCORED_COLS` with `ppl_var_norm`, `bf_norm`, `ifi_norm` (filled in post-stream, blank during incremental writing).
+  - Added `csv_io.normalize_ifi_per_model()` — reads `scored_samples.csv`, computes per-model min-max normalization of `ppl_var` and `bf`, recomputes `ifi_norm = 1 - (ppl_var_norm + bf_norm) / 2`, rewrites the CSV in place.
+  - `benchmark_models()` calls the normalizer once after the streaming writers close.
+- **§2.3 PRI vs Diagnostic_PRI policy** (`scores.py`)
+  - Added a documentation block declaring `pri` (arithmetic) the PRIMARY ranking score for main tables and `diagnostic_pri` (harmonic) APPENDIX-ONLY. The two measure different constructs by design and must never be shipped as if they agree.
+- **§2.4 CS composition rebalance** (`correctness_metric.py`)
+  - OLD: `CS = 0.5 * semantic + 0.5 * coverage` (collinear with coverage at r ≈ 0.96).
+  - NEW: `CS = 0.40 * semantic + 0.20 * length_adequacy + 0.40 * coverage`.
+  - Added `_length_adequacy(resp_len, ref_len)` — full credit inside the band `[0.5 * ref_len, 2 * ref_len]`, linearly decayed outside (zero at len=0 and at 4×ref_len).
+  - Retained the `coverage < 0.2 → CS × 0.6` gate so semantic+length cannot rescue a hallucinated response.
+
+**Why:**
+- Anchor selector NaN/inf bug let PIRC clamp on the *worst* tokens (FLAWS §2.1 — explains a large portion of mitigation failure).
+- IFI saturated at 1.0 collapsed `Diagnostic_PRI = HM(ORI, IFI)` to `Diagnostic_ORI` (FLAWS §2.2).
+- Arithmetic PRI and harmonic Diagnostic_PRI were Pearson-anti-correlated (r ≈ -0.13); shipping both unlabeled was misleading (FLAWS §2.3).
+- CS was empirically `Coverage` in disguise (r=0.96), undermining the multi-axis quality framing (FLAWS §2.4).
+
+**Impact:**
+- All previously scored PRI / CS / IFI numbers are NUMERICALLY DIFFERENT under the new formula. Existing `scored_samples.csv` outputs must be re-aggregated (or re-generated) before publication.
+- PIRC results that depended on the broken anchor pool must be re-run end-to-end.
+- `scored_samples.csv` schema now includes three additional columns; `csv_io.IncrementalCSVWriter._migrate_schema_if_needed()` handles old-format files transparently.
+- Breaking change for any downstream consumer that hard-codes the SCORED_COLS list.
+
+---
+
+## [2026-05-29] — Critical PIRC mitigation bug fix: prefill-only clamping
+
+**Files Modified:** `prompt_robustness/src/pirc.py`
+
+**What Changed:**
+- `generate_with_clamping()` now applies the forward hook **only during the prefill pass** (the single forward where `seq_len == prompt_len`), not on every per-token decode step.
+- Added a `clamp_state["prefilled"]` latch closed-over by the hook so subsequent calls (each decode step) short-circuit and pass `output` through untouched.
+
+**Why:**
+- Previously the hook ran on every forward call. During `model.generate(...)` with KV cache, decode steps see `h.shape[1] == 1` (just the new token). The hook then executed `h[:, :1][:, mask] = mean_h_device[mask]`, overwriting the new token's hidden state with `mean_h[0]` — the *prompt's first-anchor* consensus. Every newly generated token's representation got pinned to the same anchor, collapsing autoregressive generation into a degenerate loop ("Here://://://...").
+- Symptom in the 5-instance test: PIRC at α=1.0 and α=0.5 produced byte-identical degenerate outputs, identical PRI-relative ROUGE-L (0.012), identical 47% "variance reduction" — the alpha knob didn't matter because the model output was destroyed before it could differ.
+
+**Impact:**
+- Mitigation is now actually functional. Previous PIRC results (any run before this commit) are INVALID and must be re-run.
+- ℓ\* detection, baseline pipeline, and Phase 1/2 scoring are unaffected — only the clamped-generation step changed.
+- Re-run `experiment_pirc.py` to regenerate `pirc.json` / `eval_summary.json` / plots.
+
+---
+
+## [2026-05-29] — A100 instance bootstrap hardening (env / generator / quantization)
+
+**Files Modified:** `run_on_gpu.sh`, `gensens/scripts/generate_summ_instructions.py`
+
+**What Changed:**
+- `run_on_gpu.sh`:
+  - Source `$ROOT/.env` after the helper functions are defined, so `HF_TOKEN`, `MODEL_NAME`, `GENERATOR_MODEL`, `JUDGE_MODEL`, `EMBEDDER_MODEL`, etc. propagate to every Python subprocess (vLLM, HF, huggingface-cli).
+  - Mirror `HF_TOKEN` → `HUGGING_FACE_HUB_TOKEN` for older `huggingface_hub` codepaths.
+  - Export `VLLM_WORKER_MULTIPROC_METHOD=spawn` to eliminate the residual fork/CUDA risk in vLLM 0.8+.
+  - Resolve the Phase 0/1 `MODEL_ID` *after* loading `.env` with precedence `--model-id CLI > MODEL_ID env > GENERATOR_MODEL (.env) > Qwen 7B fallback`. The previous order took the Qwen 7B fallback before `.env` had a chance to set `GENERATOR_MODEL=...Llama-3.1-70B-AWQ-INT4`.
+  - Build `QUANT_ARG="--quantization $GENERATOR_QUANTIZATION"` and pass it to both `generate_summ_instructions.py` (Phase 0) and `generate_dataset.py` (Phase 1) so the 70B AWQ generator loads with the Marlin kernel instead of trying to allocate fp16 weights (instant OOM otherwise).
+  - Simplified `ensure_torch()` to use a real `torch.zeros(1).cuda()` op as the compatibility probe instead of parsing driver/version strings.
+- `generate_summ_instructions.py`:
+  - Added `--quantization` CLI flag and threaded it through `load_vllm_model(..., quantization=...)` into `LLM(quantization=...)`.
+
+**Why:**
+- Without `.env` sourcing, gated-model downloads (Llama-3.1) returned `401 Unauthorized` because the bash environment never saw `HF_TOKEN`.
+- Without the new `MODEL_ID` resolution order, Phase 0/1 silently fell back to Qwen 7B even when `.env` declared the 70B AWQ generator — a methodology mismatch vs. `config.yaml` which mandates the 70B paraphraser.
+- Without `--quantization`, vLLM would attempt to load `Meta-Llama-3.1-70B-Instruct-AWQ-INT4` as fp16 (~140 GB) and OOM immediately on an 80 GB A100.
+
+**Impact:**
+- No metric / formula changes — purely orchestration hardening so the pipeline boots cleanly on a fresh A100 instance.
+- Existing local results unaffected; no re-run required.
+
+---
+
+## [2026-05-29] — Sync remote-only fixes back to local repo; pin torch/vLLM stack
+
+**Files Modified:** `gensens/scripts/paraphrase_generator.py`, `requirements_gpu.txt`, `run_on_gpu.sh`
+
+**What Changed:**
+- `paraphrase_generator.py`: swap SBERT / vLLM init order — load vLLM **before** `SentenceTransformer(...)`. (This fix had only been applied on the now-deleted remote instance and was missing from the repo.)
+- `requirements_gpu.txt`: pin `vllm>=0.8.0,<0.9.0` (was `vllm>=0.5.0`). Updated install header to recommend `torch==2.6.0+cu124` instead of cu121.
+- `run_on_gpu.sh`: new `ensure_torch()` helper called from `ensure_deps()`. It detects the case where the pre-installed torch is built for CUDA 13.0 but the driver only supports CUDA ≤ 12.x and force-reinstalls `torch==2.6.0+cu124` / `torchvision==0.21.0+cu124` / `torchaudio==2.6.0` from the cu124 index. The downstream `pip install` line also pins `vllm>=0.8.0,<0.9.0`.
+
+**Why:**
+- vLLM v1 (0.8+) uses multiprocessing `fork` by default. `SentenceTransformer(...)` initializes CUDA on construction; if it runs before vLLM forks, every worker crashes with *"Cannot re-initialize CUDA in forked subprocess"*. Loading vLLM first guarantees the fork happens before CUDA is touched in the parent.
+- vLLM 0.21+ pins `torch==2.11.0+cu130`. That wheel needs an NVIDIA driver ≥ 570.124 (CUDA 12.8). The A100 instance we provisioned shipped driver 570.86 (CUDA 12.8 max ABI 12080), so every CUDA call failed with *"NVIDIA driver too old"*. Capping at vllm 0.8.x keeps us on torch 2.6/cu124, which works on essentially every A100/H100 driver in use today.
+
+**Impact:**
+- No metric / formula changes — these are environment-setup fixes only.
+- Existing results remain valid; no re-run required.
+- Fresh GPU instances should now bootstrap successfully via `bash run_on_gpu.sh`.
+
+---
+
+## [2026-05-29] — Upgrade default embedder to BAAI/bge-large-en-v1.5; fix kpig_metric dead code
+
+**Files Modified:** `prompt_robustness/src/embeddings.py`, `prompt_robustness/src/kpig_metric.py`, `prompt_robustness/src/evaluator.py`, `.env.example`, `prompt_robustness/config.yaml`
+
+**What Changed:**
+- `EmbeddingHelper._DEFAULT` changed from `sentence-transformers/all-mpnet-base-v2` to `BAAI/bge-large-en-v1.5`.
+- `kpig_metric.py`: Removed hardcoded global `SentenceTransformer("all-MiniLM-L6-v2")` and `get_model()`. `compute_kpig_metric()` now accepts a shared `embedder` parameter (lazy-creates `EmbeddingHelper()` if None).
+- `evaluator.py`: Removed dead `from .kpig_metric import compute_kpig_metric` import — the pipeline uses `compute_kpig_advanced` from `metrics_advanced.py`; the old import never executed and was loading an unused 22M model definition.
+- `.env.example`, `config.yaml`: Updated embedder references to `BAAI/bge-large-en-v1.5`.
+
+**Why:**
+- `bge-large-en-v1.5` (335M, 1024-dim, MTEB ~64) is a well-cited research embedder (Xiao et al. 2023) with a clear quality advantage over `all-mpnet-base-v2` (MTEB ~57) and negligible extra cost (1.3 GB vs 0.4 GB).
+- The hardcoded `all-MiniLM-L6-v2` in `kpig_metric.py` would have loaded a separate 22M model inconsistent with the shared embedder if `compute_kpig_metric` were ever called.
+- Dead import removed to keep the codebase clean.
+
+**Impact:**
+- Breaking change: SMS/KPIG/TRD scores will differ from any prior runs (different embedding geometry). Re-run required.
+- No change to formulas, weights, or pipeline structure.
+- GenSens paraphrase filtering (`paraphrase_generator.py`) still uses `all-mpnet-base-v2` — that is intentional and unchanged.
+
+---
+
+## [2026-05-29] — Fix Llama/gated model loading: HF token, AWQ config, seq2seq detection
+
+**Files Modified:** `prompt_robustness/src/model_interface.py`
+
+**What Changed:**
+- Added `_hf_token()` helper — reads `HF_TOKEN` or `HUGGING_FACE_HUB_TOKEN` from env; passed explicitly to every `AutoTokenizer.from_pretrained`, `AutoModelForCausalLM.from_pretrained`, and `AutoConfig.from_pretrained` call. Logs a warning at startup if unset.
+- Added `_KNOWN_CAUSAL` fast-path in `_is_seq2seq()` — Llama/Mistral/Qwen/etc. return `False` immediately without making a network call to HuggingFace. Previously every Llama load called `AutoConfig.from_pretrained` which hit the gated-model auth gate.
+- Added `_apply_quantization_kwargs()` — wires `quantization="awq_marlin"` into `AwqConfig(bits=4, backend="marlin")` (transformers ≥4.44) or falls back to autoawq direct loading. Previously the `quantization` param was stored but never passed to `from_pretrained`, so the 70B AWQ model loaded as raw fp16 → OOM.
+- Added `max_length=2048` to the tokenizer call in `generate_responses()` — prevents runaway padding on 128K-context Llama models when tokenizing long article prompts in a batch.
+
+**Why:**
+- Llama models are gated on HuggingFace — without an explicit `token=` they fail with `OSError: Access to model is restricted`.
+- The `quantization="awq_marlin"` value was silently ignored; loading 70B without AWQ quantization requires ~140 GB fp16 → immediate OOM on an 80 GB card.
+- `_is_seq2seq` calling `AutoConfig.from_pretrained` on every model caused a redundant auth round-trip and, for gated models with a missing token, an exception that hid the real error.
+
+**Impact:**
+- All 4 subject models (3×8B/7B + 1×70B AWQ) should now load correctly on A100/H100.
+- No metric or formula changes. Re-run not required if prior results were generated with working models.
+
+---
+
+## [2026-05-29] — Fix pipeline for full 200-instance, 4-task run
+
+**Files Modified:** `prompt_robustness/src/config.py`, `prompt_robustness/src/benchmark.py`, `run_on_gpu.sh`
+
+**What Changed:**
+- **`config.py`**: `max_new_tokens` default raised from 50 → 256 (env: `MAX_NEW_TOKENS`). Added `max_samples: int` field (env: `MAX_SAMPLES`, 0 = no limit).
+- **`benchmark.py`**: Removed hardcoded `[:100]` slice in both `benchmark_models()` and `generate_responses_to_csv()`. Both now use `config.max_samples` (0 = process all instances).
+- **`run_on_gpu.sh` Phase 2**: After Phase 1, all 4 task JONSLs (summarization, creative, dialogue, qa) are merged via `cat` into a single `gensens_all_Ninst_Kvar.jsonl`. Phase 2 receives the combined file so all 4 tasks are benchmarked in one run.
+
+**Why:**
+- 50 tokens was cutting off summarization outputs mid-sentence; 256 tokens fits full summaries.
+- The `[:100]` hardcode silently truncated a 200-instance dataset to 100 — half the data was never evaluated.
+- Only the summarization JSONL was passed to Phase 2; creative/dialogue/QA instances were never benchmarked.
+
+**Impact:**
+- All 200 instances × 4 tasks = 800 samples are now benchmarked per model.
+- Outputs will be longer and more coherent (256 tokens vs 50).
+- Re-run required — prior results used truncated data and short outputs.
+
+---
+
+## [2026-05-29] — Fix gte-Qwen2-7B-instruct under transformers 5.7 via native Qwen2 path + EOS pooling
+
+**Files Modified:** `prompt_robustness/src/embeddings.py`
+
+**What Changed:**
+- Added `_is_gte_qwen2()` detector and `_GteQwen2Embedder` class in `embeddings.py`.
+- When `model_name` contains `gte-qwen2`, `EmbeddingHelper` now uses `_GteQwen2Embedder` instead of `SentenceTransformer(trust_remote_code=True)`.
+- `_GteQwen2Embedder` loads the model with `trust_remote_code=False` (uses transformers' native `Qwen2Model`) and implements EOS-token pooling manually (last non-padding token, right-padded batches, L2-normalised).
+- Default embedder remains `all-mpnet-base-v2`; opt-in to 7B via `EMBEDDER_MODEL=Alibaba-NLP/gte-Qwen2-7B-instruct`.
+
+**Why:**
+- `trust_remote_code=True` uses the HF-cached `modeling_qwen.py` which has two bugs under transformers ≥5.7:
+  (a) `inv_freq` (`persistent=False` buffer) is corrupted during `from_pretrained` → RoPE cos/sin all-zero → Q/K norms collapse → cosine sim ≈ 0.01 for all pairs.
+  (b) Left-padded batch attention mask is inverted in the custom attention prep code → further breaks similarity.
+- `trust_remote_code=False` falls back to the native `Qwen2Model` in transformers which is fully 5.7-compatible and has neither bug.
+- EOS-token pooling (last non-padding token) is the correct pooling strategy for the GTE-Qwen2 model family.
+
+**Impact:**
+- `gte-Qwen2-7B-instruct` now produces correct cosine similarities when requested via `EMBEDDER_MODEL`.
+- No change to default behaviour (`all-mpnet-base-v2` still default); existing results unaffected.
+- If `EMBEDDER_MODEL=Alibaba-NLP/gte-Qwen2-7B-instruct` is set, previous results must be discarded (prior runs had SMS=0 due to the bugs above).
+
+---
+
+## [2026-05-29] — Switch default embedder from gte-Qwen2-7B-instruct to all-mpnet-base-v2
+
+**Files Modified:** `prompt_robustness/src/embeddings.py`
+
+**What Changed:**
+- `EmbeddingHelper._DEFAULT` changed from `"Alibaba-NLP/gte-Qwen2-7B-instruct"` to `"sentence-transformers/all-mpnet-base-v2"`.
+- Removed the now-unnecessary `_repair_rope_caches()` helper function and `_patch_qwen2_config()` invocation that attempted to fix corrupted RoPE buffers.
+- `trust_remote_code` in `SentenceTransformer(...)` is now set dynamically: `True` only when the model name contains `"qwen"` or `"gte"`, `False` otherwise (covers `all-mpnet-base-v2` and other standard ST models correctly).
+
+**Why:**
+- `gte-Qwen2-7B-instruct` uses a custom `modeling_qwen.py` that is fundamentally incompatible with transformers ≥5.7. Two separate bugs were confirmed:
+  1. The `inv_freq` buffer (declared `persistent=False`) is corrupted during `from_pretrained` in transformers 5.7, causing RoPE to produce all-zero cosine/sine caches → Q and K norms collapse to ~0 → all attention outputs are degenerate.
+  2. Left-padded batches trigger an inverted attention mask path in the custom model code, further breaking similarity computation.
+- As a result, all pairwise cosine similarities were ~0.01 regardless of semantic content → SMS clamped to 0.0 for every sample.
+- `all-mpnet-base-v2` (768-dim) is fully compatible with transformers 5.7, already cached on the GPU instance, and produces correct cosine similarities for semantically equivalent paraphrases.
+
+**Impact:**
+- **Breaking change**: SMS scores are now meaningful and non-zero. All previous results generated with `gte-Qwen2-7B-instruct` as embedder (SMS=0.0 for most samples) must be discarded and re-run.
+- PRI and Final Score will change wherever SMS drove the Consistency component.
+- Scores are NOT comparable across embedder choices (different geometry/dimensionality). Always note the embedder in result filenames or metadata.
+
+---
+
 ## [2026-05-29] — Remove all small models from project; GPU-only pipeline
 
 **Files Modified:** `prompt_robustness/src/config.py`, `prompt_robustness/src/llm_judge.py`, `prompt_robustness/src/embeddings.py`, `prompt_robustness/src/faithfulness_metric.py`, `gensens/scripts/paraphrase_generator.py`, `gensens/scripts/generate_dataset.py`

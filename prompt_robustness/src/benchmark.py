@@ -78,7 +78,8 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
         - correlation_results: Correlation analysis dict (or None).
     """
     df = load_dataset(config.data_path)
-    samples = df.to_dict('records')[:100]
+    limit = config.max_samples if getattr(config, "max_samples", 0) else len(df)
+    samples = df.to_dict('records')[:limit]
     for i, s in enumerate(samples):
         s.setdefault("instance_id", f"idx_{i}")
     print(f"Running evaluation on {len(samples)} samples")
@@ -243,6 +244,13 @@ def benchmark_models(config: Config) -> Tuple[pd.DataFrame, pd.DataFrame, Option
     scored_writer.close()
     print(f"💾 CSV layers persisted: {resp_path}, {scored_path}")
 
+    # Flaw §2.2 — per-model IFI normalization. ppl_var and bf live on
+    # different scales for every model; without this pass IFI saturates at
+    # 1.0 and is useless for cross-row diagnosis. Runs once at the end so
+    # incremental rows stay crash-safe.
+    csv_io.normalize_ifi_per_model(scored_path)
+    print(f"💾 IFI normalized per-model in {scored_path}")
+
     # Split responses.csv and scored_samples.csv by task (topic_label) so each
     # task's outputs are available as a dedicated file for easy analysis/reuse.
     _save_task_split_csvs(resp_path, scored_path, config.results_dir)
@@ -325,7 +333,8 @@ def generate_responses_to_csv(config: Config) -> str:
     are skipped on re-run (resume). Returns the responses.csv path.
     """
     df = load_dataset(config.data_path)
-    samples = df.to_dict("records")[:100]
+    limit = config.max_samples if getattr(config, "max_samples", 0) else len(df)
+    samples = df.to_dict("records")[:limit]
     for i, s in enumerate(samples):
         s.setdefault("instance_id", f"idx_{i}")
 
@@ -394,10 +403,13 @@ def score_from_responses_csv(csv_path: str, config: Config) -> pd.DataFrame:
           f"({len(done)} already done) — no generation model")
     os.makedirs(config.results_dir, exist_ok=True)
     writer = csv_io.IncrementalCSVWriter(scored_path, csv_io.SCORED_COLS, resume=True)
+    # Load embedder once for all samples — avoids reloading 7B model per sample (OOM).
+    from .embeddings import EmbeddingHelper
+    shared_embedder = EmbeddingHelper()
     rows = []
     for (model, inst), sample in pending.items():
         try:
-            r = evaluate_sample(sample, config, model_interface=None, cache_manager=None)
+            r = evaluate_sample(sample, config, model_interface=None, cache_manager=None, embedder=shared_embedder)
             row = csv_io.scored_row_from_result(r)
             writer.write_rows([row])   # flush + fsync per group
             rows.append(row)

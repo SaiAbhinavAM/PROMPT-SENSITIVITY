@@ -148,6 +148,22 @@ class AnchorTokenIdentifier:
         return ppl_stack, mean_ppl, var_ppl, min_len
 
     @staticmethod
+    def _sanitize_for_ranking(
+        mean_ppl: torch.Tensor,
+        var_ppl:  torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Mask non-finite (inf/NaN) positions so torch.argsort cannot rank them
+        as 'most stable'. Replaces non-finite values with the dtype max so they
+        sort to the END of the rank order, and returns a finite_mask for hard
+        exclusion from the anchor candidate pool (Flaw §2.1)."""
+        finite_mask = torch.isfinite(mean_ppl) & torch.isfinite(var_ppl)
+        large_val = torch.finfo(mean_ppl.dtype).max
+        sentinel = torch.tensor(large_val, dtype=mean_ppl.dtype, device=mean_ppl.device)
+        mean_ppl = torch.where(finite_mask, mean_ppl, sentinel)
+        var_ppl  = torch.where(finite_mask, var_ppl,  sentinel)
+        return mean_ppl, var_ppl, finite_mask
+
+    @staticmethod
     def _is_content_token(decoded: str) -> bool:
         """
         Return True if a decoded token is a 'content' token, i.e. NOT
@@ -203,6 +219,19 @@ class AnchorTokenIdentifier:
                 "method": "percentile",
             }
 
+        # ── Sanitize non-finite PPL/var values (Flaw §2.1) ────────────────
+        # torch.argsort places NaN at the front of the rank order on most
+        # PyTorch versions, which would let pathological tokens win the
+        # "most stable" lottery. Mask them out before ranking and exclude
+        # from the candidate pool entirely.
+        mean_ppl, var_ppl, finite_mask = self._sanitize_for_ranking(mean_ppl, var_ppl)
+        n_nonfinite = int((~finite_mask).sum().item())
+        if n_nonfinite > 0:
+            logger.warning(
+                f"[anchors] {n_nonfinite}/{min_len} positions had non-finite "
+                f"PPL at layer {ell_star} — excluded from anchor candidate pool."
+            )
+
         # ── Compute stability ranks (lower = more stable) ─────────────────
         mean_ranks = torch.argsort(torch.argsort(mean_ppl))  # 0 = smallest
         var_ranks  = torch.argsort(torch.argsort(var_ppl))
@@ -226,7 +255,17 @@ class AnchorTokenIdentifier:
         n_target = max(1, min(n_target, min_len // 2 if min_len >= 2 else 1))
 
         # ── Sort positions by ascending stability score ───────────────────
-        sorted_positions = torch.argsort(stability).tolist()
+        # Exclude non-finite positions entirely (Flaw §2.1).
+        sorted_positions = [
+            p for p in torch.argsort(stability).tolist()
+            if bool(finite_mask[p].item())
+        ]
+        if not sorted_positions:
+            logger.warning(
+                "[anchors] All positions had non-finite PPL — falling back "
+                "to unfiltered ordering so PIRC clamping is not a no-op."
+            )
+            sorted_positions = torch.argsort(stability).tolist()
 
         selected: List[int] = []
         filtering_applied = False

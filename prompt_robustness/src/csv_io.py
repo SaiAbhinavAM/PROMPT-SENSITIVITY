@@ -39,9 +39,15 @@ RESPONSES_COLS = [
 ]
 
 # Raw per-(model,instance) metric components. Composites are derived from these.
+# Flaw §2.2 fix: `ppl_var_norm`, `bf_norm`, and `ifi_norm` are populated by
+# `normalize_ifi_per_model` *after* all rows for a model are written, so they
+# are blank during the live streaming write and only become non-zero once the
+# per-model min/max is known. The intra-model normalization makes IFI a true
+# within-model comparison signal instead of saturating at 1.0.
 SCORED_COLS = [
     "model", "instance_id", "topic_label", "n_variants",
     "sms", "auc_e", "trd", "kpig", "ppl_var", "bf",
+    "ppl_var_norm", "bf_norm", "ifi_norm",
     "cs", "hs", "faithfulness", "human_score",
     "avg_length", "avg_coverage", "usd",
     "trd_semantic", "kpig_advanced",
@@ -164,6 +170,11 @@ def scored_row_from_result(result: Dict) -> Dict:
         "kpig": m.get("kpig", 0.0),
         "ppl_var": m.get("ppl_var", 0.0),
         "bf": m.get("bf", 0.0),
+        # Per-model normalized intra-model diagnostics — filled in by
+        # normalize_ifi_per_model() once all rows for a model are collected.
+        "ppl_var_norm": "",
+        "bf_norm": "",
+        "ifi_norm": "",
         "cs": result.get("cs", 0.0),
         "hs": result.get("hs_score", 0.0),
         "faithfulness": result.get("faithfulness", 0.0),
@@ -232,6 +243,42 @@ def validate_responses_csv(csv_path: str) -> Tuple[bool, List[str]]:
 
 def validate_scored_csv(csv_path: str) -> Tuple[bool, List[str]]:
     return _validate(csv_path, SCORED_COLS, ["model", "instance_id"])
+
+
+def normalize_ifi_per_model(scored_csv_path: str) -> None:
+    """Fill in ppl_var_norm, bf_norm, ifi_norm by per-model min-max normalization.
+
+    Implements the Flaw §2.2 fix: the raw `ppl_var` / `bf` numbers are on
+    different scales for every model, so a global IFI (1 - (ppl + bf)/2)
+    saturates near 1.0 and loses all discriminating power. Normalizing within
+    a model rescales the diagnostic to a meaningful per-model spread.
+
+    Reads the scored CSV, rewrites it in place with the three norm columns
+    populated. Safe to call at the very end of a benchmark run.
+    """
+    if not os.path.exists(scored_csv_path):
+        return
+    df = pd.read_csv(scored_csv_path)
+    if df.empty or "model" not in df.columns:
+        return
+
+    df["ppl_var_norm"] = 0.0
+    df["bf_norm"] = 0.0
+    df["ifi_norm"] = 1.0
+    for model_name, g in df.groupby("model", sort=False):
+        ppl_max = max(1e-3, float(g["ppl_var"].astype(float).max()))
+        bf_max = max(1e-3, float(g["bf"].astype(float).max()))
+        ppl_norm = g["ppl_var"].astype(float) / ppl_max
+        bf_norm = g["bf"].astype(float) / bf_max
+        ifi_norm = (1.0 - (ppl_norm + bf_norm) / 2.0).clip(lower=0.0, upper=1.0)
+        df.loc[g.index, "ppl_var_norm"] = ppl_norm
+        df.loc[g.index, "bf_norm"] = bf_norm
+        df.loc[g.index, "ifi_norm"] = ifi_norm
+
+    # Re-order columns to match the canonical SCORED_COLS schema.
+    out_cols = [c for c in SCORED_COLS if c in df.columns]
+    df = df[out_cols]
+    df.to_csv(scored_csv_path, index=False, quoting=csv.QUOTE_MINIMAL)
 
 
 # ── Fault-tolerant incremental writing + resume ──────────────────────────────

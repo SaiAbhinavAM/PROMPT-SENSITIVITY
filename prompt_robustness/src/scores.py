@@ -23,6 +23,16 @@ FINAL_W_HUMAN = 0.40
 
 # Diagnostic dual-pillar score (publication framing): the primary PRI remains
 # the fair cross-model ranking score above; this score is for causal diagnosis.
+#
+# Flaw §2.3 clarification: the arithmetic PRI (above) and the harmonic
+# Diagnostic_PRI (below) DISAGREE on model rank (Pearson r ≈ -0.13 in the
+# 5-instance audit). They measure different constructs by design — arithmetic
+# rewards balanced moderates, harmonic punishes any one weak axis. Publication
+# policy:
+#   * `pri` (arithmetic)             — PRIMARY ranking score in main tables.
+#   * `diagnostic_pri` (harmonic HM) — APPENDIX-ONLY strict-evaluation
+#                                       companion. Never ship the two as if
+#                                       they measure the same thing.
 DIAG_W_ORI = 0.50
 DIAG_W_IFI = 0.50
 DIAGNOSIS_THRESHOLD = 0.70
