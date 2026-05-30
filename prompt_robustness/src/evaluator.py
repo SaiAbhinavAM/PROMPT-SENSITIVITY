@@ -28,7 +28,6 @@ from .embeddings import EmbeddingHelper
 from .sms_metric import compute_sms_metric
 from .auc_e_metric import compute_auc_e_metric
 from .trd_metric import compute_trd_metric
-from .kpig_metric import compute_kpig_metric
 from .ppl_variance import compute_ppl_variance
 from .branching_factor import compute_branching_factor
 from .pri_calculator import compute_pri
@@ -85,7 +84,7 @@ def _compute_final_score(pri: float, human_score: float, config: Config, usd_val
     )
 
 
-def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterface, cache_manager: CacheManager) -> Dict:
+def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterface, cache_manager: CacheManager, embedder: "EmbeddingHelper" = None) -> Dict:
     """Run the full evaluation pipeline for a single sample.
 
     Generation vs scoring: if ``sample['precomputed_responses']`` is present
@@ -139,7 +138,7 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
                 responses[idx] = r
 
     # 3. Compute consistency / quality / drift metrics.
-    embedder = EmbeddingHelper()
+    embedder = embedder or EmbeddingHelper()
     embeddings = embedder.encode(responses)
 
     # R6: the canonical TRD is embedding-based semantic drift, not length variance.
@@ -152,9 +151,14 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
         prompts, responses, reference=reference, embedder=embedder
     )
 
+    # Flaw §3.4: AUC-E also returns its underlying curve points so the
+    # composite is auditable. The scalar feeds the score; the curve goes
+    # into the result dict for downstream reviewers / plotting.
+    auc_e_scalar, auc_e_curve = compute_auc_e_metric(reference, responses, return_curve=True)
+
     metrics = {
         "sms": compute_sms_metric(embeddings),
-        "auc_e": compute_auc_e_metric(reference, responses),
+        "auc_e": auc_e_scalar,
         "trd": trd_semantic,        # canonical TRD = semantic drift (R6)
         "kpig": kpig_coverage,      # canonical KPIG = reference coverage (R3)
         # PPL variance & branching factor are INTRA-MODEL diagnostics (R6):
@@ -203,7 +207,16 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
 
     # Canonical PRI formula (single source of truth in src/scores.py; mirrored
     # by reaggregate.py). Short-output gate applied inside compute_pri.
-    pri = _scores.compute_pri(consistency_score, correctness_score, faithfulness, avg_len)
+    # Flaw §3.6: PRI weights are now ablatable via Config.pri_w_* (env vars).
+    pri = _scores.compute_pri(
+        consistency_score,
+        correctness_score,
+        faithfulness,
+        avg_len,
+        w_consistency=getattr(config, "pri_w_consistency", _scores.PRI_W_CONSISTENCY),
+        w_quality=getattr(config, "pri_w_quality", _scores.PRI_W_QUALITY),
+        w_faithfulness=getattr(config, "pri_w_faithfulness", _scores.PRI_W_FAITHFULNESS),
+    )
 
     # Calculate confidence score
     confidence = (consistency_score + correctness_score + faithfulness) / 3.0
@@ -329,6 +342,8 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
         "trd_semantic": advanced_metrics.get("trd_semantic", 0.0),
         "kpig_advanced": advanced_metrics.get("kpig_advanced", 0.0),
         "usd": usd_val,
+        # Flaw §3.4: AUC-E underlying curve for auditability.
+        "auc_e_curve": auc_e_curve,
         # Baseline metrics (STEP 7)
         "rouge": rouge_scores,
         "bertscore": bertscore_scores,

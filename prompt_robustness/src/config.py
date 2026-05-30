@@ -30,7 +30,8 @@ class Config:
         "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4": "awq_marlin",
     })
     device: str = os.getenv("DEVICE", "cuda")
-    max_new_tokens: int = int(os.getenv("MAX_NEW_TOKENS", "50"))
+    max_new_tokens: int = int(os.getenv("MAX_NEW_TOKENS", "256"))
+    max_samples: int = int(os.getenv("MAX_SAMPLES", "0"))  # 0 = no limit
     temperature: float = float(os.getenv("TEMPERATURE", "0.7"))
 
     # Deterministic (greedy) decoding — output variance must reflect PROMPT
@@ -65,6 +66,17 @@ class Config:
     enable_rouge: bool = True
     enable_bertscore: bool = False
     enable_correlation_analysis: bool = True
+
+    # =========================================================================
+    # PRI weight ablation (Flaw §3.6).
+    # Defaults pull from src/scores.py (PRI_W_CONSISTENCY / PRI_W_QUALITY /
+    # PRI_W_FAITHFULNESS = 0.40 / 0.35 / 0.25). Override via env vars
+    # PRI_W_CONSISTENCY, PRI_W_QUALITY, PRI_W_FAITHFULNESS to run ablations
+    # (e.g. equal-weight 0.333/0.333/0.334) without touching the formula file.
+    # =========================================================================
+    pri_w_consistency: float = float(os.getenv("PRI_W_CONSISTENCY", "0.40"))
+    pri_w_quality: float = float(os.getenv("PRI_W_QUALITY", "0.35"))
+    pri_w_faithfulness: float = float(os.getenv("PRI_W_FAITHFULNESS", "0.25"))
 
     def __post_init__(self):
         if self.weights is None:

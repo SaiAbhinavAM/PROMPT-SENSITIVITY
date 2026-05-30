@@ -5,6 +5,37 @@
 
 ---
 
+## [2026-05-30] — Phase 2: methodological gaps from FLAWS_AND_FIXES.pdf §3
+
+**Files Modified:** `prompt_robustness/src/auc_e_metric.py`, `prompt_robustness/src/evaluator.py`, `prompt_robustness/src/config.py`, `prompt_robustness/src/embeddings.py`
+
+**What Changed:**
+
+- **§3.4 AUC-E definition / auditable curve** (`auc_e_metric.py`, `evaluator.py`)
+  - `compute_auc_e_metric` now accepts `return_curve=True` and emits the underlying (variant_idx, rougeL) curve plus `mean`, `std`, `cv` summary.
+  - Documented axes: x = variant index (discrete paraphrase order from the dataset, NOT continuous perturbation strength); y = ROUGE-L F-measure.
+  - `evaluate_sample` calls `compute_auc_e_metric(..., return_curve=True)` and stores the curve under `result["auc_e_curve"]` — fully auditable now.
+- **§3.6 PRI weight ablation hooks** (`config.py`, `evaluator.py`)
+  - Added `Config.pri_w_consistency / pri_w_quality / pri_w_faithfulness` with env-var overrides `PRI_W_CONSISTENCY`, `PRI_W_QUALITY`, `PRI_W_FAITHFULNESS`.
+  - `evaluate_sample` passes these into `compute_pri`. Recommended ablation matrix: default (0.40 / 0.35 / 0.25) vs equal (0.333 / 0.333 / 0.334) vs learned (fit to downstream task accuracy).
+- **§3.5 Cross-embedder ablation documentation** (`embeddings.py`)
+  - Documented the four-embedder ablation set: BAAI/bge-large-en-v1.5 (default), Alibaba-NLP/gte-Qwen2-7B-instruct, intfloat/e5-mistral-7b-instruct, mixedbread-ai/mxbai-embed-large-v1.
+  - Note: ranking stability across these should hit Spearman ρ > 0.7 to defend against the "rankings are an embedder artifact" reviewer objection.
+
+**Why:**
+- AUC-E was a "magic number" without published axes; reviewers couldn't verify the construct.
+- PRI weights `0.40 / 0.35 / 0.25` were asserted, not justified — ablations require switching weights without forking the score formula.
+- Cross-embedder validation is a near-mandatory ablation for any embedding-based benchmark; the infrastructure already existed, just lacked guidance.
+
+**Impact:**
+- AUC-E scalar values unchanged (same formula). New `auc_e_curve` field appears in result JSON but is not in `SCORED_COLS` (intentional — curve goes in `<run_id>.json` only).
+- PRI numbers are unchanged with defaults; running with the env vars produces ablation variants.
+- No new dependencies.
+
+**§3.7 already done in this codebase:** `evaluator.py` already substitutes `trd_semantic` for the legacy length-based TRD inside ORI (`metrics["trd"] = trd_semantic`). The original §3.7 recommendation is satisfied by R6 in earlier changelog entries.
+
+---
+
 ## [2026-05-30] — Phase 1: critical bug fixes from FLAWS_AND_FIXES.pdf §2
 
 **Files Modified:** `prompt_robustness/src/anchor_tokens.py`, `prompt_robustness/src/correctness_metric.py`, `prompt_robustness/src/csv_io.py`, `prompt_robustness/src/benchmark.py`, `prompt_robustness/src/scores.py`
