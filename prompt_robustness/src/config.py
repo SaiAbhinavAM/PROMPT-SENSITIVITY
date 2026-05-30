@@ -78,6 +78,22 @@ class Config:
     pri_w_quality: float = float(os.getenv("PRI_W_QUALITY", "0.35"))
     pri_w_faithfulness: float = float(os.getenv("PRI_W_FAITHFULNESS", "0.25"))
 
+    # =========================================================================
+    # Diagnostic_ORI / Diagnostic_IFI harmonic-mean sub-weights (Phase-6).
+    # Defaults mirror src/scores.py DIAG_ORI_W_* / DIAG_IFI_W_* (which encode
+    # the FLAWS §3 collinearity findings — TRD demoted to 0.10 because it
+    # is r=-0.98 with SMS). Override via env vars to recover equal-weight
+    # behaviour or to run sensitivity sweeps.
+    # =========================================================================
+    diag_ori_w_sms:   float = float(os.getenv("DIAG_ORI_W_SMS",   "0.40"))
+    diag_ori_w_auc_e: float = float(os.getenv("DIAG_ORI_W_AUC_E", "0.30"))
+    diag_ori_w_kpig:  float = float(os.getenv("DIAG_ORI_W_KPIG",  "0.20"))
+    diag_ori_w_trd:   float = float(os.getenv("DIAG_ORI_W_TRD",   "0.10"))
+
+    diag_ifi_w_ppl_var: float = float(os.getenv("DIAG_IFI_W_PPL_VAR", "0.50"))
+    diag_ifi_w_bf:      float = float(os.getenv("DIAG_IFI_W_BF",      "0.30"))
+    diag_ifi_w_pc_stab: float = float(os.getenv("DIAG_IFI_W_PC_STAB", "0.20"))
+
     def __post_init__(self):
         if self.weights is None:
             self.weights = {

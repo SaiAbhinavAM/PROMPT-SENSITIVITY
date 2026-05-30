@@ -272,10 +272,21 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
     # Dual-pillar diagnostic score for the publication framing. The existing
     # PRI remains the fair ranking score; Diagnostic_PRI is a strict harmonic
     # synthesis that exposes output-vs-internal failure modes.
+    # Phase-6: harmonic sub-weights are sourced from Config so reviewers can
+    # ablate ORI (SMS-heavy default) and IFI (PPL_var-heavy default) without
+    # editing the formula module.
     diagnostic_ori = _scores.compute_diagnostic_ori(
-        metrics["sms"], metrics["auc_e"], metrics["trd"], metrics["kpig"]
+        metrics["sms"], metrics["auc_e"], metrics["trd"], metrics["kpig"],
+        w_sms=getattr(config,   "diag_ori_w_sms",   _scores.DIAG_ORI_W_SMS),
+        w_auc_e=getattr(config, "diag_ori_w_auc_e", _scores.DIAG_ORI_W_AUC_E),
+        w_kpig=getattr(config,  "diag_ori_w_kpig",  _scores.DIAG_ORI_W_KPIG),
+        w_trd=getattr(config,   "diag_ori_w_trd",   _scores.DIAG_ORI_W_TRD),
     )
-    diagnostic_ifi = _scores.compute_diagnostic_ifi(metrics["ppl_var"], metrics["bf"])
+    diagnostic_ifi = _scores.compute_diagnostic_ifi(
+        metrics["ppl_var"], metrics["bf"],
+        w_ppl_var=getattr(config, "diag_ifi_w_ppl_var", _scores.DIAG_IFI_W_PPL_VAR),
+        w_bf=getattr(config,      "diag_ifi_w_bf",      _scores.DIAG_IFI_W_BF),
+    )
     diagnostic_pri = _scores.compute_diagnostic_pri(diagnostic_ori, diagnostic_ifi)
     diagnosis = _scores.compute_dual_pillar_diagnosis(diagnostic_ori, diagnostic_ifi)
 

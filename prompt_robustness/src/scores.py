@@ -38,6 +38,42 @@ DIAG_W_IFI = 0.50
 DIAGNOSIS_THRESHOLD = 0.70
 HARMONIC_EPS = 1e-8
 
+# ---------------------------------------------------------------------------
+# Diagnostic sub-component weights (Phase-6 — empirically motivated by the
+# FLAWS_AND_FIXES.pdf §3 collinearity audit on the 5-instance run).
+#
+# Diagnostic_ORI = HM(SMS, AUC-E, 1-TRD, KPIG)
+#   The pre-Phase-6 default was uniform (1.0 each), which let the
+#   SMS↔TRD r = -0.98 redundancy double-count consistency. The new weights
+#   demote TRD to a tie-breaker and reward the two independent axes
+#   (SMS and AUC-E) that carry most of the legitimate signal.
+#
+#   SMS    — primary semantic-stability signal           → 0.40 (HIGHEST)
+#   AUC-E  — performance elasticity across variants      → 0.30
+#   KPIG   — reference-coverage axis (independent of SMS)→ 0.20
+#   1-TRD  — collinear with SMS at r=-0.98 (§3.7)        → 0.10 (LOWEST)
+#
+# Diagnostic_IFI = HM(1-PPL_var, 1-BF [, 1-PC_stab])
+#   PPL variance is the cleanest intra-model stability signal; branching-
+#   factor is noisier and second-order. PC_stab, when present, is a small
+#   additional confidence-based signal.
+#
+#   PPL_var — primary intra-model stability               → 0.50 (HIGHEST)
+#   BF      — secondary; noisier, entropy-derived         → 0.30
+#   PC_stab — optional prompt-confidence stability        → 0.20
+#
+# Override any of these via Config (env vars DIAG_*) for ablations — the
+# pre-Phase-6 equal-weight behaviour is recoverable by passing all 1.0.
+# ---------------------------------------------------------------------------
+DIAG_ORI_W_SMS   = 0.40
+DIAG_ORI_W_AUC_E = 0.30
+DIAG_ORI_W_KPIG  = 0.20
+DIAG_ORI_W_TRD   = 0.10
+
+DIAG_IFI_W_PPL_VAR = 0.50
+DIAG_IFI_W_BF      = 0.30
+DIAG_IFI_W_PC_STAB = 0.20
+
 
 def clamp01(x: float) -> float:
     return max(0.0, min(1.0, float(x)))
@@ -113,37 +149,55 @@ def compute_diagnostic_ori(
     auc_e: float,
     trd: float,
     kpig: float,
+    w_sms:   float = DIAG_ORI_W_SMS,
+    w_auc_e: float = DIAG_ORI_W_AUC_E,
+    w_kpig:  float = DIAG_ORI_W_KPIG,
+    w_trd:   float = DIAG_ORI_W_TRD,
 ) -> float:
-    """Diagnostic Observable Robustness Index via harmonic mean.
+    """Diagnostic Observable Robustness Index via weighted harmonic mean.
 
     Inputs are normalized so higher is better. TRD is lower-is-better and is
-    inverted before synthesis.
+    inverted before synthesis. Default weights (0.40/0.30/0.20/0.10 for
+    SMS/AUC-E/KPIG/TRD) demote TRD because of its r=-0.98 collinearity with
+    SMS (FLAWS §3.7); pass all 1.0 to recover the legacy equal-weight
+    behaviour for backwards comparisons.
     """
-    return weighted_harmonic_mean([
-        sms,
-        auc_e,
-        1.0 - clamp01(trd),
-        kpig,
-    ])
+    return weighted_harmonic_mean(
+        [sms, auc_e, kpig, 1.0 - clamp01(trd)],
+        [w_sms, w_auc_e, w_kpig, w_trd],
+    )
 
 
 def compute_diagnostic_ifi(
     ppl_var: float,
     bf: float,
     pc_stab: float = None,
+    w_ppl_var: float = DIAG_IFI_W_PPL_VAR,
+    w_bf:      float = DIAG_IFI_W_BF,
+    w_pc_stab: float = DIAG_IFI_W_PC_STAB,
 ) -> float:
-    """Diagnostic Intrinsic Fidelity Index via harmonic mean.
+    """Diagnostic Intrinsic Fidelity Index via weighted harmonic mean.
 
-    PPL variance, branching factor instability, and optional prompt-confidence
-    stability are lower-is-better, so they are inverted before synthesis.
+    PPL variance, branching factor instability, and optional prompt-
+    confidence stability are lower-is-better, so they are inverted before
+    synthesis. PPL_var carries the largest weight (0.50) — it is the
+    cleanest intra-model stability signal; BF is noisier and entropy-
+    derived (0.30); PC_stab when present picks up the remaining 0.20.
+    When pc_stab is None, the two-axis call uses w_ppl_var / w_bf only.
     """
-    components = [
-        1.0 - clamp01(ppl_var),
-        1.0 - clamp01(bf),
-    ]
-    if pc_stab is not None:
-        components.append(1.0 - clamp01(pc_stab))
-    return weighted_harmonic_mean(components)
+    if pc_stab is None:
+        return weighted_harmonic_mean(
+            [1.0 - clamp01(ppl_var), 1.0 - clamp01(bf)],
+            [w_ppl_var, w_bf],
+        )
+    return weighted_harmonic_mean(
+        [
+            1.0 - clamp01(ppl_var),
+            1.0 - clamp01(bf),
+            1.0 - clamp01(pc_stab),
+        ],
+        [w_ppl_var, w_bf, w_pc_stab],
+    )
 
 
 def compute_diagnostic_pri(

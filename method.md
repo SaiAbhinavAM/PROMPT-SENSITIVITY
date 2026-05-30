@@ -5,6 +5,37 @@
 
 ---
 
+## [2026-05-30] — Phase 6: weighted harmonic mean sub-components for Diagnostic_ORI / Diagnostic_IFI
+
+**Files Modified:** `prompt_robustness/src/scores.py`, `prompt_robustness/src/config.py`, `prompt_robustness/src/evaluator.py`
+
+**What Changed:**
+
+- `compute_diagnostic_ori` now accepts per-axis weights and defaults to:
+  - SMS = 0.40 (primary semantic stability)
+  - AUC-E = 0.30 (performance elasticity)
+  - KPIG = 0.20 (reference coverage, independent of SMS)
+  - 1-TRD = 0.10 (collinear with SMS at r=-0.98 per FLAWS §3.7, demoted to tie-breaker)
+- `compute_diagnostic_ifi` now accepts per-axis weights and defaults to:
+  - 1-PPL_var = 0.50 (cleanest intra-model stability signal)
+  - 1-BF = 0.30 (noisier entropy-derived signal)
+  - 1-PC_stab = 0.20 (optional confidence-stability axis when present)
+- `Config` gains `diag_ori_w_sms/auc_e/kpig/trd` and `diag_ifi_w_ppl_var/bf/pc_stab`, each overridable via env vars (`DIAG_ORI_W_*`, `DIAG_IFI_W_*`).
+- `evaluator.py` passes Config sub-weights into `compute_diagnostic_ori` / `compute_diagnostic_ifi`.
+- `weighted_harmonic_mean` semantics unchanged (still returns 0 when any axis is exactly 0 — preserves the strict diagnostic property).
+
+**Why:**
+- Equal weighting let TRD's r=-0.98 redundancy with SMS double-count consistency in Diagnostic_ORI, and an isolated TRD spike tanked the composite (e.g. SMS/AUC-E/KPIG=0.85, TRD=0.9 dropped HM to 0.30 even though only one axis disagreed).
+- Empirically motivated weights from the FLAWS §3 audit (TRD-SMS collinearity, PPL_var being cleaner than BF) improve discriminability while preserving the harmonic-mean "any zero → zero" property.
+
+**Impact:**
+- Uniform-input scores unchanged (HM with normalized weights on equal values returns the value itself).
+- TRD-only failure mode now scores ~0.49 instead of ~0.30 — SMS/AUC-E/KPIG still dominate.
+- Old equal-weight runs are reproducible by setting all `DIAG_*_W_*=1.0`.
+- `pri` (arithmetic) ranking score is **unchanged** — Phase 6 only affects `diagnostic_ori`, `diagnostic_ifi`, `diagnostic_pri`, and `diagnosis` (the APPENDIX-only diagnostic stack).
+
+---
+
 ## [2026-05-30] — Phase 5: dataset quality from FLAWS_AND_FIXES.pdf §6
 
 **Files Modified:** `gensens/scripts/paraphrase_generator.py`, `gensens/scripts/audit_paraphrase_quality.py` (new), `gensens/scripts/adversarial_paraphrases.py` (new)
