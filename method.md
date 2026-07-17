@@ -5,6 +5,489 @@
 
 ---
 
+## [2026-07-14] — Dimension-first analysis: mixed-effects model, residualized sensitivity, seed-level dimension test, PPL retired by default
+
+**Files Modified:** `gensens/crossed/scripts/significance.py`, `summary_report.py`, `run_crossed_h100.sh`; **Added:** `gensens/crossed/scripts/dimension_analysis.py`
+
+**What Changed (four analysis-rigor improvements, all pure-CPU, run on the completed 30-article result):**
+
+1. **Dimension effect is now the headline; pool demoted (`significance.py`, `summary_report.py`).** The 30-article result showed the instruction DIMENSION explains ~10x more sensitivity variance than the Pool A/B split (η² 0.18 vs 0.019). `significance.py` now emits a `dimension_effect` block: η² for dimension and pool, and a **seed-aggregated Kruskal-Wallis** across dimensions (each of the 50 seeds contributes one value = its mean sensitivity), which is the valid non-pseudoreplicated dimension test (mirrors the seed-level pool fix). The report leads with the dimension effect; the pool comparison is now a clearly-labeled secondary section.
+
+2. **Mixed-effects model (`dimension_analysis.py`, new).** Fits `Sensitivity ~ C(dimension)` with CROSSED random intercepts for seed and article (statsmodels variance-components MixedLM, ML), plus a likelihood-ratio test vs an intercept-only model. This is the properly-powered dimension test — it uses all 1,500 cells while correctly modeling that cells are nested in seeds and crossed with articles. **Result: LRT χ²=29.3, df=13, p=0.0059 — the dimension effect IS significant** once seed/article structure is modeled. Variance components: seed=0.0029, article=0.0071, residual=0.0182 (article content matters more than which specific seed). The three tests now bracket the truth honestly: per-cell Kruskal p=1.5e-47 (pseudoreplicated, overstated), seed-aggregated Kruskal p=0.051 (valid but underpowered — 50 seeds / 14 dims), mixed model p=0.0059 (correct).
+
+3. **Quality-residualized "pure sensitivity" (`dimension_analysis.py`).** Adds `sensitivity_resid` = Sensitivity with the quality covariates (CS_mean, faith_mean) regressed out via OLS, addressing the mild entanglement found at n=30 (r(Sensitivity, CS_mean) = −0.235). The dimension ranking is **Spearman 0.93** between raw and residualized Sensitivity, confirming the dimension finding is not a quality artifact. Writes `dimension_analysis.json`.
+
+4. **PPL/branching-factor retired by default (`run_crossed_h100.sh`).** `ppl_var` and `pc_stab_var` correlate r=0.68 (mutually redundant), the ~30-min PPL pass did not change the 30-article conclusion (3-metric and 5-metric composites agree), so `SKIP_PPL_ENTROPY` now defaults to **1**. Set to 0 only when the full 5-metric composite is specifically wanted. `dimension_analysis.py` is also wired into Phase 5 of the runner (non-fatal if statsmodels is absent).
+
+**Why:**
+- The raw per-cell tests overstate significance (pseudoreplication), the composite is mildly quality-entangled, and the coarse Pool A/B framing hides the real (dimension-level) signal. These four changes report the finding in its honest, defensible form and remove an expensive metric pass that earns nothing.
+
+**Impact:**
+- No change to any per-cell metric or the Sensitivity composite values — this is analysis/reporting on top of existing scores, plus a new `dimension_analysis.json` and a re-framed `summary_report.md`. New dependency for the mixed model: `statsmodels` (pip; CPU-only). The substantive result is unchanged and now better supported: **prompt sensitivity is driven by instruction dimension (mixed-model p=0.006, survives quality-adjustment), not the Pool A/B split.** Known limitation surfaced by the new `n_seeds` column in the report: several dimensions have thin seed support (Meta-reflection = 1 seed), so single-seed dimensions conflate the dimension with one specific prompt — adding seeds to thin dimensions is the recommended next dataset improvement.
+
+---
+
+## [2026-07-09] — Strip instruction-echo preamble from outputs before content/quality scoring
+
+**Files Modified:** `gensens/crossed/scripts/compute_cell_metrics.py`
+
+**What Changed:**
+- Added `strip_preamble()` and applied it to the model outputs before computing the **content/quality** metrics in the crossed-design pipeline. Instruction-tuned Llama-3.1 frequently prefixes summaries with a meta line that echoes the instruction — e.g. "Here is a summary of the article in 3-4 sentences:", "Here's a 3-4 sentence summary of the news article:", "**Main Events and Key Details:**", "Here are the key points:" — and the exact wording **varies across paraphrases** (some variants emit it, some don't; the phrasing differs when they do). On the 5-article pilot this preamble appeared in **~49% of the 1,495 outputs**.
+- The stripper is conservative: it removes only a short (≤20-word) leading clause ending in a colon that is clearly a meta-announcement (opens with here is/here's/here are/these are/below is/the following/sure/certainly/… **or** contains a summary-ish keyword: summary/synopsis/rundown/overview/key points/main events/takeaways/…), up to 3 stacked header+announce layers, and **never** empties an output (falls back to the trimmed original). Validated on all 1,495 pilot outputs: 49% cleaned, 0 emptied, 0 strips > 220 chars, and the only "residual" meta-looking starts were genuine first-person summaries ("I'll never forget the day…") correctly left untouched.
+- **Which metrics use which text:** cleaned output feeds SMS (SBERT embeddings), CS (cosine + entity coverage), ROUGE-L, BERTScore, faithfulness (NLI hypothesis), and `mean_output_len`. The **raw** generation is kept for the PPL / branching-factor pass, which measures the model's token-level confidence over what it actually produced. Each row now carries `output_clean` alongside `output`; a warning records how many outputs were stripped.
+
+**Why:**
+- Preamble is boilerplate, not summary content, and because its presence/wording varies across paraphrases it was a **confound** for a sensitivity benchmark: it inflated `sms_drift` (outputs "differ" partly due to preamble phrasing, not summary substance) and diluted the quality metrics (ROUGE / cosine to gold / entity coverage all degraded by the non-summary prefix). Stripping it isolates the summary content, so the measured sensitivity reflects real content variation.
+
+**Impact:**
+- Changes numerical outputs of SMS/CS/ROUGE/BERTScore/faithfulness and therefore the Sensitivity composite, PRI, and diagnosis — expected to **reduce** spurious sensitivity and **raise** quality scores. PPL_var/PC_stab_var unchanged (raw text). Prior crossed-design results (including the two 5-article pilots) predate this and are not comparable — re-baseline.
+- Applied to the in-flight 30-article run: the fix was pushed to the box while the run was still in Phase 1 (generation), so its Phase 2 scoring uses the cleaned outputs with no restart. Raw generations in `responses_crossed.jsonl` are preserved verbatim; cleaning happens only at scoring time, so it is fully reversible/auditable.
+
+---
+
+## [2026-07-06] — Evaluation-rigor fixes: pseudoreplication, outlier-robust normalization, absolute diagnosis
+
+**Files Modified:** `gensens/crossed/scripts/common.py`, `aggregate_scores.py`, `significance.py`, `diagnosis_matrix.py`, `summary_report.py`
+
+**What Changed (three flaws found by stress-testing the crossed pipeline on its own 250-cell A30 pilot output):**
+
+1. **Pseudoreplication in the Pool A vs B significance test (`significance.py`).** The test compared per-cell Sensitivity as if the cells were independent (175 Pool-A cells vs 75 Pool-B), but cells are 35 seeds × N_ARTICLES and 15 seeds × N_ARTICLES — cells sharing a seed (same prompt) or article (same content) are correlated, so the per-cell p-value is anticonservative. On the pilot this over-claimed: per-cell p=0.009 vs the honest **per-seed** p=0.054 (rank-normalized composite). Fix: the **headline test is now the seed-level Mann-Whitney** (aggregate each seed to its mean Sensitivity across the shared articles → 35 vs 15 seed means); the per-cell test is retained only as `pool_comparison_percell_ref` and explicitly flagged "pseudoreplicated — not for inference". Added `MIN_SEEDS_FOR_TEST=10` (separate from the per-cell `MIN_N_FOR_TEST=20`) because seed counts are fixed by the dataset (Pool B only has 15 seeds regardless of N_ARTICLES) and Mann-Whitney is valid at 15 vs 35; a `low_power_warning` is attached when the smaller group < 20.
+
+2. **Outlier-dominated min-max normalization collapsed 3 of 5 sensitivity metrics (`common.py`, `aggregate_scores.py`).** The Sensitivity composite min-max-normalized each spread metric, but cs_var / faith_var / pc_stab_var are heavy-tailed (raw max/mean of 14× / 12× / 26×), so a single outlier cell set the max and squashed 79% / 72% / 94% of cells to ≈0 on those axes — their nominal weights (0.20/0.20/0.15 = 55% of the composite) contributed almost nothing for the typical cell. Fix: new **`rank_normalize`** (average-rank percentile to [0,1], outlier-robust) is now the **default** normalization; legacy min-max kept behind `--normalization minmax` for ablation. Effect on the pilot: each metric's Spearman with the composite rose to a meaningful level (pc_stab_var 0.71, cs_var 0.55, faith_var 0.44, ppl_var 0.66, sms_drift 0.77), and the composite's dependence on sms_drift-alone dropped (Spearman 0.81 → 0.77 — it now adds signal beyond sms_drift). `aggregate_scores.py` also logs per-component Spearman and the sms_drift-alone comparison so the composite's honesty is auditable each run.
+
+3. **Diagnosis 2×2 labels were relative thresholds read as absolute (`diagnosis_matrix.py`).** Thresholds are the model's own medians, so "high quality" only means "above this model's median". On the pilot, "True Robustness" cells averaged abs CS_mean 0.642 (range 0.563–0.842) — stable but only mediocre in absolute terms, so the label overstates. Fix: the printed distribution and a new `diagnosis_quadrant_summary.csv` now report each quadrant's **absolute** CS_mean (mean/min/max) and Sensitivity, with an explicit note that the split is relative to the model's median. Removed the misleading "all 4 cells populated = good" log line (a median split fills both bins by construction).
+
+**Why:**
+- These are execution/statistics flaws sitting on top of a conceptually-correct approach (sensitivity=spread, quality=mean, crossed design — validated in the pilot). They matter for any inferential or publication claim: the pseudoreplication inflated significance, the normalization made the weighting scheme illusory, and the diagnosis labels overstated absolute quality.
+
+**Impact:**
+- Numerical outputs of the Sensitivity composite CHANGE (rank vs min-max rescales every cell; the composite is now centered ~0.5 rather than compressed low). Rankings are broadly preserved (same Pool B > Pool A direction) but absolute Sensitivity values are NOT comparable to pre-fix runs — re-baseline. PRI, SMS, and the raw per-cell metrics are unchanged.
+- The headline Pool A vs B claim is now honestly **borderline at n=5 (seed-level p=0.054)** rather than falsely significant (per-cell p=0.009); the 30-article run is needed for adequate power (more articles tighten the per-seed means without changing the 35-vs-15 seed counts).
+- Verified end-to-end on the downloaded `results_pilot5/` (pure-math, no GPU): `common.py` unit-checked (rank spreads a heavy-tailed vector to full [0,1] where min-max collapsed it), and aggregate→diagnosis→significance→summary_report regenerated cleanly. Not yet applied to a fresh full run (30-article run was stopped before completion).
+
+---
+
+## [2026-07-06] — Fix CUDA OOM in crossed-design PPL/entropy pass + A30 pilot validation
+
+**Files Modified:** `gensens/crossed/scripts/compute_cell_metrics.py`
+
+**What Changed:**
+- Fixed a CUDA out-of-memory crash in the teacher-forced PPL/branching-factor pass (phase 2) that aborted the metrics stage on a 24 GB A30. Two compounding causes, both fixed:
+  1. **Model stacking:** `compute_cell_metrics.py` runs as a single process that loads the SBERT embedder, the NLI cross-encoder, and BERTScore's roberta-large, and THEN the 16 GB Llama-8B for the PPL pass — all co-resident on the GPU (~18 GB used, ~4 GB free). Now the earlier scorer models are explicitly freed (`del embedder, nli; gc.collect(); torch.cuda.empty_cache()`) before the 8B is loaded. Measured effect on the pilot: free VRAM before the 8B load went from ~4 GB to ~25 GB.
+  2. **Full-vocab softmax blow-up:** the pass computed `log_softmax`, `.exp()`, and entropy over the entire `(batch, seq_len, vocab≈128k)` logits tensor at once — several GB of fp32, a single 4.54 GB allocation that OOM'd at the `lm_head`. Now the logits are sliced to each row's RESPONSE positions FIRST (l ≤ max_tokens ≪ seq_len), and softmax/entropy run only on that small `(l, vocab)` slice; the full logits tensor and batch buffers are deleted with `torch.cuda.empty_cache()` each batch.
+- Default `--ppl_batch_size` lowered 8 → 4 (caps the `(batch, seq_len, vocab)` logits allocation). The runner also exports `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` to reduce fragmentation.
+
+**Why:**
+- The A30 pilot (5 articles) was designed to surface exactly this class of infra failure before a full run. It did: phase 1 (generation) completed fine, phase 2 OOM'd at the PPL pass. Phase 1 outputs are checkpointed, so only phases 2–6 needed re-running after the fix.
+
+**Impact:**
+- No change to the PPL/entropy math or any numerical output — identical per-token NLL and softmax-entropy, just computed memory-safely. Purely an infrastructure fix; results are unaffected and do not need re-interpretation.
+- **A30 pilot (5 articles × 50 seeds × ~6 variants = 1,495 outputs) completed end-to-end and validated the methodology.** Real timings on one A30: phase 1 generation 11 min (≈2.24 it/s, 100% GPU); full phases 2–6 ≈ 9 min. Extrapolated: ~1.5 h for 30 articles, ~5 h for 100 (generation-dominated). Validation outcomes: (a) **Sensitivity is decoupled from quality** — Pearson r(Sensitivity, CS_mean) = 0.002 (p=0.98), confirming the spread/mean split works and Sensitivity is not a quality proxy; (b) **Pool B more sensitive than Pool A** (0.178 vs 0.151), Mann-Whitney p=0.009 even at n=5; (c) all spread metrics finite with genuine range, PPL/branching-factor 250/250 finite (custom teacher-forced path works); (d) `sms_drift` visually calibrated (high-drift cells show divergent wording, low-drift cells near-identical); (e) low-n guards fired correctly (Wilcoxon seed test auto-skipped, underpowered-n warning emitted).
+- **Known observation to carry forward:** ~6% of outputs (89/1495) were long enough that after truncating the article premise to the NLI 512-token window, no premise context fit, so their faithfulness defaulted to neutral (0.5). This proportion will persist at larger N and slightly dampens `faith_var`/`faith_mean` for those cells; consider a longer-context NLI model or sentence-level premise selection if faithfulness precision becomes load-bearing.
+
+---
+
+## [2026-07-06] — Crossed-design inference + sensitivity/quality split for GenSens summarization (new benchmark module)
+
+**Files Added:** `gensens/crossed/scripts/{common,run_inference_crossed,compute_cell_metrics,aggregate_scores,diagnosis_matrix,significance,summary_report}.py`, `gensens/crossed/run_crossed_h100.sh`, `gensens/crossed/requirements_crossed.txt`
+
+**What Changed:**
+- New, separate crossed-design harness for the 50-seed/5-paraphrase summarization dataset (`gensens/data/gensens_summ_50seed_5para.jsonl`), independent of `prompt_robustness/` (different experimental grid, not a replacement for the PRI benchmark there).
+- **Design:** every one of the 50 seeds is applied to the SAME N_ARTICLES CNN/DailyMail articles (stratified by word count, seed=42) — instance-fixed, prompt-varied, following POSIX/ProSA/PromptBench convention. Never 1:1 paired. A "cell" = one (article, seed) x 6 outputs (1 base + 5 paraphrases).
+- **Core principle enforced in the code, not just the docs: SENSITIVITY = spread, QUALITY = mean.** Every metric that takes a mean across the 6 cell outputs also reports its variance; the variance is the headline sensitivity signal, the mean is a quality covariate. This directly fixes a conflation risk in earlier composite scores (e.g. the existing `PRI` in `prompt_robustness/src/scores.py`, which is mean-based and can rate 6 identically-mediocre outputs as "robust").
+- **New per-cell sensitivity metrics (spreads):** `sms_drift` (1 − mean pairwise SBERT cosine of the 6 outputs), `cs_var`/`faith_var` (variance of a per-output correctness/faithfulness score), `ppl_var` (coefficient of variation of per-output perplexity), `pc_stab_var` (variance of per-output branching factor = exp(mean token entropy)), `rougeL_var`, `bertscore_var`.
+- **New per-cell quality metrics (means):** `sms_similarity`, `cs_mean`, `faith_mean`, `rougeL_mean`, `bertscore_mean`, `mean_output_len`. These are covariates for interpreting sensitivity, not sensitivity measures themselves.
+- **New composite `Sensitivity` (headline):** empirical min-max normalize each spread metric across all cells, then `0.30*sms_drift_n + 0.20*cs_var_n + 0.20*faith_var_n + 0.15*ppl_var_n + 0.15*pc_stab_var_n`. If a metric is unavailable for any cell (e.g. `--skip_ppl_entropy`), it is dropped entirely and the remaining weights are renormalized to sum to 1 — never faked.
+- **Relabeled `PRI` for this module:** `0.40*sms_similarity + 0.35*cs_mean + 0.25*faith_mean` (x0.85 if `mean_output_len < 12`), explicitly documented as *quality-gated robustness*, not pure sensitivity. `Sensitivity` above is the benchmark's headline number.
+- **PPL/branching-factor are computed for real**, not estimated from vLLM top-k logprobs: `compute_cell_metrics.py` runs a second, separate-process HF `transformers` teacher-forced forward pass per (prompt, output) after the vLLM generation process has exited (avoids double-loading the 8B model on the GPU), computing exact per-token NLL (→ PPL) and full-softmax entropy (→ branching factor) — never approximated from a truncated top-k distribution.
+- **Faithfulness** uses `cross-encoder/nli-deberta-v3-small` (lightweight, deterministic) as `P(entailment) + 0.5*P(neutral)` of article→output, with the article truncated (never the output) to fit the NLI context window. This is a different, cheaper faithfulness scorer than `prompt_robustness/src/faithfulness_metric.py`'s 70B-AWQ LLM-judge — appropriate here given the crossed design's 30,000-output scale.
+- **Hierarchical aggregation:** cell → per-seed (mean/std/95% bootstrap CI over the shared articles) → per-pool and per-dimension, always computed cell-first (never flattened across articles before the per-cell composite). Pool A and Pool B are kept and reported separately in every aggregate.
+- **Diagnosis 2x2** on two independent axes (`CS_mean` quality vs. `Sensitivity` spread), thresholds at the empirical median of each axis → True Robustness / Fragile / Consistently Poor / Unreliable.
+- **Significance tests:** Mann-Whitney U (Pool A vs B) with rank-biserial effect size; per-dimension ranking with bootstrap CI; Wilcoxon signed-rank on paired per-article Sensitivity for the most- vs. least-sensitive seed (valid pairing because the design is crossed).
+- Greedy decoding (`temperature=0.0`) hard-coded for the entire main generation run — no sampling option, to isolate prompt effect from decoding-randomness noise.
+
+**Known upstream data-quality gap surfaced while validating this module:**
+- Seed **B12** carries only 4 total variants (1 base + 3 paraphrases) instead of the target 6 — per `gensens/data/fix_changelog.json`, one paraphrase was flagged `oversim_replaced` (SBERT similarity 0.951, too close to base) and the replacement generation never succeeded (`unresolved: true`). `common.load_seed_prompts()` now tolerates per-seed variant counts down to a floor of 4 (raising only below that), logging a warning and recording the true `n_variants` per cell rather than padding/faking a 6th output. `run_inference_crossed.py`'s expected-task-count check and `compute_cell_metrics.py`'s cell-completeness check both use each seed's actual expected variant set (not a flat 6) accordingly. Re-running `gensens/scripts/regenerate_flagged.py` to close this gap is recommended before a publication-quality run, but the pipeline is correct either way.
+
+**Why:**
+- The existing repo's `PRI`/`ORI`/`IFI` composites (see Key Formulas table above) are quality-weighted means over variants and, by construction, cannot distinguish "the model is robust" from "the model is uniformly mediocre." A dedicated sensitivity-as-spread benchmark, run on the standard crossed grid used by POSIX/ProSA/PromptBench, closes that measurement gap for the summarization task specifically, using the already-audited 50-seed dataset.
+
+**Impact:**
+- Purely additive: no existing formula, threshold, or script in `prompt_robustness/` or the rest of `gensens/` is modified. `gensens/crossed/` is a new, independent module.
+- Requires an H100/A30-class GPU with vLLM + HF `transformers` to actually execute (30,000 generations + a second teacher-forced pass + SBERT/NLI/BERTScore scoring); not runnable on a local CPU-only machine. The aggregation/diagnosis/significance scripts (`aggregate_scores.py`, `diagnosis_matrix.py`, `significance.py`) are pure numpy/pandas/scipy and were smoke-tested locally against a synthetic 30-article x 50-seed fixture (1,500 cells) — all four diagnosis cells populated, Mann-Whitney correctly recovered the injected Pool-B-more-sensitive signal (p≈3.6e-62), Wilcoxon most-vs-least-sensitive seed test ran cleanly. The GPU-dependent scripts (`run_inference_crossed.py`'s vLLM path, `compute_cell_metrics.py`'s embedding/NLI/PPL passes) were reviewed but not executed end-to-end — no results have been generated yet.
+
+---
+
+## [2026-07-05] — Surgical fix pass on the 50-seed summarization dataset + new 0.92 SBERT upper bound
+
+**Files Modified:** `gensens/scripts/fix_flagged_seeds.py` (new)
+
+**What Changed:**
+- New standalone repair script that fixes specific flawed seeds/variants in `gensens_summ_50seed_5para.jsonl` in place, without regenerating the whole pool. Three fixes:
+  1. **Top-up** under-target seeds A03, A15, A18 (pool A), B05 (pool B) from <5 to exactly 5 variants.
+  2. **Full regenerate** B14 (must carry an explicit skepticism/doubt marker — stricter than the validator's lenient check that accepts "critical") and B15 (regenerated only when <4/5 current variants retain BOTH the 50-word-summary and self-critique parts). Both use a one-shot constraint-preserving system prompt.
+  3. **Replace** every variant across all 50 seeds whose `sbert_similarity > 0.92`, using stronger transformation strategies (prefer `different_structure` → `technical_vocab` → `role_prefix`; `reordered_clauses` excluded because it yields near-identical text), keeping each seed at 5 variants.
+- **New acceptance band: `0.82 ≤ SBERT cosine ≤ 0.92`** for all (re)generated variants. The upper bound of 0.92 is new — the original pipeline gated only on the 0.82 lower bound (and a separate 0.95/0.98 semantic-dedup ceiling), which let through variants that were lexically near-identical to the base and therefore too easy to serve as a real prompt-sensitivity test.
+- The existing bidirectional NLI gate (`cross-encoder/nli-deberta-v3-small`, τ=0.50 both directions) is retained. Sampling for (re)generation: `temperature=0.85, top_p=0.92`, up to 3 retries per strategy, per-call vLLM seed varied so retries actually differ (the shared `generate_batch` hardcodes `seed=42`). Dedup by first-8-token signature within each seed.
+- Writes a pre-fix backup (`gensens_summ_50seed_5para.backup.jsonl`) and a per-seed change log (`fix_changelog.json`). Untouched seeds are copied from the original file verbatim (byte-for-byte); only affected records are re-serialised.
+
+**Why:**
+- Post-generation analysis found three residual quality issues (under-target counts, constraint drift on the skeptical/self-critique Pool B seeds, and over-similar variants) that did not warrant a full pool regeneration. A targeted pass fixes only the affected records at far lower GPU cost while leaving the validated majority untouched.
+- The 0.92 upper bound directly targets the prompt-sensitivity benchmark's validity: a paraphrase that is ~0.95+ cosine to the base is essentially the same surface form and does not exercise the model's robustness to rewording.
+
+**Impact:**
+- `gensens_summ_50seed_5para.jsonl` is modified in place for the affected seeds (all seeds still 5 variants where achievable; any seed that cannot reach 5 valid variants after retries is marked `unresolved: true` in `fix_changelog.json` rather than silently shipped short).
+- After this pass, all variants in the dataset should satisfy `0.82 ≤ sim ≤ 0.92`; earlier analyses/plots that assumed the old (lower-bound-only) band are superseded. The regenerated PDF/export should be rebuilt from the updated JSONL.
+- Scope is limited to this repair script; the generator's own default band/params are unchanged (the 0.92 upper bound is enforced by `fix_flagged_seeds.py`, not baked into `paraphrase_generator.py`).
+
+**Run outcome (2026-07-05) + touched-detection bug fix:**
+- First run: FIX 1 topped up A03/A15/A18/B05 to 5; FIX 2 regenerated B14 (5/5 task skepticism markers) and left B15 as-is (4/5 held both parts, ≥4 threshold); FIX 3 replaced 16 of 17 over-similar variants. Final dataset: 49 seeds at 5 variants, **B12 at 4 (unresolved)** — its lone over-similar variant could not be replaced within the band + bidirectional-NLI + tabloid-tone constraint after all retries, so the over-similar variant was dropped (best-available-in-band) and B12 flagged `unresolved: true`.
+- **Bug fixed in `fix_oversimilar` / `main`:** the "seed was modified" test originally keyed on a *successful replacement* (`any _fix_type == oversim_replace`). For B12 the replacement failed, so the (correctly) mutated 4-variant in-memory record was discarded and the original 5-variant line (still containing the 0.951 over-similar variant) was written back — the report and the file disagreed. `fix_oversimilar` now returns `True` whenever an over-similar variant was present (it is dropped regardless of replacement success), and `main` marks the seed touched on that return value. The B12 line was corrected on disk to the 4-variant in-band version.
+- `validate_summ_paraphrases.py` independently flags B02/B06/B08 for a single constraint-keyword miss each: B06/B08 still meet the task's ≥4/5 threshold; B02 is 1/5 but was **out of scope** (not in the fix list and had no over-similar variant, so left untouched per the task rule). The validator's Pool B keyword lists are also narrower than this task's (e.g. it matches `"skeptical"` but not `"skepticism"`), so several B14/B05 variants that satisfy the task's explicit marker list are false-flagged by the validator.
+
+---
+
+## [2026-07-05] — Fix Pool B one-shot example corrupting length-ratio/similarity/dedup checks in regenerate_flagged.py
+
+**Files Modified:** `gensens/scripts/regenerate_flagged.py`
+
+**What Changed:**
+- `POOL_B_ONESHOT` (the one-shot constraint-preservation example) is now appended to `_pool_b_retry_system_prompt()`'s returned system-prompt string instead of being concatenated onto `record_for_gen["base_text"]`.
+- `record_for_gen["base_text"]` is now always the seed's unmodified `base_text`.
+
+**Why:**
+- `paraphrase_generator.generate_paraphrases()` uses `record["base_text"]` for two different purposes: (1) what the LLM is asked to rephrase, and (2) the reference string for the length-ratio, SBERT-similarity, token-overlap, and dedup-signature gates. The old code concatenated a ~500-character one-shot example onto `base_text` for pool B, which inflated the reference length used by (2) while the LLM still (correctly) generated a normal-length rephrase of just the actual instruction — so every candidate's length ratio came out far below `length_ratio_min=0.70` and was rejected.
+- Confirmed live during a regeneration run on 2026-07-05: seeds B01, B02, B05 each returned 0/5 variants across all 3 attempts, with `rejection breakdown` showing `length_ratio_oob=90` (100% of the 90 candidates tried). The run was killed mid-batch once the pattern was clear, rather than letting it burn GPU time on the remaining Pool B seeds, which would have failed identically.
+
+**Impact:**
+- Previous regeneration attempt for the 13 flagged seeds (A03, A15, A18, B01, B02, B05, B06, B07, B08, B10, B11, B12, B14) was aborted after 7 seeds; no output was written (the script only writes `gensens_summ_50seed_5para.jsonl` once, at the end, after all flagged seeds are processed) so the original file is untouched. Full regeneration re-run needed for all 13 seeds with this fix.
+
+---
+
+## [2026-07-05] — Fix regenerate_flagged.py's 70B AWQ fallback default (consistency w/ generator change)
+
+**Files Modified:** `gensens/scripts/regenerate_flagged.py`
+
+**What Changed:**
+- Added `DEFAULT_MODEL_ID = "meta-llama/Meta-Llama-3.1-8B-Instruct"`; `--model-id` now defaults to it instead of `None`.
+- `gen_kw` now always passes `model_id`, instead of only when `--model-id` was explicitly given.
+
+**Why:**
+- Same trap as `generate_summ_paraphrases.py` before the entry below: `ParaphraseGenerator(model_id=None)` falls back to the class-level 70B AWQ default. Left as-is, retrying the 6 flagged seeds would have silently loaded a different (and unquantized-for-this-path) generator than the one that produced the other 44 seeds, defeating the point of the retry.
+
+**Impact:**
+- Regenerated seeds (A03, A15, A18, B05, B07, B11) now use the same 8B generator as the original run. No effect on already-accepted seeds.
+
+---
+
+## [2026-07-05] — 8B generator default for the 50-seed summarization paraphrase pipeline
+
+**Files Modified:** `gensens/scripts/generate_summ_paraphrases.py`
+
+**What Changed:**
+- Changed the default `--model-id` for this script from the class-level `ParaphraseGenerator.VLLM_MODEL_ID` fallback (70B AWQ INT4) to `meta-llama/Meta-Llama-3.1-8B-Instruct`, still via the `vllm` backend (batched, bf16, no quantization).
+- Added `DEFAULT_MODEL_ID` constant and always pass `model_id` into `ParaphraseGenerator(...)` (previously only passed when `--model-id` was explicitly given).
+- Scope is limited to this script. `generate_dataset.py` (creative/dialogue/qa tasks) and `config.yaml`'s `models.generator` documentation still default to the 70B AWQ generator — unchanged.
+
+**Why:**
+- User chose to run the summarization paraphrase generation step on an 8B model instead of the 70B AWQ generator, primarily to simplify GPU requirements (single ~24GB card, no AWQ quantization, no tensor-parallel sharding needed).
+- Llama-3.1-8B-Instruct (not Qwen2.5-7B-Instruct, the other 8B-class model already in this pipeline) was chosen to preserve the existing methodological separation between the instruction-pool generator (Qwen2.5-7B, used by `generate_summ_instructions.py`) and the paraphrase generator — using the same model for both would collapse that separation (see 2026-05-27 entry below).
+
+**Impact:**
+- Any `gensens_summ_50seed_5para.jsonl` generated after this change uses an 8B paraphraser instead of the 70B AWQ paraphraser; paraphrase quality/style may differ from what the 70B generator would have produced. Not yet run — no existing results are invalidated by this change.
+- GPU requirement for this step drops from ~35GB (70B AWQ, single 80GB card or 2×A30 with tensor-parallel) to ~16-20GB (8B bf16, any single ~24GB card, `tensor_parallel_size=1`).
+- To revert to the 70B AWQ generator for this script, pass `--model-id hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4 --quantization awq_marlin` (note: this script has no `--quantization` CLI flag yet, unlike `generate_dataset.py`; vLLM will attempt to auto-detect AWQ from the model's `config.json` if you go this route).
+
+---
+
+## [2026-07-01] — Pool-aware system prompts + 50-seed summarization pipeline (H100 run prep)
+
+**Files Modified:** `gensens/scripts/paraphrase_generator.py`, `gensens/scripts/generate_summ_paraphrases.py` (new), `gensens/scripts/validate_summ_paraphrases.py` (new), `gensens/scripts/regenerate_flagged.py` (new)
+
+**What Changed:**
+- Added `SUMM_SYSTEM_PROMPTS` dict to `paraphrase_generator.py` with separate entries for Pool A (open-style rewriting) and Pool B (constraint-preservation rewriting)
+- Updated `_build_chat_prompt`, `_generate_single_vllm`, `_generate_single_llama`, `_generate_single`, `_generate_n_vllm` to accept `pool: str = "A"` and route to the correct system prompt for summarization tasks
+- Updated `generate_paraphrases` to extract `pool` from the record dict and thread it through the entire generation pipeline
+- Wrote `generate_summ_paraphrases.py`: orchestrator that loads 50 seeds, verifies 35A + 15B, runs generation with checkpoint/resume every 10 seeds, outputs `gensens_summ_50seed_5para.jsonl` and per-pool/per-dimension stats
+- Wrote `validate_summ_paraphrases.py`: validator covering checks A–G (completeness, SBERT ≥ 0.82, no duplicates, length sanity, `{{article}}` placeholder, Pool B keyword constraint checks per prompt_id B01–B15, LLM-as-judge fallback if >30% Pool B variants fail keyword check)
+- Wrote `regenerate_flagged.py`: reads validation JSON, re-runs generation for flagged seeds with tighter Pool B system prompt + one-shot example, up to 3 attempts; marks unresolvable seeds with `constraint_leakage_unresolved: true`; re-runs validation and prints before/after diff
+
+**Why:**
+- Summarization benchmark needs 50 distinct seed prompts (not one canonical instruction) paraphrased into 5 variants each
+- Pool B instructions contain specific constraints (banned words, forced words, tone, persona, output structure) that must survive the paraphrase rewrite — a generic system prompt did not preserve these reliably
+- End-to-end pipeline (generate → validate → regenerate) makes the H100 run self-contained
+
+**Impact:**
+- Breaking change for Pool B generation: Pool B paraphrases from any pre-existing run used the generic summarization system prompt and must be re-generated
+- Pool A generation is semantically equivalent to previous behaviour (same intent, improved wording)
+- No numerical metric changes; no benchmark results need re-running
+
+---
+
+## [2026-06-04] — CLI plumbing: expose Tier-1/Tier-2 methodology + tensor parallelism (PUBLICATION_SPEC §6, §7, §8)
+
+**Files Modified:**
+- `gensens/scripts/paraphrase_generator.py` (constructor + `_load_vllm`)
+- `gensens/scripts/generate_dataset.py` (CLI parser + ParaphraseGenerator instantiation)
+- `stage0a_smoke.sh` (production-ready environment variables for both Qwen-7B and 70B AWQ launches)
+
+**What Changed:**
+
+- **`ParaphraseGenerator.__init__` — new `tensor_parallel_size` parameter.** Defaults to `1` (single card). `_load_vllm` now passes `tensor_parallel_size=self.tensor_parallel_size` to vLLM's `LLM(...)` constructor instead of the hardcoded `1`. **Required** for production runs on A30 × 2 (or any dual 24 GB setup) with the 70B AWQ generator — a single 24 GB card cannot hold the ~35 GB AWQ weights, so vLLM must shard via tensor parallelism. Without this fix the 70B AWQ generator OOMs immediately at model-load.
+- **`generate_dataset.py` — 18 new CLI flags expose every methodology knob** that PUBLICATION_SPEC §6, §7, §8 introduces. The CLI grew from 14 flags to 32. New flags:
+  - `--tensor-parallel-size` (vLLM TP for A30 × 2)
+  - `--disable-nli-gate` (bool; defaults to enabled to honour §6.1)
+  - `--nli-entail-threshold` (default 0.50)
+  - `--nli-model-name` (default `cross-encoder/nli-deberta-v3-small`)
+  - `--enable-nli-ensemble` (Tier-2 §7.1 multi-NLI 2-of-3 majority — REQUIRED for publication runs)
+  - `--nli-ensemble-models` (override ensemble members)
+  - `--nli-ensemble-majority` (default 2)
+  - `--length-ratio-min`, `--length-ratio-max` (§6.2 length-ratio filter, default 0.70–1.50)
+  - `--semantic-dedup-threshold` (§6.3 SBERT semantic dedup, default 0.95)
+  - `--best-of-n`, `--best-of-n-temperature`, `--best-of-n-top-p` (§6.5 best-of-N per strategy; defaults n=3, T=0.95, top_p=0.92)
+  - `--max-per-family-{lexical,syntactic,pragmatic,length}` (§6.6 per-family budgets)
+  - `--task-thresholds-json` (per-task SBERT threshold overrides via JSON string)
+- **All 15 new ParaphraseGenerator kwargs are now forwarded** from the corresponding CLI args. End-to-end validation confirms: every methodology knob added in the Tier-1/Tier-2 commits is reachable from the command line, with sensible publication-grade defaults so a bare `--enable-nli-ensemble` invocation produces the recommended configuration.
+- **`stage0a_smoke.sh` upgraded with parameterised environment variables**: `TENSOR_PARALLEL_SIZE`, `QUANTIZATION`, `ENABLE_NLI_ENSEMBLE`, `BEST_OF_N`. The same script now serves both the Qwen-7B smoke test (defaults: TP=1, no quantization, ensemble ON) and the 70B AWQ production launch (set `TENSOR_PARALLEL_SIZE=2 QUANTIZATION=awq_marlin` before invocation). `GEN_ARGS` is composed conditionally so passing `--quantization ""` is never attempted.
+
+**Why:**
+- Without this commit, the Tier-2 multi-NLI ensemble (§7.1) — a required acceptance-criterion item from PUBLICATION_SPEC.md — could not fire from the production CLI even though the underlying logic was in place. The ensemble defaults OFF in `ParaphraseGenerator.__init__` for backward compatibility; without a CLI surface to enable it, no production invocation would exercise it.
+- Without `tensor_parallel_size` exposed, the 70B AWQ generator (the standard PUBLICATION_SPEC choice) could not run on Jarvis A30 × 2 instances — the cheapest GPU configuration available, ~17% cheaper total than A100 80 GB for our pipeline. The hardcoded `tensor_parallel_size=1` would have forced users onto more expensive single-card GPUs.
+
+**Impact:**
+- **Backward compatible for legacy invocations**: every new flag has a sensible default that matches the existing behaviour. Old scripts that don't pass the new flags behave identically to the pre-commit code.
+- **Forward-compatible for production**: a publication-grade GenSens run is now invocable via:
+  ```bash
+  python gensens/scripts/generate_dataset.py \
+      --task all --n_instances 200 --n_variants 8 \
+      --model vllm \
+      --model-id hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4 \
+      --quantization awq_marlin \
+      --tensor-parallel-size 2 \
+      --enable-nli-ensemble \
+      --best-of-n 3
+  ```
+- **No methodology / formula change**: all four formula tables in CLAUDE.md remain unchanged. This commit is pure plumbing — it exposes the existing Tier-1 / Tier-2 methodology through the CLI surface so production runs can actually exercise it.
+
+---
+
+## [2026-06-04] — LL-PIRC experiment infrastructure: baselines comparison + ablation sweeps (PUBLICATION_SPEC §10)
+
+**Files Modified / Added:**
+- Added: `prompt_robustness/experiment_baselines_comparison.py`
+- Added: `prompt_robustness/run_pirc_ablations.py`
+- Modified: `prompt_robustness/experiment_pirc.py` (wired `anchor_percentile` to `AnchorTokenIdentifier`; added `--anchor-percentile` CLI flag)
+
+**What Changed:**
+
+- **§10 (Table 2) — `experiment_baselines_comparison.py` — the headline LL-PIRC method-paper result.**
+  - Runs the four no-training mitigation baselines from `src/mitigation_baselines.py` (`temperature_smoothing`, `self_consistency_vote`, `system_prompt_stabilize`, `in_context_learning`) plus the previously-computed LL-PIRC results, all against the SAME article set used by `experiment_pirc.py`.
+  - Reuses helpers from `experiment_pirc.py` (`load_config`, `load_baseline_results`, `load_target_model`, `build_prompts_from_baseline_result`, `score_outputs_rouge_l`, `compute_rouge_l`) so the article schedule, prompt formatting, and ROUGE scoring are byte-identical between the PIRC harness and the baselines harness.
+  - New `build_generate_fn(model, tokenizer, max_new_tokens)` adapter wraps HuggingFace `model.generate` into the `(prompt, kwargs) -> str` signature expected by every function in `mitigation_baselines.py`. Handles: greedy vs sampled decoding, per-call seed for sampling reproducibility, optional `system_prompt` injection via chat template (with raw concat fallback).
+  - PIRC results are READ from a prior `pirc.json` rather than re-run, so the comparison costs (4 baselines × N articles × K paraphrases) of model inference — no PIRC recompute.
+  - Per-method per-article metrics: outputs, ROUGE-L scores, ROUGE mean, ROUGE variance, ROUGE min (worst-prompt), wall time.
+  - `aggregate_comparison()` computes the canonical variance-reduction formula `1 - mean(var_method) / mean(var_baseline_no_intervention)` matching `experiment_pirc.py` semantics so methods are directly comparable across drivers.
+  - `render_markdown()` produces the publication-ready headline table with method ordering (no-intervention → baselines → LL-PIRC) — verified on synthetic data.
+  - Crash-safe: writes the full `baselines_comparison.json` after every article so a mid-run failure resumes cleanly.
+
+- **§10 — `run_pirc_ablations.py` — three-knob ablation sweep driver.**
+  - Sweeps `α ∈ {0.0, 0.25, 0.5, 0.75, 1.0}` (clamping strength), `anchor_percentile ∈ {10, 20, 30, 50, 70}`, and optionally `ℓ* ∈ {user-supplied list}`. Defaults to `--knobs alpha anchor_percentile`; ℓ* is opt-in because it requires the user to know the layer count of their subject model.
+  - For each (knob, value) pair: launches `experiment_pirc.py` as a subprocess with the override CLI flag, then copies the resulting `pirc.json` + `eval_summary.json` into `<results-dir>/<knob>=<value>/` so the next run does not clobber this run's artefacts.
+  - `_extract_headline()` pulls per-run metrics from `eval_summary.json` + recomputes worst-prompt ROUGE-L (`mean_a [min_k ROUGE-L]`) from `pirc.json` per-article scores. Worst-prompt is the metric the field has standardised on (RobustAlpacaEval, Cao et al. ICLR 2024) and was previously missing from the eval summary.
+  - Outputs per-knob CSV (`alpha_ablation.csv`, `anchor_percentile_ablation.csv`, `ell_star_ablation.csv`) + a consolidated `ablation_summary.md` Markdown table.
+  - `--dry-run` prints the schedule without launching any subprocess — useful for cost estimation before committing to a GPU run.
+
+- **`experiment_pirc.py` plumbing (in support of the ablation):**
+  - `setup_pirc_pipeline()` now reads `anchor_tokens.anchor_percentile` from config (defaulting to 30.0 for backward compatibility) and forwards it to `AnchorTokenIdentifier`. The parameter existed in the class for some time but was never wired through the harness.
+  - New CLI flag `--anchor-percentile <float>` (e.g. `10`, `20`, `30`, `50`, `70`) overrides the config value. Symmetric with the existing `--alpha` and `--ell-star` ablation flags.
+
+**Why:**
+- The baselines-comparison driver is the SINGLE most important publication asset for the LL-PIRC method-paper claim. Without it, "LL-PIRC reduces variance more than the baselines" is an unsupported claim and reviewers will (rightly) push back. The four baselines were already library-only in `mitigation_baselines.py` — what was missing was the driver that runs them on the same article set with consistent scoring.
+- The three-knob ablation sweep is required for the "design choice ablations" section of the paper. Without α / anchor-percentile sweeps reviewers ask "did you tune these?" and "why does this configuration work best?" The driver makes the answers reproducible.
+- The `anchor_percentile` wiring fix closes a latent bug where the config value was never honoured even when set — runs that set `anchor_tokens.anchor_percentile: 50` in the YAML silently still used 30.
+
+**Impact:**
+- No methodology changes to existing LL-PIRC, baselines, or ROUGE scoring — purely orchestration code.
+- A `pirc.json` produced by `experiment_pirc.py` BEFORE this commit may have a different `anchor_percentile` than what the config requested (the value was ignored). Re-running the experiment with the same config now produces faithfully-percentile-controlled results; old runs are still valid AT the default percentile (30) but should be retired for ablation purposes.
+- Subprocess-based ablation sweep: each `<knob>=<value>` run is an independent `experiment_pirc.py` invocation. On a single GPU box the runs are serialised; on multi-GPU setups the driver could be extended to dispatch in parallel (out of scope for paper #1).
+
+---
+
+## [2026-06-04] — Tier-2 strategy expansion: TextFooler + back-translation (PUBLICATION_SPEC §7.2, §7.3)
+
+**Files Modified / Added:**
+- Added: `gensens/scripts/adversarial_textfooler.py`
+- Added: `gensens/scripts/back_translation_family.py`
+- Modified: `gensens/scripts/paraphrase_generator.py` (registered `back_translation` family in `MAX_PER_FAMILY`)
+
+**What Changed:**
+
+- **§7.3 — TextFooler-style adversarial paraphrase module (`adversarial_textfooler.py`, new ~530 lines).**
+  - End-to-end pipeline: BERT MLM fill-mask synonym proposer + SBERT semantic floor (≥ 0.85) + bidirectional NLI (single-model or ensemble) + length-ratio filter.
+  - Algorithm: for each base prompt, iteratively (up to `max_substitutions`, default 3) find the content-word substitution that maximally reduces SBERT similarity to the base WHILE staying inside the paraphrase gate. The chosen substitution is the most "adversarial" without exiting the paraphrase manifold.
+  - Implementation classes: `MLMSynonymProposer` (top-K context-aware synonyms via fill-mask pipeline, post-processed to strip WordPiece prefixes and reject single-token / non-alphabetic predictions), `SBERTSimilarity` (single embedder owned by the generator), `AdversarialTextFooler` (the main pipeline; mirrors the production filter stack semantics).
+  - Output JSONL schema: per-prompt `{base, adversarial_paraphrase, substitutions:[{position, original, substitute, sbert_sim, nli_fwd, nli_bwd, adversariality}], num_substitutions, filter_metadata, perturbation_family: "adversarial_textfooler"}`.
+  - CPU- and GPU-friendly: NLI helpers reuse production `_get_nli_model` / `_get_nli_ensemble` from `paraphrase_generator.py` when importable, falling back to a local CrossEncoder reimplementation otherwise. Same with the SBERT instance.
+  - Reproducibility: deterministic top-K MLM ordering; no sampling-based generation. Resume-safe (`instance_id`-keyed dedup against existing output JSONL).
+  - The existing `adversarial_paraphrases.py` (deterministic perturbations — typo / sentence_reorder / double_negation / hedged / formality_shift) is NOT deleted here. The PUBLICATION_SPEC plan is to rename it `noise_paraphrases.py` and report PRI in three separate buckets: (a) GenSens paraphrases, (b) noise paraphrases, (c) adversarial paraphrases. The rename will land in a follow-up commit so existing CLI flags do not break in the same commit as the strategy expansion.
+
+- **§7.2 — Back-translation as the 5th strategy family (`back_translation_family.py`, new ~440 lines).**
+  - Runs as an AUGMENTATION PASS over an existing GenSens JSONL (rather than being inlined into `paraphrase_generator.py`). This keeps the heavy NMT model loads amortised across all instances in one process.
+  - Wraps `Helsinki-NLP/opus-mt-en-{de,fr,ru,es,zh}` and the reverse pairs. Default pivot languages: `de fr ru` (the same trio listed in `config.yaml paraphrase.pivot_languages` as legacy — now re-enabled).
+  - Per-instance loop: for each pivot language, round-trip translate the base text and apply the FULL production filter stack: length ratio, SBERT band [0.82, 0.98], token Jaccard ≤ 0.85 vs base and vs accepted variants, SBERT semantic dedup ≤ 0.95, bidirectional NLI ≥ 0.50 (single-model or ensemble).
+  - Accepts up to `max_per_instance` (default 2) back-translation variants per record. Each variant tagged `strategy="back_translation_<lang>"`, `strategy_family="back_translation"` and carries the same audit fields as a prompt-engineering variant (`sbert_similarity`, `length_ratio`, `token_overlap_to_base`, `max_cos_to_accepted`, `nli_entail_fwd`, `nli_entail_bwd`, `nli_passed`).
+  - I/O is deliberately additive: the script READS one JSONL and WRITES a new JSONL where each record's `variants` list has the back-translation variants APPENDED. `instance_id`, `base_text`, original variants, and all metadata are preserved unchanged. Backward compatible with every downstream reader.
+
+- **Family taxonomy registration (`paraphrase_generator.py`).**
+  - `MAX_PER_FAMILY` now reads `{lexical: 2, syntactic: 2, pragmatic: 1, length: 1, back_translation: 2}` — total budget 8 variants, exactly matching the GenSens K=8 target.
+  - The `back_translation` family cap is registered here even though the variants themselves are produced by a separate script — this ensures that any future code path that consults `MAX_PER_FAMILY` (e.g. a future unified pipeline) does not double-count the back-translation slots.
+
+**Why:**
+- Adversarial TextFooler: the current "adversarial" subset in `adversarial_paraphrases.py` is *noise injection* (typos, double-negation), not adversarial generation. Reviewers immediately spot this — adversarial means "the perturbation was chosen to maximally disrupt the target." MLM-based word substitution with semantic+NLI gating is the standard adversarial baseline for NLP robustness papers (PromptBench, TextFooler original, the `prompt-robustness` literature broadly).
+- Back-translation: PromptBench's headline paraphrase strategy is round-trip MT, and the legacy `config.yaml` already listed the Helsinki-NLP model trio — we just hadn't wired it into the new diversity-controlled gate stack. Adding it as a *separate augmentation pass* avoids interleaving heavy NMT loads with the vLLM generator and keeps the architectural separation between "LLM rewrite strategies" (lexical/syntactic/pragmatic/length families) and "NMT round-trip strategies" (back_translation family) explicit in the methodology.
+
+**Impact:**
+- TextFooler script is additive: produces a separate `adversarial_textfooler_*.jsonl` that downstream Phase-2 / Phase-3 evaluation reads as a third paraphrase bucket alongside the standard GenSens variants and the noise variants. No change to existing JSONL schemas.
+- Back-translation script is additive: increases variant counts on existing GenSens JSONLs without modifying any existing field. Records that already had K=8 variants will now have up to K=10 (8 + 2 BT) variants; downstream `K=8` consumers will simply use the first 8 in `variants_idx` order — no breakage but a behavioural shift to be aware of (consumers that truncate at K=8 will get the prompt-engineering variants by default; consumers that want a mixed set should reshuffle or explicitly select).
+- `MAX_PER_FAMILY` change is forward-only: legacy code that iterates `MAX_PER_FAMILY` will now see a new family key. The cap-enforcement logic in `generate_paraphrases` uses `.get(family, 999)` so unknown families never block generation.
+
+---
+
+## [2026-06-04] — RobustAlpacaEval borrowed-validation pipeline (PUBLICATION_SPEC §8.4)
+
+**Files Added:** `prompt_robustness/scripts/robustalpaca_crossvalidation.py`
+
+**What Changed:**
+
+- **§8.4 — Borrowed-human-validation pipeline (the "killer move").**
+  - Three modes:
+    1. `--mode prepare` — download `ZBWpro/RobustAlpacaEval` (or fall back through `Cao-Yifan/RobustAlpacaEval`) via the `datasets` library, flatten the (original_query, paraphrases) records into a canonical pair CSV.
+    2. `--mode audit` — run the GenSens `FilterPipeline` (imported from `paws_negative_controls.py` so behaviour is byte-identical to the §8.3 audit) on RobustAlpacaEval's 1000 human-verified pairs. Reports per-filter pass rate, per-metric distributions, and the headline "filter pass rate ≥ 88% on human-verified paraphrases" claim.
+    3. `--mode crossvalidate` — compare per-pair audit JSONLs from a GenSens audit and a RobustAlpacaEval audit using a two-sample Kolmogorov-Smirnov test on (SBERT cos, token Jaccard, length ratio, NLI fwd, NLI bwd). Reports KS statistic + p-value per metric and an overall "ALIGNED / PARTIAL / DIVERGENT" verdict.
+  - Pure-Python KS implementation (Stephens 1970 asymptotic approximation, no SciPy dependency) — unit-tested on:
+    - Identical N(0,1) distributions (n=200 each): KS=0.10, p=0.26 (correctly ALIGNED)
+    - Shifted N(0,1) vs N(2,1) (n=200 each): KS=0.67, p<10⁻⁴ (correctly DIVERGENT)
+    - Edge case empty input: returns (None, None)
+  - Audit-JSONL key tolerance: the loader accepts both `sbert_sim` (PAWS audit JSONL schema) and `sbert_similarity` (GenSens variant JSONL schema) so cross-script comparisons work without an intermediate transformation pass.
+
+**Why:**
+- This is the most compelling reviewer-comfort element of the §8 4-pronged validation. RobustAlpacaEval is a published human-validated dataset (Cao et al., ICLR 2024). If the GenSens filter pipeline retains ≥88% of its human-verified paraphrases AND the GenSens paraphrase-metric distributions are statistically indistinguishable (KS p>0.05) from the RobustAlpacaEval distributions, we have transitive human validation that no purely-automated validation can otherwise produce.
+- The KS test was chosen over t-test / Wilcoxon because it is distribution-free and sensitive to the entire CDF shape (not just location). Reviewers who push back on "you didn't do new human annotation" cannot also argue with a fully reproducible distributional alignment metric measured against a published human-verified reference.
+
+**Impact:**
+- No methodology change to the GenSens dataset itself — this is purely validation infrastructure.
+- Adds a new dependency on `datasets>=2.0.0` for `--mode prepare` (lazy-imported so the audit/crossvalidate modes work without it).
+- The `crossvalidate` JSONL loader needs an audit JSONL on each side — typically produced by running PAWS-style audits on (a) a sampled subset of accepted GenSens variants and (b) the prepared RobustAlpacaEval pairs.
+
+---
+
+## [2026-06-04] — Tier-2 validation infrastructure (PUBLICATION_SPEC §7.1, §8.1, §8.3)
+
+**Files Modified / Added:**
+- Modified: `gensens/scripts/paraphrase_generator.py`
+- Added: `prompt_robustness/scripts/llm_judge_paraphrases.py`
+- Added: `prompt_robustness/scripts/paws_negative_controls.py`
+- Added: `gensens/data/paws_negative_controls.jsonl` (200 generated pairs)
+
+**What Changed:**
+
+- **§7.1 — Multi-NLI ensemble (3-of-3 majority voting) in `paraphrase_generator.py`**
+  - New module-level constant `_NLI_ENSEMBLE_MODELS = ['cross-encoder/nli-deberta-v3-small', 'cross-encoder/nli-deberta-v3-base', 'cross-encoder/nli-roberta-base']` and helpers `_get_nli_ensemble()` (lazy loader with abstain-on-load-failure semantics) and `_nli_ensemble_entail()` (per-model vote tally + mean entailment).
+  - New `ParaphraseGenerator.__init__` flags: `enable_nli_ensemble: bool=False`, `nli_ensemble_models: Optional[List[str]]=None`, `nli_ensemble_majority: int=2`. Default off so existing pre-§7.1 runs remain bit-stable.
+  - `_bidirectional_nli` now returns a 4-tuple `(passes, p_fwd, p_bwd, ensemble_audit)`. The ensemble audit dict carries per-model probs + vote counts in both directions, persisted on each accepted variant under the new `nli_ensemble` field. All-abstain (every checkpoint failed to load) gracefully bypasses with a warning rather than crashing the run.
+  - Members that fail to load are excluded from the vote majority — bypass is the safer behaviour for an infrastructure issue.
+
+- **§8.1 — GPT-4o-mini paraphrase-quality judge (`llm_judge_paraphrases.py`, new)**
+  - Two modes: `--mode rate` (score N stratified GenSens pairs on a 1–5 Likert scale) and `--mode calibrate` (measure Cohen's κ + Spearman ρ vs human gold ratings, e.g. RobustAlpacaEval's human-verified subset).
+  - Deterministic judge call (`temperature=0.0, seed=42, max_tokens=4`) with a fixed system prompt + integer-extraction regex. Resume-safe (skips pair_ids already on disk).
+  - Stratified sampling by `strategy` / `strategy_family` / `task` keys to control selection bias.
+  - Local-only Spearman and Cohen's κ implementations so the script has no SciPy dependency. Verified on synthetic perfect-agreement / anti-agreement / partial-agreement inputs.
+
+- **§8.3 — PAWS-style negative controls (`paws_negative_controls.py`, new)**
+  - Two modes: `--mode generate` (template-generate 200 (base, NEAR-paraphrase) pairs across 5 perturbation types) and `--mode audit` (run the GenSens filter pipeline on the pairs and report rejection rate per type; target ≥ 90%).
+  - Five perturbation generators with lexical-overlap-preserving rewrites:
+    1. `subject_object_swap` (mean Jaccard 1.00)
+    2. `polarity_flip` (mean Jaccard 0.80)
+    3. `quantifier_swap` (mean Jaccard 0.65)
+    4. `antonym_substitution` (mean Jaccard 0.72)
+    5. `modifier_flip` (mean Jaccard 1.00)
+  - Audit mode imports the production NLI helpers (`_get_nli_model`, `_nli_entail_prob`, `_get_nli_ensemble`, `_nli_ensemble_entail`) from `paraphrase_generator.py` when available so the audit faithfully mirrors the production filters. Falls back to a local CrossEncoder reimplementation when the import fails (e.g. running in a stripped environment).
+  - CPU-friendly: no vLLM / no transformers AutoModel — only sentence-transformers + cross-encoder. Runs on a laptop.
+  - Initial generated dataset (200 pairs) saved to `gensens/data/paws_negative_controls.jsonl` and ready for audit on the next GPU/laptop run.
+
+**Why:**
+- Multi-NLI ensemble: single-model NLI has ~5–10% false-positive rate on PAWS-style adversarial pairs (Zhang et al., NAACL 2019). A 2-of-3 majority across independently-trained checkpoints pushes the compound false-positive rate below 1%, at modest extra cost.
+- LLM-as-judge: human annotation is out of scope per PUBLICATION_SPEC §8. GPT-4o-mini as the judge (with κ calibration against a human-verified subset) is the established substitute (Zheng et al. NeurIPS 2023; Liu et al. EMNLP 2023) and is the cheapest way to produce a defensible quality signal at scale.
+- PAWS-style negative controls: validate that the filter pipeline is sensitive to semantic meaning, not just lexical overlap. Without this, "our filters retain 92% of human-verified paraphrases" is uninformative because we can't tell if they also retain 92% of intentional non-paraphrases. This is the "quality control on the quality control".
+
+**Impact:**
+- No change to existing GenSens datasets — both new scripts are additive validators, and the multi-NLI ensemble defaults OFF (existing runs reproduce bit-stable).
+- Production GenSens runs that opt into the ensemble (`enable_nli_ensemble=True`) will have a slightly stricter filter; expect a small (~5–15%) drop in candidate yield, partly compensated by best-of-N (§6.5).
+- New per-variant audit field `nli_ensemble` appears on accepted variants when the ensemble is active. JSONL-keyed downstream consumers are unaffected; positional readers will not break since variant dicts are written by key.
+
+---
+
+## [2026-06-04] — Tier-1 paraphrase generation improvements (PUBLICATION_SPEC §6)
+
+**Files Modified:** `gensens/scripts/paraphrase_generator.py`, `PUBLICATION_SPEC.md` (new)
+
+**What Changed:**
+
+- **§6.1 — Bidirectional NLI gate now applies to ALL 4 tasks** (previously QA/dialogue only).
+  - New module-level `_get_nli_model()` lazy-loads `cross-encoder/nli-deberta-v3-small` (cached singleton).
+  - New `_nli_entail_prob(model, premise, hypothesis)` returns `P(entailment)` via softmax over [contradiction, entail, neutral] logits.
+  - New `ParaphraseGenerator._bidirectional_nli(base, candidate)` runs both directions; rejects if either `P(entail) < τ_NLI` (default 0.50).
+  - Graceful degradation: NLI model failures log once and return `(True, None, None)` so a missing-NLI environment never crashes generation; per-variant `nli_passed=False` flags it for downstream audit.
+- **§6.2 — Length-ratio filter.** New `_passes_length_ratio()` rejects candidates whose word count falls outside `[0.70×, 1.50×]` of the base text. Default `length_ratio_min=0.70`, `length_ratio_max=1.50`.
+- **§6.3 — SBERT semantic dedup.** New `_passes_semantic_dedup()` rejects candidates with cosine similarity > 0.95 to ANY already-accepted variant. The legacy first-8-words signature is retained as a fast pre-filter only.
+- **§6.4 — Per-variant audit metadata.** Every accepted variant now carries `nli_entail_fwd`, `nli_entail_bwd`, `nli_passed`, `token_overlap_to_base`, `length_ratio`, `max_cos_to_accepted`, `strategy_family`, `best_of_n_index` alongside the existing `sbert_similarity` and `strategy` fields.
+- **§6.5 — Best-of-N per strategy.** New `_generate_n_vllm()` requests `n=3` candidates per (instance, strategy) call to vLLM with `temperature=0.95, top_p=0.92, seed=42+strategy_idx`. All n candidates run through the full filter pipeline; the surviving candidate with the lowest mean token Jaccard to (base + already-accepted variants) is selected by `_select_most_diverse()`. Set `best_of_n=1` to recover legacy single-shot behaviour.
+- **§6.6 — Strategy-family taxonomy.** New module-level `STRATEGY_FAMILY: Dict[str, str]` maps the 16 strategy names into 4 functional families (`lexical`, `syntactic`, `pragmatic`, `length`). New `MAX_PER_FAMILY = {'lexical': 2, 'syntactic': 2, 'pragmatic': 1, 'length': 1}` enforces per-family caps (total budget 6 prompt-engineering variants; slots 7–8 reserved for back-translation in a follow-up). The per-strategy `max_per_strategy` parameter is retained as a no-op for backward compatibility.
+- **Reject diagnostics.** `generate_paraphrases()` now logs a per-instance breakdown of why each candidate was rejected (`empty_or_short`, `out_of_sbert_band`, `length_ratio_oob`, `semantic_dedup_collision`, `nli_failed`, `family_budget_exceeded`, …) so reviewers and us can audit filter behaviour.
+- **PUBLICATION_SPEC.md (new)** at the repo root consolidates the full NeurIPS D&B 2026 submission plan: target venue, dual contribution framing, model roster, paraphrase quality validation strategy (4-pronged automated approach in lieu of human annotation), benchmark statistical properties, public release artefacts, budget, 6-week timeline, and acceptance criteria.
+
+**Why:**
+- The PAWS lesson (Zhang et al., NAACL 2019): SBERT cosine alone cannot distinguish paraphrases from high-overlap non-paraphrases. Single-task NLI was the only barrier on QA/dialogue; summarisation and creative were left unprotected.
+- Length-ratio filter prevents truncation/expansion candidates from contaminating ROUGE-L-based metrics (AUC-E and KPIG-via-ROUGE are length-sensitive).
+- Per-variant audit metadata is what reviewers need to verify our filters actually work; per-instance reject breakdown is what *we* need to tune them.
+- Best-of-N (n=3) ~doubles effective diversity at essentially the same vLLM compute (continuous batching). This is the cheapest publication-grade improvement available.
+- Strategy families enforce the methodological balance our "principled taxonomy" claim requires; the 16 ad-hoc strategies overlap heavily (~6 functional groups in practice).
+
+**Impact:**
+- Default behaviour CHANGES on existing GenSens datasets. Variants generated before this commit are not directly comparable — re-run the GenSens pipeline to get the post-spec dataset.
+- New per-variant audit fields appear in every JSONL output. Downstream consumers that read by-key will not break; consumers that read by positional index will. The JSONL→CSV exporter in `csv_io.py` ignores unknown keys so existing CSV readers still work.
+- Yield characteristics shift: more rejections (NLI now applies to all tasks) but better-quality variants. Dialogue/QA yield should improve slightly because best-of-N gives the NLI gate more candidates to evaluate per strategy.
+- Backward compatibility: `enable_nli_gate=False` recovers the pre-spec QA/dialogue-only NLI behaviour; `best_of_n=1` recovers single-shot generation; `max_per_strategy` still works (per-family cap is the dominant constraint when both are active).
+
+---
+
+## [2026-06-04] — CRITICAL: Logit Lens NaN fix + IFI saturation fix (status-report blockers)
+
+**Files Modified:** `prompt_robustness/src/logit_lens.py`, `prompt_robustness/src/sensitive_layer.py`, `prompt_robustness/src/csv_io.py`, `prompt_robustness/src/benchmark.py`, `prompt_robustness/src/evaluator.py`, `prompt_robustness/tests/test_logit_lens_nan.py` (new), `prompt_robustness/diagnose_logit_lens.py` (new)
+
+**What Changed:**
+
+- **Logit Lens NaN fix (`logit_lens.py`).** The previous `compute_logits` cast `h_normed` BACK to `lm_head.weight.dtype` (typically fp16/bf16) before the matmul. For intermediate layers, the unembedding output routinely exceeded fp16's max (65504) → +inf → `log_softmax(inf)` = NaN → all per-layer PPL NaN. New code keeps the projection in fp32 when `cast_to_float32=True` by calling `F.linear(h_normed, self.lm_head.weight.float(), bias=...)`. Added a logit clamp at ±50 plus a token-log-prob clamp at [-50, 0] in `compute_per_token_ppl` so extreme but plausible cases never overflow `exp(-log_prob)`.
+- **Sensitivity-curve robustness (`sensitive_layer.py`).** `compute_sensitivity_curve` now aggregates `Var_k[ log(mean_PPL_k) ]` instead of `Var_k[ mean_PPL_k ]`. Working in log space is (a) scale-invariant, (b) finite whenever PPL > 0, (c) what the LL-PIRC sensitivity story actually claims. Layers whose K paraphrases produce <2 finite PPL values are marked `NaN` and skipped downstream.
+- **Inflection / z-score NaN handling (`sensitive_layer.py`).** `find_sensitive_layer_inflection` previously fed an all-NaN ΔS list into `max(deltas, key=...)`. Python's NaN comparisons always return False, so `max` returned the first delta — i.e. ℓ* = `scan_start + 1` for every article. New code skips any ΔS that depends on a non-finite endpoint and defers to the z-score fallback when no finite ΔS exists. `find_sensitive_layer_zscore` likewise filters out non-finite values before computing mean / std / threshold.
+- **IFI saturation fix (`csv_io.py`, `benchmark.py`, `evaluator.py`).** `generate_responses_to_csv` (Phase 2a) now calls `mi.compute_perplexity_variance(...)` and `mi.compute_branching_factor(...)` while the subject model is still resident, and persists the two values on every variant row via new `ppl_var_inst` / `bf_inst` columns. `read_responses_grouped` surfaces them as `precomputed_ppl_var` / `precomputed_bf` on the sample dict. `evaluate_sample` prefers the precomputed values, then falls back to `model_interface.*`, then to `0.0`. Without this, the score-from-CSV phase had no generation model and `ppl_var = bf = 0.0` for every row → `IFI = 1.0` → diagnosis matrix collapsed to a single category (FLAWS §2.2 root cause).
+- **Regression test (`tests/test_logit_lens_nan.py`, new).** Pytest fixture loads GPT-2 in fp16 and verifies: (1) per-token PPL is finite at every layer; (2) ≥50% of S(ℓ) values are finite for a 4-paraphrase scan; (3) the inflection detector defers when ΔS is all NaN (no silent `scan_start + 1` regression); (4) the inflection detector picks the largest finite ΔS in a partially-NaN curve.
+- **Diagnostic CLI (`diagnose_logit_lens.py`, new).** Standalone script that loads any HF causal LM, runs a 4-paraphrase Logit Lens sweep, prints the S(ℓ) table, and detects the "ℓ* = scan_start + 1 AND mostly-NaN S" regression pattern. Exits non-zero on regression so it can be wired into CI later.
+
+**Why:**
+
+- The 5-instance pilot reported "variance reduction = 37.5%" but the underlying S(ℓ) curves were NaN for every layer in every article. Mechanistically there was no real ℓ* detection — the same default layer (`scan_start + 1 = 9`) was picked every time and the variance reduction was clamping at an arbitrary layer. Publishing the LL-PIRC mechanism claim without this fix would not survive review.
+- The PRI benchmark pilot showed `PPL_var = BF = 0.0` for all 76 scored samples, forcing `Diagnostic_IFI = 1.0` and collapsing the 2×2 diagnosis matrix to one category ("Internally Stable / Output-Sensitive" for 71/76 = 93%). The dual-pillar diagnosis loses all power without genuine IFI.
+
+**Impact:**
+
+- **Breaking for any prior PIRC run.** All `pirc.json` / `eval_summary.json` files generated before this commit used a silently-degenerate ℓ* and should be re-run. The 5-instance pilot's "37.5% variance reduction" headline must be re-derived from a corrected run.
+- **Breaking for any prior `scored_samples.csv` row** where IFI was used in diagnosis: the ppl_var / bf columns will be non-zero after re-running Phase 2a → 2b, and the diagnosis matrix will populate all four categories.
+- **Backward-compatible for old responses.csv.** `_migrate_schema_if_needed()` (already present in `IncrementalCSVWriter`) auto-adds the new `ppl_var_inst` / `bf_inst` columns as blank to legacy files; missing values fall back to None → 0.0 on read, matching pre-fix behaviour.
+- **S(ℓ) values are now log-scale variance, not raw-scale.** Absolute magnitudes are NOT comparable to any pre-fix curves, but the ranking of layers (which drives ℓ*) is the meaningful signal.
+
+---
+
 ## [2026-05-30] — Phase 6: weighted harmonic mean sub-components for Diagnostic_ORI / Diagnostic_IFI
 
 **Files Modified:** `prompt_robustness/src/scores.py`, `prompt_robustness/src/config.py`, `prompt_robustness/src/evaluator.py`

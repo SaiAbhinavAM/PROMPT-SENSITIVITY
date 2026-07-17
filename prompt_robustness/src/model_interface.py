@@ -23,14 +23,28 @@ _SEQ2SEQ_ARCHS = {
     "led", "prophetnet", "mt5", "nllb", "flan",
 }
 
+# Known causal-LM families — skip AutoConfig round-trip for these (avoids
+# an unnecessary gated-model auth hit and a ~1 s network call per model).
+_KNOWN_CAUSAL = {
+    "llama", "mistral", "qwen", "falcon", "gpt", "gemma", "phi", "bloom",
+    "opt", "mpt", "stablelm", "deepseek", "baichuan", "internlm",
+}
+
+
+def _hf_token() -> str | None:
+    return os.getenv("HF_TOKEN") or os.getenv("HUGGING_FACE_HUB_TOKEN")
+
 
 def _is_seq2seq(model_name: str) -> bool:
     """Return True if the model uses an encoder-decoder architecture."""
     name_lower = model_name.lower()
+    # Fast-path: known causal families never need a network call.
+    if any(k in name_lower for k in _KNOWN_CAUSAL):
+        return False
     if any(k in name_lower for k in _SEQ2SEQ_ARCHS):
         return True
     try:
-        cfg = AutoConfig.from_pretrained(model_name)
+        cfg = AutoConfig.from_pretrained(model_name, token=_hf_token())
         arch = getattr(cfg, "model_type", "").lower()
         return any(k in arch for k in _SEQ2SEQ_ARCHS)
     except Exception:
@@ -44,6 +58,13 @@ class ModelInterface:
         self.quantization = quantization
         self.is_seq2seq = _is_seq2seq(model_name)
 
+        token = _hf_token()
+        if token is None:
+            logger.warning(
+                "HF_TOKEN not set — gated models (Llama, Mistral) will fail to download. "
+                "Add HF_TOKEN to .env or set it as an environment variable."
+            )
+
         # Device priority: CUDA (H100/A100) → MPS (Apple Silicon) → CPU
         if torch.cuda.is_available():
             self.device = torch.device("cuda")
@@ -56,18 +77,24 @@ class ModelInterface:
               f"on {self.device}{f'  quant={quantization}' if quantization else ''} ---")
 
         self.tokenizer = AutoTokenizer.from_pretrained(
-            model_name, use_fast=True, padding_side="left"
+            model_name, use_fast=True, padding_side="left", token=token
         )
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
             self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
 
-        # Build load kwargs — use device_map + bfloat16 on CUDA so large models
-        # (including AWQ-quantized 70B) load efficiently across GPU memory.
+        # Build load kwargs — device_map + torch_dtype on CUDA so large models
+        # (including AWQ-quantized 70B) shard efficiently across GPU memory.
+        load_kwargs: dict = {"token": token}
         if torch.cuda.is_available():
-            load_kwargs = {"device_map": "auto", "torch_dtype": "auto"}
-        else:
-            load_kwargs = {}
+            load_kwargs["device_map"] = "auto"
+            load_kwargs["torch_dtype"] = "auto"
+
+        # AWQ / GPTQ quantized models: pass the quantization config explicitly so
+        # transformers uses the correct kernel (Marlin) instead of trying to load
+        # the full fp16 weights (→ instant OOM on 70B).
+        if quantization:
+            self._apply_quantization_kwargs(load_kwargs, quantization)
 
         if self.is_seq2seq:
             self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name, **load_kwargs)
@@ -79,6 +106,38 @@ class ModelInterface:
                 self.model = self.model.to(self.device)
         self.model.eval()
         print(f"    ✓ {model_name} loaded.")
+
+    @staticmethod
+    def _apply_quantization_kwargs(load_kwargs: dict, quantization: str) -> None:
+        """Wire the AWQ/GPTQ quantization spec into from_pretrained kwargs."""
+        q = quantization.lower()
+        if "awq" in q:
+            try:
+                # transformers ≥ 4.44: AwqConfig is the canonical path.
+                from transformers import AwqConfig
+                load_kwargs["quantization_config"] = AwqConfig(
+                    bits=4,
+                    backend="marlin" if "marlin" in q else "llm-awq",
+                )
+            except ImportError:
+                # Fallback: autoawq direct loading (older transformers).
+                try:
+                    from awq import AutoAWQForCausalLM  # noqa: F401
+                    # autoawq path — caller must use AutoAWQForCausalLM directly;
+                    # we pop device_map because autoawq handles placement itself.
+                    load_kwargs.pop("device_map", None)
+                    load_kwargs.pop("torch_dtype", None)
+                except ImportError:
+                    logger.error(
+                        "AWQ model requested but neither transformers.AwqConfig nor "
+                        "autoawq is available. Install: pip install autoawq"
+                    )
+        elif "gptq" in q:
+            try:
+                from transformers import GPTQConfig
+                load_kwargs["quantization_config"] = GPTQConfig(bits=4)
+            except ImportError:
+                logger.warning("GPTQConfig not available — loading without explicit quant config.")
 
     @property
     def _input_device(self):
@@ -107,6 +166,7 @@ class ModelInterface:
             return_tensors="pt",
             padding=True,
             truncation=True,
+            max_length=2048,
         ).to(self._input_device)
 
         gen_kwargs = dict(

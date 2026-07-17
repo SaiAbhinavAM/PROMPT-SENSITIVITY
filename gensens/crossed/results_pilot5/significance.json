@@ -1,0 +1,135 @@
+{
+  "n_articles": 5,
+  "warnings": [
+    "N_ARTICLES=5 is below the floor of 30 \u2014 significance results may be underpowered.",
+    "Most-vs-least seed test skipped: only 5 paired articles (need >= 20)."
+  ],
+  "pool_comparison": {
+    "unit": "per_seed",
+    "n_pool_a": 35,
+    "n_pool_b": 15,
+    "u_statistic": 354.0,
+    "p_value": 0.054042933452012026,
+    "rank_biserial_effect_size": -0.34857142857142853,
+    "pool_b_median": 0.5628514056224898,
+    "pool_a_median": 0.47273092369477904,
+    "direction": "Pool B more sensitive",
+    "low_power_warning": "smaller group has 15 units; test is valid but underpowered."
+  },
+  "pool_comparison_percell_ref": {
+    "unit": "per_cell",
+    "n_pool_a": 175,
+    "n_pool_b": 75,
+    "u_statistic": 7864.0,
+    "p_value": 0.01302699003455408,
+    "rank_biserial_effect_size": -0.19832380952380957,
+    "pool_b_median": 0.5662650602409639,
+    "pool_a_median": 0.4827309236947791,
+    "direction": "Pool B more sensitive",
+    "note": "PSEUDOREPLICATED \u2014 cells sharing a seed/article are correlated; p-value is anticonservative. Not for inference; use per_seed."
+  },
+  "pool_comparison_note": "Headline uses per-seed means (n_A=35 seeds, n_B=15 seeds). Per-cell test retained under pool_comparison_percell_ref for reference only.",
+  "dimension_ranking": [
+    {
+      "dimension": "Theme Isolation",
+      "n": 25,
+      "sensitivity_mean": 0.5941044176706828,
+      "ci_low": 0.51699578313253,
+      "ci_high": 0.6702036144578314
+    },
+    {
+      "dimension": "Meta-reflection",
+      "n": 5,
+      "sensitivity_mean": 0.5863453815261044,
+      "ci_low": 0.46108433734939763,
+      "ci_high": 0.7116064257028112
+    },
+    {
+      "dimension": "Emphasis Focus",
+      "n": 15,
+      "sensitivity_mean": 0.572904953145917,
+      "ci_low": 0.49982597054886213,
+      "ci_high": 0.6512105087014726
+    },
+    {
+      "dimension": "Analytical Framing",
+      "n": 20,
+      "sensitivity_mean": 0.570793172690763,
+      "ci_low": 0.48795783132530124,
+      "ci_high": 0.6500524598393576
+    },
+    {
+      "dimension": "Question Form",
+      "n": 20,
+      "sensitivity_mean": 0.5410441767068274,
+      "ci_low": 0.45535115461847386,
+      "ci_high": 0.6316975401606425
+    },
+    {
+      "dimension": "Persona / Tone",
+      "n": 30,
+      "sensitivity_mean": 0.5153614457831325,
+      "ci_low": 0.4454874497991967,
+      "ci_high": 0.5865150602409639
+    },
+    {
+      "dimension": "Lexical Filter",
+      "n": 15,
+      "sensitivity_mean": 0.5096921017402944,
+      "ci_low": 0.4355384872824631,
+      "ci_high": 0.5783002008032129
+    },
+    {
+      "dimension": "Tone Register",
+      "n": 20,
+      "sensitivity_mean": 0.48843373493975906,
+      "ci_low": 0.42607429718875506,
+      "ci_high": 0.5518273092369478
+    },
+    {
+      "dimension": "Role Based",
+      "n": 20,
+      "sensitivity_mean": 0.4858032128514056,
+      "ci_low": 0.4170956325301205,
+      "ci_high": 0.5607751004016063
+    },
+    {
+      "dimension": "Audience Perspective",
+      "n": 15,
+      "sensitivity_mean": 0.48144578313253006,
+      "ci_low": 0.4047248995983935,
+      "ci_high": 0.5583684738955823
+    },
+    {
+      "dimension": "Completeness Framing",
+      "n": 15,
+      "sensitivity_mean": 0.46710843373493977,
+      "ci_low": 0.3984675368139224,
+      "ci_high": 0.5379521419009372
+    },
+    {
+      "dimension": "Direct Command",
+      "n": 20,
+      "sensitivity_mean": 0.4448192771084337,
+      "ci_low": 0.3771779618473895,
+      "ci_high": 0.5186568775100402
+    },
+    {
+      "dimension": "Constraint Based",
+      "n": 15,
+      "sensitivity_mean": 0.3617269076305221,
+      "ci_low": 0.27748293172690763,
+      "ci_high": 0.4448999330655958
+    },
+    {
+      "dimension": "Output Format",
+      "n": 15,
+      "sensitivity_mean": 0.3495850066934405,
+      "ci_low": 0.25847155287817936,
+      "ci_high": 0.45480722891566266
+    }
+  ],
+  "most_sensitive_dimension": "Theme Isolation",
+  "least_sensitive_dimension": "Output Format",
+  "most_vs_least_sensitive_seed": null
+}

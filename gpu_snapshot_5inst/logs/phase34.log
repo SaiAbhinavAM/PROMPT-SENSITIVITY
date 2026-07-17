@@ -1,0 +1,1028 @@
+[14:40:04] === Baseline ===
+2026-05-29 14:40:06 [INFO] experiment_baseline: Loaded config from config.yaml
+2026-05-29 14:40:06 [INFO] experiment_baseline: Loading cnn_dailymail/3.0.0, split='test[:100]'
+2026-05-29 14:40:07 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:07 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-29 14:40:07 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-29 14:40:07 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/abisee/cnn_dailymail/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/README.md "HTTP/1.1 200 OK"
+2026-05-29 14:40:07 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:07 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:08 [INFO] httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/cnn_dailymail/cnn_dailymail.py "HTTP/1.1 200 OK"
+2026-05-29 14:40:08 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/cnn_dailymail/revision/96df5e686bee6baa90b8bee7c28b81fa3fa6223d "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:08 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/abisee/cnn_dailymail/revision/96df5e686bee6baa90b8bee7c28b81fa3fa6223d "HTTP/1.1 200 OK"
+2026-05-29 14:40:09 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:09 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:09 [INFO] httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=cnn_dailymail "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:09 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/1.0.0?recursive=true&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:10 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/abisee/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/1.0.0?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:40:10 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d?recursive=false&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:10 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/abisee/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:40:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:11 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/3.0.0?recursive=true&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:11 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/abisee/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/3.0.0?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:40:11 [INFO] experiment_baseline: Loaded 100 articles
+2026-05-29 14:40:11 [INFO] experiment_baseline: Loading models...
+2026-05-29 14:40:13 [INFO] experiment_baseline: Loading target model: meta-llama/Llama-3.1-8B-Instruct (float16)
+2026-05-29 14:40:13 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json "HTTP/1.1 401 Unauthorized"
+2026-05-29 14:40:14 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/tokenizer_config.json "HTTP/1.1 401 Unauthorized"
+2026-05-29 14:40:14 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-3.1-8B-Instruct/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:14 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-3.1-8B-Instruct/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:40:15 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-3.1-8B-Instruct "HTTP/1.1 200 OK"
+2026-05-29 14:40:15 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json "HTTP/1.1 401 Unauthorized"
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/291 [00:00<?, ?it/s]Loading weights:   0%|          | 1/291 [00:00<01:27,  3.32it/s]Loading weights:   1%|          | 2/291 [00:00<00:56,  5.14it/s]Loading weights:   8%|▊         | 22/291 [00:00<00:04, 59.94it/s]Loading weights:  11%|█         | 32/291 [00:00<00:03, 69.69it/s]Loading weights:  17%|█▋        | 49/291 [00:00<00:02, 86.24it/s]Loading weights:  22%|██▏       | 64/291 [00:00<00:02, 101.98it/s]Loading weights:  26%|██▌       | 76/291 [00:01<00:02, 106.04it/s]Loading weights:  30%|███       | 88/291 [00:01<00:01, 108.25it/s]Loading weights:  35%|███▌      | 103/291 [00:01<00:01, 108.11it/s]Loading weights:  40%|████      | 117/291 [00:01<00:01, 113.53it/s]Loading weights:  45%|████▍     | 130/291 [00:01<00:01, 112.68it/s]Loading weights:  50%|████▉     | 145/291 [00:01<00:01, 117.75it/s]Loading weights:  54%|█████▍    | 157/291 [00:01<00:01, 117.71it/s]Loading weights:  58%|█████▊    | 169/291 [00:01<00:01, 116.35it/s]Loading weights:  63%|██████▎   | 184/291 [00:01<00:00, 107.34it/s]Loading weights:  69%|██████▉   | 202/291 [00:02<00:00, 119.00it/s]Loading weights:  74%|███████▍  | 215/291 [00:02<00:00, 113.93it/s]Loading weights:  79%|███████▊  | 229/291 [00:02<00:00, 106.51it/s]Loading weights:  84%|████████▍ | 245/291 [00:02<00:00, 119.33it/s]Loading weights:  89%|████████▊ | 258/291 [00:02<00:00, 105.71it/s]Loading weights:  94%|█████████▍| 274/291 [00:02<00:00, 114.08it/s]Loading weights:  98%|█████████▊| 286/291 [00:02<00:00, 110.85it/s]Loading weights: 100%|██████████| 291/291 [00:02<00:00, 101.55it/s]
+2026-05-29 14:40:19 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/generation_config.json "HTTP/1.1 401 Unauthorized"
+2026-05-29 14:40:19 [INFO] experiment_baseline: Model loaded: meta-llama/Llama-3.1-8B-Instruct, device_map=auto
+2026-05-29 14:40:20 [INFO] experiment_baseline: Loading similarity model: sentence-transformers/all-mpnet-base-v2
+2026-05-29 14:40:20 [INFO] sentence_transformers.base.model: No device provided, using cuda:0
+2026-05-29 14:40:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/modules.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:20 [INFO] sentence_transformers.base.model: Loading SentenceTransformer model from sentence-transformers/all-mpnet-base-v2.
+2026-05-29 14:40:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config_sentence_transformers.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:21 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:21 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/README.md "HTTP/1.1 200 OK"
+2026-05-29 14:40:21 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:21 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/modules.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:21 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:21 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/sentence_bert_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:21 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:22 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:22 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 7344.96it/s]
+2026-05-29 14:40:22 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:22 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:22 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:23 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:23 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:23 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:23 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:23 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:23 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:23 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:24 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:24 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:24 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-mpnet-base-v2/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:24 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-mpnet-base-v2/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:40:24 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:24 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:25 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-mpnet-base-v2 "HTTP/1.1 200 OK"
+2026-05-29 14:40:25 [INFO] experiment_baseline: Loading back-translation models for 5 pivot languages...
+2026-05-29 14:40:25 [INFO] experiment_baseline:   Loading Helsinki-NLP/opus-mt-en-de
+2026-05-29 14:40:25 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:25 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-de/6183067f769a302e3861815543b9f312c71b0ca4/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:25 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-de/6183067f769a302e3861815543b9f312c71b0ca4/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:25 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-de/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:25 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-de/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:40:26 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/source.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:26 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-de/6183067f769a302e3861815543b9f312c71b0ca4/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:26 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-de/6183067f769a302e3861815543b9f312c71b0ca4/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:26 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/target.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:26 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-de/6183067f769a302e3861815543b9f312c71b0ca4/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:26 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-de/6183067f769a302e3861815543b9f312c71b0ca4/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:26 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/vocab.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:26 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-de/6183067f769a302e3861815543b9f312c71b0ca4/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:26 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-de/6183067f769a302e3861815543b9f312c71b0ca4/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:26 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/target_vocab.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:27 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:27 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:27 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/tokenizer.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:27 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/transformers/models/marian/tokenization_marian.py:176: UserWarning: Recommended: pip install sacremoses.
+  warnings.warn("Recommended: pip install sacremoses.")
+2026-05-29 14:40:28 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:28 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-de/6183067f769a302e3861815543b9f312c71b0ca4/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:28 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-de/6183067f769a302e3861815543b9f312c71b0ca4/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:28 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:28 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:28 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/pytorch_model.bin "HTTP/1.1 302 Found"
+2026-05-29 14:40:29 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-de/xet-read-token/6183067f769a302e3861815543b9f312c71b0ca4 "HTTP/1.1 200 OK"
+2026-05-29 14:40:35 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:35 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-de "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/258 [00:00<?, ?it/s]Loading weights: 100%|██████████| 258/258 [00:00<00:00, 35071.48it/s]
+2026-05-29 14:40:36 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-de/commits/main "HTTP/1.1 200 OK"
+2026-05-29 14:40:36 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-de/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-29 14:40:36 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-de/commits/refs%2Fpr%2F5 "HTTP/1.1 200 OK"
+2026-05-29 14:40:36 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:36 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-de/6183067f769a302e3861815543b9f312c71b0ca4/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:36 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/refs%2Fpr%2F5/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:36 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-de/6183067f769a302e3861815543b9f312c71b0ca4/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:36 [INFO] experiment_baseline:   Loading Helsinki-NLP/opus-mt-de-en
+2026-05-29 14:40:37 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:37 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-de/resolve/refs%2Fpr%2F5/model.safetensors "HTTP/1.1 302 Found"
+2026-05-29 14:40:37 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-de-en/1a922f3b32a8e809e17a47d4b32142d8105924e5/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:37 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-de-en/1a922f3b32a8e809e17a47d4b32142d8105924e5/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:37 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-de/xet-read-token/0012d6d6ff4b4dd06bee042d3294295f0e587abd "HTTP/1.1 200 OK"
+2026-05-29 14:40:37 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-de-en/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:37 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-de-en/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:40:37 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/source.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:37 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-de-en/1a922f3b32a8e809e17a47d4b32142d8105924e5/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:37 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-de-en/1a922f3b32a8e809e17a47d4b32142d8105924e5/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:38 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/target.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:38 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-de-en/1a922f3b32a8e809e17a47d4b32142d8105924e5/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:38 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-de-en/1a922f3b32a8e809e17a47d4b32142d8105924e5/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:38 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/vocab.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:38 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-de-en/1a922f3b32a8e809e17a47d4b32142d8105924e5/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:38 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-de-en/1a922f3b32a8e809e17a47d4b32142d8105924e5/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:38 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/target_vocab.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:38 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:39 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:39 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/tokenizer.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:39 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:39 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:39 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-de-en/1a922f3b32a8e809e17a47d4b32142d8105924e5/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:39 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-de-en/1a922f3b32a8e809e17a47d4b32142d8105924e5/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:40 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:40 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:40 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/pytorch_model.bin "HTTP/1.1 302 Found"
+2026-05-29 14:40:40 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-de-en/xet-read-token/1a922f3b32a8e809e17a47d4b32142d8105924e5 "HTTP/1.1 200 OK"
+2026-05-29 14:40:45 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:46 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-de-en "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/258 [00:00<?, ?it/s]Loading weights: 100%|██████████| 258/258 [00:00<00:00, 30611.89it/s]
+2026-05-29 14:40:46 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-de-en/commits/main "HTTP/1.1 200 OK"
+2026-05-29 14:40:46 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-de-en/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-29 14:40:47 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-de-en/commits/refs%2Fpr%2F6 "HTTP/1.1 200 OK"
+2026-05-29 14:40:47 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:47 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-de-en/1a922f3b32a8e809e17a47d4b32142d8105924e5/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:47 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-de-en/1a922f3b32a8e809e17a47d4b32142d8105924e5/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:47 [INFO] experiment_baseline:   Loading Helsinki-NLP/opus-mt-en-fr
+2026-05-29 14:40:47 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/refs%2Fpr%2F6/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:47 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:47 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-fr/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:47 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-fr/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:47 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-de-en/resolve/refs%2Fpr%2F6/model.safetensors "HTTP/1.1 302 Found"
+2026-05-29 14:40:47 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-fr/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:47 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-de-en/xet-read-token/6f6b23ef5ef8a586414ad9d2b7dda64ca5352935 "HTTP/1.1 200 OK"
+2026-05-29 14:40:47 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-fr/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:40:48 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/source.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:48 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-fr/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:48 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-fr/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:48 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/target.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:48 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-fr/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:48 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-fr/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:48 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/vocab.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:48 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-fr/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:48 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-fr/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:48 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/target_vocab.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:49 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:49 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:49 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/tokenizer.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:49 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:50 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:50 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-fr/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:50 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-fr/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:50 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:50 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:51 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/pytorch_model.bin "HTTP/1.1 302 Found"
+2026-05-29 14:40:51 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-fr/xet-read-token/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18 "HTTP/1.1 200 OK"
+2026-05-29 14:40:56 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:57 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-fr "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/258 [00:00<?, ?it/s]Loading weights: 100%|██████████| 258/258 [00:00<00:00, 28782.36it/s]
+2026-05-29 14:40:57 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-fr/commits/main "HTTP/1.1 200 OK"
+2026-05-29 14:40:57 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-fr/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-29 14:40:58 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-fr/commits/refs%2Fpr%2F9 "HTTP/1.1 200 OK"
+2026-05-29 14:40:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-fr/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:58 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-fr/dd7f6540a7a48a7f4db59e5c0b9c42c8eea67f18/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:58 [INFO] experiment_baseline:   Loading Helsinki-NLP/opus-mt-fr-en
+2026-05-29 14:40:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/refs%2Fpr%2F9/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-fr-en/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-fr-en/c4aed37b318c763fd177aa449b44e3b783cc6c02/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:58 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-fr-en/c4aed37b318c763fd177aa449b44e3b783cc6c02/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-fr/resolve/refs%2Fpr%2F9/model.safetensors "HTTP/1.1 302 Found"
+2026-05-29 14:40:58 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-fr-en/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:40:58 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-fr/xet-read-token/c96fcd7f38a4c0d1ac9b61e255b47f3f7ff55e5e "HTTP/1.1 200 OK"
+2026-05-29 14:40:58 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-fr-en/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:40:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-fr-en/resolve/main/source.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-fr-en/c4aed37b318c763fd177aa449b44e3b783cc6c02/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:59 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-fr-en/c4aed37b318c763fd177aa449b44e3b783cc6c02/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-fr-en/resolve/main/target.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-fr-en/c4aed37b318c763fd177aa449b44e3b783cc6c02/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:59 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-fr-en/c4aed37b318c763fd177aa449b44e3b783cc6c02/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:40:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-fr-en/resolve/main/vocab.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:40:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-fr-en/c4aed37b318c763fd177aa449b44e3b783cc6c02/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:59 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-fr-en/c4aed37b318c763fd177aa449b44e3b783cc6c02/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:40:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-fr-en/resolve/main/target_vocab.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:00 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-fr-en/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:00 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-fr-en/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:00 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-fr-en/resolve/main/tokenizer.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:01 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-fr-en/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:01 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-fr-en/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:01 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-fr-en/c4aed37b318c763fd177aa449b44e3b783cc6c02/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:01 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-fr-en/c4aed37b318c763fd177aa449b44e3b783cc6c02/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:01 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-fr-en/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2026-05-29 14:41:01 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-fr-en/xet-read-token/c4aed37b318c763fd177aa449b44e3b783cc6c02 "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/256 [00:00<?, ?it/s]Loading weights: 100%|██████████| 256/256 [00:00<00:00, 8304.72it/s]
+2026-05-29 14:41:09 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-fr-en/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:09 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-fr-en/c4aed37b318c763fd177aa449b44e3b783cc6c02/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:09 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-fr-en/c4aed37b318c763fd177aa449b44e3b783cc6c02/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:09 [INFO] experiment_baseline:   Loading Helsinki-NLP/opus-mt-en-es
+2026-05-29 14:41:09 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:09 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-es/5bc4493d463cf000c1f0b50f8d56886a392ed4ab/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:09 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-es/5bc4493d463cf000c1f0b50f8d56886a392ed4ab/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:09 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-es/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:09 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-es/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:41:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/source.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-es/5bc4493d463cf000c1f0b50f8d56886a392ed4ab/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:10 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-es/5bc4493d463cf000c1f0b50f8d56886a392ed4ab/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/target.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-es/5bc4493d463cf000c1f0b50f8d56886a392ed4ab/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:10 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-es/5bc4493d463cf000c1f0b50f8d56886a392ed4ab/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/vocab.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-es/5bc4493d463cf000c1f0b50f8d56886a392ed4ab/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:10 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-es/5bc4493d463cf000c1f0b50f8d56886a392ed4ab/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/target_vocab.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/tokenizer.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-es/5bc4493d463cf000c1f0b50f8d56886a392ed4ab/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:12 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-es/5bc4493d463cf000c1f0b50f8d56886a392ed4ab/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/pytorch_model.bin "HTTP/1.1 302 Found"
+2026-05-29 14:41:13 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-es/xet-read-token/5bc4493d463cf000c1f0b50f8d56886a392ed4ab "HTTP/1.1 200 OK"
+2026-05-29 14:41:17 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:18 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-es "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/258 [00:00<?, ?it/s]Loading weights: 100%|██████████| 258/258 [00:00<00:00, 35989.44it/s]
+2026-05-29 14:41:18 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-es/commits/main "HTTP/1.1 200 OK"
+2026-05-29 14:41:18 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-es/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-29 14:41:19 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-es/commits/refs%2Fpr%2F4 "HTTP/1.1 200 OK"
+2026-05-29 14:41:19 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:19 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-es/5bc4493d463cf000c1f0b50f8d56886a392ed4ab/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:19 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-es/5bc4493d463cf000c1f0b50f8d56886a392ed4ab/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:19 [INFO] experiment_baseline:   Loading Helsinki-NLP/opus-mt-es-en
+2026-05-29 14:41:19 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/refs%2Fpr%2F4/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:19 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:19 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-es-en/c96e2c5399ebfae4fc43d9669556b9afa74bb69d/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:19 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-es-en/c96e2c5399ebfae4fc43d9669556b9afa74bb69d/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:19 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-es/resolve/refs%2Fpr%2F4/model.safetensors "HTTP/1.1 302 Found"
+2026-05-29 14:41:19 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-es-en/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:19 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-es/xet-read-token/fdaddf76f50fcc1583ba42f95965862a7ab30f97 "HTTP/1.1 200 OK"
+2026-05-29 14:41:20 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-es-en/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:41:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/source.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-es-en/c96e2c5399ebfae4fc43d9669556b9afa74bb69d/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:20 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-es-en/c96e2c5399ebfae4fc43d9669556b9afa74bb69d/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/target.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-es-en/c96e2c5399ebfae4fc43d9669556b9afa74bb69d/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:20 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-es-en/c96e2c5399ebfae4fc43d9669556b9afa74bb69d/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/vocab.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-es-en/c96e2c5399ebfae4fc43d9669556b9afa74bb69d/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:20 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-es-en/c96e2c5399ebfae4fc43d9669556b9afa74bb69d/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:21 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/target_vocab.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:21 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:21 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:21 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/tokenizer.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:22 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:22 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:22 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-es-en/c96e2c5399ebfae4fc43d9669556b9afa74bb69d/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:22 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-es-en/c96e2c5399ebfae4fc43d9669556b9afa74bb69d/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:22 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:22 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:23 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/pytorch_model.bin "HTTP/1.1 302 Found"
+2026-05-29 14:41:23 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-es-en/xet-read-token/c96e2c5399ebfae4fc43d9669556b9afa74bb69d "HTTP/1.1 200 OK"
+2026-05-29 14:41:28 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:28 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-es-en "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/258 [00:00<?, ?it/s]Loading weights: 100%|██████████| 258/258 [00:00<00:00, 36303.36it/s]
+2026-05-29 14:41:29 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-es-en/commits/main "HTTP/1.1 200 OK"
+2026-05-29 14:41:29 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-es-en/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-29 14:41:29 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-es-en/commits/refs%2Fpr%2F6 "HTTP/1.1 200 OK"
+2026-05-29 14:41:29 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:29 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-es-en/c96e2c5399ebfae4fc43d9669556b9afa74bb69d/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:29 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-es-en/c96e2c5399ebfae4fc43d9669556b9afa74bb69d/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:29 [INFO] experiment_baseline:   Loading Helsinki-NLP/opus-mt-en-ru
+2026-05-29 14:41:30 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/refs%2Fpr%2F6/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:30 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:30 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-ru/bb09c99d180016eac6819df3dae68edb1690fdee/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:30 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-ru/bb09c99d180016eac6819df3dae68edb1690fdee/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:30 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-es-en/resolve/refs%2Fpr%2F6/model.safetensors "HTTP/1.1 302 Found"
+2026-05-29 14:41:30 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-ru/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:30 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-es-en/xet-read-token/725b7965a8cac11ebe80ea671e72e0b7e8b28a9f "HTTP/1.1 200 OK"
+2026-05-29 14:41:30 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-ru/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:41:30 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/source.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:30 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-ru/bb09c99d180016eac6819df3dae68edb1690fdee/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:30 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-ru/bb09c99d180016eac6819df3dae68edb1690fdee/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:31 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/target.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:31 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-ru/bb09c99d180016eac6819df3dae68edb1690fdee/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:31 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-ru/bb09c99d180016eac6819df3dae68edb1690fdee/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:31 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/vocab.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:31 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-ru/bb09c99d180016eac6819df3dae68edb1690fdee/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:31 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-ru/bb09c99d180016eac6819df3dae68edb1690fdee/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:31 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/target_vocab.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:32 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:32 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:32 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/tokenizer.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:32 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:33 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:33 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-ru/bb09c99d180016eac6819df3dae68edb1690fdee/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:33 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-ru/bb09c99d180016eac6819df3dae68edb1690fdee/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:33 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:33 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:33 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/pytorch_model.bin "HTTP/1.1 302 Found"
+2026-05-29 14:41:34 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-ru/xet-read-token/bb09c99d180016eac6819df3dae68edb1690fdee "HTTP/1.1 200 OK"
+2026-05-29 14:41:42 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:42 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-ru "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/258 [00:00<?, ?it/s]Loading weights: 100%|██████████| 258/258 [00:00<00:00, 34689.23it/s]
+2026-05-29 14:41:42 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-ru/commits/main "HTTP/1.1 200 OK"
+2026-05-29 14:41:43 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-ru/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-29 14:41:43 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-ru/commits/refs%2Fpr%2F7 "HTTP/1.1 200 OK"
+2026-05-29 14:41:43 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:43 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-ru/bb09c99d180016eac6819df3dae68edb1690fdee/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:43 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-ru/bb09c99d180016eac6819df3dae68edb1690fdee/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:43 [INFO] experiment_baseline:   Loading Helsinki-NLP/opus-mt-ru-en
+2026-05-29 14:41:43 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/refs%2Fpr%2F7/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:43 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:43 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-ru-en/fbd6dc73284f95536648512cc21d57f19191961a/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:43 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-ru-en/fbd6dc73284f95536648512cc21d57f19191961a/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:43 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-ru/resolve/refs%2Fpr%2F7/model.safetensors "HTTP/1.1 302 Found"
+2026-05-29 14:41:44 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-ru-en/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:44 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-ru/xet-read-token/3ff4dbd98515ba253f08f183e0de0b7ccf189ee3 "HTTP/1.1 200 OK"
+2026-05-29 14:41:44 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-ru-en/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:41:44 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/source.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:44 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-ru-en/fbd6dc73284f95536648512cc21d57f19191961a/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:44 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-ru-en/fbd6dc73284f95536648512cc21d57f19191961a/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:44 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/target.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:44 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-ru-en/fbd6dc73284f95536648512cc21d57f19191961a/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:44 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-ru-en/fbd6dc73284f95536648512cc21d57f19191961a/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:44 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/vocab.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:44 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-ru-en/fbd6dc73284f95536648512cc21d57f19191961a/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:45 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-ru-en/fbd6dc73284f95536648512cc21d57f19191961a/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:45 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/target_vocab.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:45 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:45 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:45 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/tokenizer.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:46 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:46 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:46 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-ru-en/fbd6dc73284f95536648512cc21d57f19191961a/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:46 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-ru-en/fbd6dc73284f95536648512cc21d57f19191961a/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:46 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:47 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:47 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/pytorch_model.bin "HTTP/1.1 302 Found"
+2026-05-29 14:41:47 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-ru-en/xet-read-token/fbd6dc73284f95536648512cc21d57f19191961a "HTTP/1.1 200 OK"
+2026-05-29 14:41:55 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:55 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-ru-en "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/258 [00:00<?, ?it/s]Loading weights: 100%|██████████| 258/258 [00:00<00:00, 35533.28it/s]
+2026-05-29 14:41:55 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-ru-en/commits/main "HTTP/1.1 200 OK"
+2026-05-29 14:41:56 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-ru-en/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-29 14:41:56 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-ru-en/commits/refs%2Fpr%2F4 "HTTP/1.1 200 OK"
+2026-05-29 14:41:56 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:56 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-ru-en/fbd6dc73284f95536648512cc21d57f19191961a/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:56 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-ru-en/fbd6dc73284f95536648512cc21d57f19191961a/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:56 [INFO] experiment_baseline:   Loading Helsinki-NLP/opus-mt-en-zh
+2026-05-29 14:41:56 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/refs%2Fpr%2F4/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:56 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:56 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-zh/408d9bc410a388e1d9aef112a2daba955b945255/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:56 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-zh/408d9bc410a388e1d9aef112a2daba955b945255/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:56 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-ru-en/resolve/refs%2Fpr%2F4/model.safetensors "HTTP/1.1 302 Found"
+2026-05-29 14:41:56 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-zh/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:57 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-ru-en/xet-read-token/7c84e70e05294db4fead6135d04585020413f78b "HTTP/1.1 200 OK"
+2026-05-29 14:41:57 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-zh/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:41:57 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/source.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:57 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-zh/408d9bc410a388e1d9aef112a2daba955b945255/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:57 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-zh/408d9bc410a388e1d9aef112a2daba955b945255/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:57 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/target.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:57 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-zh/408d9bc410a388e1d9aef112a2daba955b945255/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:57 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-zh/408d9bc410a388e1d9aef112a2daba955b945255/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:41:57 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/vocab.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:57 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-zh/408d9bc410a388e1d9aef112a2daba955b945255/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:57 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-zh/408d9bc410a388e1d9aef112a2daba955b945255/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/target_vocab.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/tokenizer.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:41:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-zh/408d9bc410a388e1d9aef112a2daba955b945255/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:59 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-zh/408d9bc410a388e1d9aef112a2daba955b945255/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:41:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:41:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:00 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/pytorch_model.bin "HTTP/1.1 302 Found"
+2026-05-29 14:42:00 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-zh/xet-read-token/408d9bc410a388e1d9aef112a2daba955b945255 "HTTP/1.1 200 OK"
+2026-05-29 14:42:09 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:09 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-zh "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/258 [00:00<?, ?it/s]Loading weights: 100%|██████████| 258/258 [00:00<00:00, 33524.29it/s]
+2026-05-29 14:42:09 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-zh/commits/main "HTTP/1.1 200 OK"
+2026-05-29 14:42:09 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-zh/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-29 14:42:10 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-zh/commits/refs%2Fpr%2F26 "HTTP/1.1 200 OK"
+2026-05-29 14:42:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:42:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-zh/408d9bc410a388e1d9aef112a2daba955b945255/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:42:10 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-en-zh/408d9bc410a388e1d9aef112a2daba955b945255/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:42:10 [INFO] experiment_baseline:   Loading Helsinki-NLP/opus-mt-zh-en
+2026-05-29 14:42:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/refs%2Fpr%2F26/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:42:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-zh-en/cf109095479db38d6df799875e34039d4938aaa6/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:42:10 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-zh-en/cf109095479db38d6df799875e34039d4938aaa6/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:42:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-en-zh/resolve/refs%2Fpr%2F26/model.safetensors "HTTP/1.1 302 Found"
+2026-05-29 14:42:10 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-zh-en/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:10 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-en-zh/xet-read-token/68e1208cb5c05563fa24b83785b660c65ba7b047 "HTTP/1.1 200 OK"
+2026-05-29 14:42:11 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-zh-en/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:42:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/source.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:42:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-zh-en/cf109095479db38d6df799875e34039d4938aaa6/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:42:11 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-zh-en/cf109095479db38d6df799875e34039d4938aaa6/source.spm "HTTP/1.1 200 OK"
+2026-05-29 14:42:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/target.spm "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:42:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-zh-en/cf109095479db38d6df799875e34039d4938aaa6/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:42:11 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-zh-en/cf109095479db38d6df799875e34039d4938aaa6/target.spm "HTTP/1.1 200 OK"
+2026-05-29 14:42:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/vocab.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:42:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-zh-en/cf109095479db38d6df799875e34039d4938aaa6/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:42:11 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-zh-en/cf109095479db38d6df799875e34039d4938aaa6/vocab.json "HTTP/1.1 200 OK"
+2026-05-29 14:42:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/target_vocab.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/tokenizer.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:13 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:42:13 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-zh-en/cf109095479db38d6df799875e34039d4938aaa6/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:42:13 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-zh-en/cf109095479db38d6df799875e34039d4938aaa6/config.json "HTTP/1.1 200 OK"
+2026-05-29 14:42:13 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:13 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:13 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/pytorch_model.bin "HTTP/1.1 302 Found"
+2026-05-29 14:42:14 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-zh-en/xet-read-token/cf109095479db38d6df799875e34039d4938aaa6 "HTTP/1.1 200 OK"
+2026-05-29 14:42:18 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:18 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-zh-en "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/258 [00:00<?, ?it/s]Loading weights: 100%|██████████| 258/258 [00:00<00:00, 36543.65it/s]
+2026-05-29 14:42:19 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-zh-en/commits/main "HTTP/1.1 200 OK"
+2026-05-29 14:42:19 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-zh-en/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-29 14:42:19 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-zh-en/commits/refs%2Fpr%2F12 "HTTP/1.1 200 OK"
+2026-05-29 14:42:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:42:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-zh-en/cf109095479db38d6df799875e34039d4938aaa6/generation_config.json "HTTP/1.1 200 OK"
+2026-05-29 14:42:20 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Helsinki-NLP/opus-mt-zh-en/cf109095479db38d6df799875e34039d4938aaa6/generation_config.json "HTTP/1.1 200 OK"
+Baseline experiment:   0%|          | 0/5 [00:00<?, ?it/s]2026-05-29 14:42:20 [INFO] experiment_baseline: 
+============================================================
+2026-05-29 14:42:20 [INFO] experiment_baseline: Article 1/5
+2026-05-29 14:42:20 [INFO] experiment_baseline: ============================================================
+2026-05-29 14:42:20 [INFO] experiment_baseline: Generating paraphrase variants...
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][A2026-05-29 14:42:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/refs%2Fpr%2F12/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:42:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/refs%2Fpr%2F12/model.safetensors "HTTP/1.1 302 Found"
+
+Batches: 100%|██████████| 1/1 [00:00<00:00,  3.36it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00,  3.36it/s]
+2026-05-29 14:42:20 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Helsinki-NLP/opus-mt-zh-en/xet-read-token/badebd2bdd4cdfde141a969df82a0f2c4e3b1dfe "HTTP/1.1 200 OK"
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 131.70it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 136.71it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 142.23it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 139.74it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 140.22it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 138.27it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 149.63it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 143.53it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 139.46it/s]
+2026-05-29 14:42:27 [WARNING] experiment_baseline: Only generated 7/8 valid paraphrases. Padding with duplicates of last valid paraphrase.
+2026-05-29 14:42:27 [INFO] experiment_baseline:   Generating output for variant 1/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+2026-05-29 14:42:30 [INFO] absl: Using default tokenizer.
+2026-05-29 14:42:30 [INFO] experiment_baseline:   Variant 1: ROUGE-L = 0.2564
+2026-05-29 14:42:30 [INFO] experiment_baseline:   Generating output for variant 2/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:42:32 [INFO] absl: Using default tokenizer.
+2026-05-29 14:42:32 [INFO] experiment_baseline:   Variant 2: ROUGE-L = 0.2521
+2026-05-29 14:42:32 [INFO] experiment_baseline:   Generating output for variant 3/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:42:34 [INFO] absl: Using default tokenizer.
+2026-05-29 14:42:34 [INFO] experiment_baseline:   Variant 3: ROUGE-L = 0.2564
+2026-05-29 14:42:34 [INFO] experiment_baseline:   Generating output for variant 4/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:42:37 [INFO] absl: Using default tokenizer.
+2026-05-29 14:42:37 [INFO] experiment_baseline:   Variant 4: ROUGE-L = 0.2521
+2026-05-29 14:42:37 [INFO] experiment_baseline:   Generating output for variant 5/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:42:39 [INFO] absl: Using default tokenizer.
+2026-05-29 14:42:39 [INFO] experiment_baseline:   Variant 5: ROUGE-L = 0.2946
+2026-05-29 14:42:39 [INFO] experiment_baseline:   Generating output for variant 6/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:42:41 [INFO] absl: Using default tokenizer.
+2026-05-29 14:42:41 [INFO] experiment_baseline:   Variant 6: ROUGE-L = 0.2586
+2026-05-29 14:42:41 [INFO] experiment_baseline:   Generating output for variant 7/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:42:45 [INFO] absl: Using default tokenizer.
+2026-05-29 14:42:45 [INFO] experiment_baseline:   Variant 7: ROUGE-L = 0.2093
+2026-05-29 14:42:45 [INFO] experiment_baseline:   Generating output for variant 8/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:42:49 [INFO] absl: Using default tokenizer.
+2026-05-29 14:42:49 [INFO] experiment_baseline:   Variant 8: ROUGE-L = 0.2093
+2026-05-29 14:42:49 [INFO] experiment_baseline:   ROUGE-L: mean=0.2486, var=0.000681
+2026-05-29 14:42:49 [INFO] experiment_baseline:   Computing IFI metrics...
+2026-05-29 14:42:49 [INFO] src.ifi_metrics: Computing IFI metrics for 8 paraphrases...
+2026-05-29 14:42:49 [INFO] src.ifi_metrics: PPL_var: std=0.0831, mean=8.573, values=['8.71', '8.63', '8.51', '8.63', '8.55', '8.58', '8.48', '8.48']
+2026-05-29 14:42:50 [INFO] src.ifi_metrics: PC_stab: 852.127441, mean B per variant: ['48.88', '49.12', '48.43', '49.12', '48.50', '49.77', '49.12', '49.12'], min_seq_len=406
+2026-05-29 14:42:50 [INFO] experiment_baseline:   IFI: PPL_var=0.0831, PC_stab=852.127441
+Baseline experiment:  20%|██        | 1/5 [00:30<02:01, 30.32s/it]2026-05-29 14:42:50 [INFO] experiment_baseline: 
+============================================================
+2026-05-29 14:42:50 [INFO] experiment_baseline: Article 2/5
+2026-05-29 14:42:50 [INFO] experiment_baseline: ============================================================
+2026-05-29 14:42:50 [INFO] experiment_baseline: Generating paraphrase variants...
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 128.87it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 129.28it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 140.63it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 146.53it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 148.21it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 135.87it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 141.30it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 149.70it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 149.15it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 142.91it/s]
+2026-05-29 14:42:58 [WARNING] experiment_baseline: Only generated 7/8 valid paraphrases. Padding with duplicates of last valid paraphrase.
+2026-05-29 14:42:58 [INFO] experiment_baseline:   Generating output for variant 1/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:00 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:00 [INFO] experiment_baseline:   Variant 1: ROUGE-L = 0.2794
+2026-05-29 14:43:00 [INFO] experiment_baseline:   Generating output for variant 2/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:03 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:03 [INFO] experiment_baseline:   Variant 2: ROUGE-L = 0.2714
+2026-05-29 14:43:03 [INFO] experiment_baseline:   Generating output for variant 3/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:07 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:07 [INFO] experiment_baseline:   Variant 3: ROUGE-L = 0.2545
+2026-05-29 14:43:07 [INFO] experiment_baseline:   Generating output for variant 4/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:10 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:10 [INFO] experiment_baseline:   Variant 4: ROUGE-L = 0.2714
+2026-05-29 14:43:10 [INFO] experiment_baseline:   Generating output for variant 5/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:13 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:13 [INFO] experiment_baseline:   Variant 5: ROUGE-L = 0.2722
+2026-05-29 14:43:13 [INFO] experiment_baseline:   Generating output for variant 6/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:16 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:16 [INFO] experiment_baseline:   Variant 6: ROUGE-L = 0.2778
+2026-05-29 14:43:16 [INFO] experiment_baseline:   Generating output for variant 7/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:21 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:21 [INFO] experiment_baseline:   Variant 7: ROUGE-L = 0.1981
+2026-05-29 14:43:21 [INFO] experiment_baseline:   Generating output for variant 8/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:26 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:26 [INFO] experiment_baseline:   Variant 8: ROUGE-L = 0.1981
+2026-05-29 14:43:26 [INFO] experiment_baseline:   ROUGE-L: mean=0.2529, var=0.001048
+2026-05-29 14:43:26 [INFO] experiment_baseline:   Computing IFI metrics...
+2026-05-29 14:43:26 [INFO] src.ifi_metrics: Computing IFI metrics for 8 paraphrases...
+2026-05-29 14:43:26 [INFO] src.ifi_metrics: PPL_var: std=0.1006, mean=12.815, values=['12.99', '12.89', '12.71', '12.89', '12.76', '12.84', '12.73', '12.73']
+2026-05-29 14:43:27 [INFO] src.ifi_metrics: PC_stab: 13537.360352, mean B per variant: ['58.32', '58.25', '57.87', '58.25', '57.44', '58.91', '58.66', '58.66'], min_seq_len=450
+2026-05-29 14:43:27 [INFO] experiment_baseline:   IFI: PPL_var=0.1006, PC_stab=13537.360352
+Baseline experiment:  40%|████      | 2/5 [01:07<01:42, 34.07s/it]2026-05-29 14:43:27 [INFO] experiment_baseline: 
+============================================================
+2026-05-29 14:43:27 [INFO] experiment_baseline: Article 3/5
+2026-05-29 14:43:27 [INFO] experiment_baseline: ============================================================
+2026-05-29 14:43:27 [INFO] experiment_baseline: Generating paraphrase variants...
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 137.23it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 135.23it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 134.76it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 144.43it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 148.60it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 139.68it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 140.47it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 147.92it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 149.56it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 141.66it/s]
+2026-05-29 14:43:31 [WARNING] experiment_baseline: Only generated 7/8 valid paraphrases. Padding with duplicates of last valid paraphrase.
+2026-05-29 14:43:31 [INFO] experiment_baseline:   Generating output for variant 1/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:33 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:33 [INFO] experiment_baseline:   Variant 1: ROUGE-L = 0.1930
+2026-05-29 14:43:33 [INFO] experiment_baseline:   Generating output for variant 2/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:37 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:37 [INFO] experiment_baseline:   Variant 2: ROUGE-L = 0.1560
+2026-05-29 14:43:37 [INFO] experiment_baseline:   Generating output for variant 3/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:39 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:39 [INFO] experiment_baseline:   Variant 3: ROUGE-L = 0.1935
+2026-05-29 14:43:39 [INFO] experiment_baseline:   Generating output for variant 4/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:42 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:42 [INFO] experiment_baseline:   Variant 4: ROUGE-L = 0.1560
+2026-05-29 14:43:42 [INFO] experiment_baseline:   Generating output for variant 5/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:45 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:45 [INFO] experiment_baseline:   Variant 5: ROUGE-L = 0.2000
+2026-05-29 14:43:45 [INFO] experiment_baseline:   Generating output for variant 6/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:48 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:48 [INFO] experiment_baseline:   Variant 6: ROUGE-L = 0.1560
+2026-05-29 14:43:48 [INFO] experiment_baseline:   Generating output for variant 7/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:53 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:53 [INFO] experiment_baseline:   Variant 7: ROUGE-L = 0.1244
+2026-05-29 14:43:53 [INFO] experiment_baseline:   Generating output for variant 8/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:43:57 [INFO] absl: Using default tokenizer.
+2026-05-29 14:43:57 [INFO] experiment_baseline:   Variant 8: ROUGE-L = 0.1244
+2026-05-29 14:43:57 [INFO] experiment_baseline:   ROUGE-L: mean=0.1629, var=0.000792
+2026-05-29 14:43:57 [INFO] experiment_baseline:   Computing IFI metrics...
+2026-05-29 14:43:57 [INFO] src.ifi_metrics: Computing IFI metrics for 8 paraphrases...
+2026-05-29 14:43:58 [INFO] src.ifi_metrics: PPL_var: std=0.0765, mean=10.776, values=['10.91', '10.83', '10.72', '10.83', '10.75', '10.77', '10.69', '10.69']
+2026-05-29 14:43:58 [INFO] src.ifi_metrics: PC_stab: 2742.665283, mean B per variant: ['59.93', '59.96', '59.50', '59.96', '59.50', '60.49', '60.06', '60.06'], min_seq_len=459
+2026-05-29 14:43:58 [INFO] experiment_baseline:   IFI: PPL_var=0.0765, PC_stab=2742.665283
+Baseline experiment:  60%|██████    | 3/5 [01:38<01:05, 32.87s/it]2026-05-29 14:43:58 [INFO] experiment_baseline: 
+============================================================
+2026-05-29 14:43:58 [INFO] experiment_baseline: Article 4/5
+2026-05-29 14:43:58 [INFO] experiment_baseline: ============================================================
+2026-05-29 14:43:58 [INFO] experiment_baseline: Generating paraphrase variants...
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 144.01it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 136.01it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 141.90it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 143.78it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 149.13it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 138.39it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 135.40it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 136.21it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 148.37it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 145.37it/s]
+2026-05-29 14:44:02 [WARNING] experiment_baseline: Only generated 7/8 valid paraphrases. Padding with duplicates of last valid paraphrase.
+2026-05-29 14:44:02 [INFO] experiment_baseline:   Generating output for variant 1/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:04 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:04 [INFO] experiment_baseline:   Variant 1: ROUGE-L = 0.2655
+2026-05-29 14:44:04 [INFO] experiment_baseline:   Generating output for variant 2/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:05 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:05 [INFO] experiment_baseline:   Variant 2: ROUGE-L = 0.3036
+2026-05-29 14:44:05 [INFO] experiment_baseline:   Generating output for variant 3/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:08 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:08 [INFO] experiment_baseline:   Variant 3: ROUGE-L = 0.2297
+2026-05-29 14:44:08 [INFO] experiment_baseline:   Generating output for variant 4/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:10 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:10 [INFO] experiment_baseline:   Variant 4: ROUGE-L = 0.3036
+2026-05-29 14:44:10 [INFO] experiment_baseline:   Generating output for variant 5/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:12 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:12 [INFO] experiment_baseline:   Variant 5: ROUGE-L = 0.2667
+2026-05-29 14:44:12 [INFO] experiment_baseline:   Generating output for variant 6/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:14 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:14 [INFO] experiment_baseline:   Variant 6: ROUGE-L = 0.2636
+2026-05-29 14:44:14 [INFO] experiment_baseline:   Generating output for variant 7/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:17 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:17 [INFO] experiment_baseline:   Variant 7: ROUGE-L = 0.2857
+2026-05-29 14:44:17 [INFO] experiment_baseline:   Generating output for variant 8/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:19 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:19 [INFO] experiment_baseline:   Variant 8: ROUGE-L = 0.2857
+2026-05-29 14:44:19 [INFO] experiment_baseline:   ROUGE-L: mean=0.2755, var=0.000525
+2026-05-29 14:44:19 [INFO] experiment_baseline:   Computing IFI metrics...
+2026-05-29 14:44:19 [INFO] src.ifi_metrics: Computing IFI metrics for 8 paraphrases...
+2026-05-29 14:44:20 [INFO] src.ifi_metrics: PPL_var: std=0.1871, mean=11.812, values=['12.11', '11.96', '11.70', '11.96', '11.79', '11.81', '11.59', '11.59']
+2026-05-29 14:44:20 [INFO] src.ifi_metrics: PC_stab: 410.330017, mean B per variant: ['71.64', '72.76', '71.09', '72.76', '71.19', '73.40', '72.49', '72.49'], min_seq_len=254
+2026-05-29 14:44:20 [INFO] experiment_baseline:   IFI: PPL_var=0.1871, PC_stab=410.330017
+Baseline experiment:  80%|████████  | 4/5 [02:00<00:28, 28.51s/it]2026-05-29 14:44:20 [INFO] experiment_baseline: 
+============================================================
+2026-05-29 14:44:20 [INFO] experiment_baseline: Article 5/5
+2026-05-29 14:44:20 [INFO] experiment_baseline: ============================================================
+2026-05-29 14:44:20 [INFO] experiment_baseline: Generating paraphrase variants...
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 152.53it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 139.67it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 142.05it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 147.90it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 150.27it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 138.73it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 135.51it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 147.91it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 150.04it/s]
+
+Batches:   0%|          | 0/1 [00:00<?, ?it/s][ABatches: 100%|██████████| 1/1 [00:00<00:00, 142.03it/s]
+2026-05-29 14:44:24 [WARNING] experiment_baseline: Only generated 7/8 valid paraphrases. Padding with duplicates of last valid paraphrase.
+2026-05-29 14:44:24 [INFO] experiment_baseline:   Generating output for variant 1/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:27 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:27 [INFO] experiment_baseline:   Variant 1: ROUGE-L = 0.2025
+2026-05-29 14:44:27 [INFO] experiment_baseline:   Generating output for variant 2/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:30 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:30 [INFO] experiment_baseline:   Variant 2: ROUGE-L = 0.1860
+2026-05-29 14:44:30 [INFO] experiment_baseline:   Generating output for variant 3/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:33 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:33 [INFO] experiment_baseline:   Variant 3: ROUGE-L = 0.1963
+2026-05-29 14:44:33 [INFO] experiment_baseline:   Generating output for variant 4/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:36 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:36 [INFO] experiment_baseline:   Variant 4: ROUGE-L = 0.1860
+2026-05-29 14:44:36 [INFO] experiment_baseline:   Generating output for variant 5/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:39 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:39 [INFO] experiment_baseline:   Variant 5: ROUGE-L = 0.2025
+2026-05-29 14:44:39 [INFO] experiment_baseline:   Generating output for variant 6/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:42 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:42 [INFO] experiment_baseline:   Variant 6: ROUGE-L = 0.2025
+2026-05-29 14:44:42 [INFO] experiment_baseline:   Generating output for variant 7/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:47 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:47 [INFO] experiment_baseline:   Variant 7: ROUGE-L = 0.1910
+2026-05-29 14:44:47 [INFO] experiment_baseline:   Generating output for variant 8/8...
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:44:51 [INFO] absl: Using default tokenizer.
+2026-05-29 14:44:51 [INFO] experiment_baseline:   Variant 8: ROUGE-L = 0.1910
+2026-05-29 14:44:51 [INFO] experiment_baseline:   ROUGE-L: mean=0.1947, var=0.000046
+2026-05-29 14:44:51 [INFO] experiment_baseline:   Computing IFI metrics...
+2026-05-29 14:44:51 [INFO] src.ifi_metrics: Computing IFI metrics for 8 paraphrases...
+2026-05-29 14:44:51 [INFO] src.ifi_metrics: PPL_var: std=0.1099, mean=11.829, values=['11.98', '11.94', '11.74', '11.94', '11.78', '11.84', '11.71', '11.71']
+2026-05-29 14:44:51 [INFO] src.ifi_metrics: PC_stab: 2752.824951, mean B per variant: ['50.60', '50.90', '50.17', '50.90', '50.19', '51.52', '50.83', '50.83'], min_seq_len=428
+2026-05-29 14:44:51 [INFO] experiment_baseline:   IFI: PPL_var=0.1099, PC_stab=2752.824951
+Baseline experiment: 100%|██████████| 5/5 [02:31<00:00, 29.65s/it]Baseline experiment: 100%|██████████| 5/5 [02:31<00:00, 30.39s/it]
+2026-05-29 14:44:51 [INFO] experiment_baseline: Baseline results saved to results/baseline.json
+2026-05-29 14:44:51 [INFO] experiment_baseline: IFI metrics saved to results/ifi_metrics.json
+2026-05-29 14:44:51 [INFO] experiment_baseline: 
+============================================================
+2026-05-29 14:44:51 [INFO] experiment_baseline: BASELINE EXPERIMENT SUMMARY
+2026-05-29 14:44:51 [INFO] experiment_baseline: ============================================================
+2026-05-29 14:44:51 [INFO] experiment_baseline: Articles processed: 5
+2026-05-29 14:44:51 [INFO] experiment_baseline: Mean ROUGE-L: 0.2269
+2026-05-29 14:44:51 [INFO] experiment_baseline: Mean ROUGE-L variance: 0.000618
+2026-05-29 14:44:51 [INFO] experiment_baseline: Total time: 152.0s
+[14:44:53] === PIRC ===
+2026-05-29 14:44:54 [INFO] experiment_pirc: Loaded config from config.yaml
+2026-05-29 14:44:54 [INFO] experiment_pirc: Loaded baseline results: 5 articles
+2026-05-29 14:44:54 [INFO] experiment_pirc: Baseline: mean_ROUGE-L=0.2269, mean_var=0.000618
+2026-05-29 14:44:57 [INFO] experiment_pirc: Loading target model: meta-llama/Llama-3.1-8B-Instruct (float16)
+2026-05-29 14:44:57 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json "HTTP/1.1 401 Unauthorized"
+2026-05-29 14:44:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/tokenizer_config.json "HTTP/1.1 401 Unauthorized"
+2026-05-29 14:44:58 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-3.1-8B-Instruct/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:44:58 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-3.1-8B-Instruct/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:44:59 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-3.1-8B-Instruct "HTTP/1.1 200 OK"
+2026-05-29 14:44:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json "HTTP/1.1 401 Unauthorized"
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/291 [00:00<?, ?it/s]Loading weights:   0%|          | 1/291 [00:00<02:09,  2.24it/s]Loading weights:   8%|▊         | 22/291 [00:00<00:05, 49.98it/s]Loading weights:  11%|█▏        | 33/291 [00:00<00:04, 63.84it/s]Loading weights:  16%|█▋        | 48/291 [00:00<00:02, 86.09it/s]Loading weights:  21%|██        | 61/291 [00:00<00:02, 80.60it/s]Loading weights:  26%|██▌       | 76/291 [00:01<00:02, 91.04it/s]Loading weights:  32%|███▏      | 92/291 [00:01<00:01, 106.87it/s]Loading weights:  36%|███▌      | 105/291 [00:01<00:01, 95.74it/s]Loading weights:  42%|████▏     | 121/291 [00:01<00:01, 105.69it/s]Loading weights:  46%|████▌     | 133/291 [00:01<00:01, 106.33it/s]Loading weights:  51%|█████     | 148/291 [00:01<00:01, 108.17it/s]Loading weights:  55%|█████▍    | 160/291 [00:01<00:01, 109.45it/s]Loading weights:  60%|██████    | 175/291 [00:01<00:01, 110.94it/s]Loading weights:  65%|██████▍   | 188/291 [00:02<00:00, 115.13it/s]Loading weights:  69%|██████▉   | 202/291 [00:02<00:00, 114.73it/s]Loading weights:  74%|███████▎  | 214/291 [00:02<00:00, 112.66it/s]Loading weights:  78%|███████▊  | 226/291 [00:02<00:00, 113.50it/s]Loading weights:  82%|████████▏ | 238/291 [00:02<00:00, 103.16it/s]Loading weights:  87%|████████▋ | 252/291 [00:02<00:00, 111.59it/s]Loading weights:  91%|█████████ | 265/291 [00:02<00:00, 113.64it/s]Loading weights:  95%|█████████▌| 277/291 [00:02<00:00, 111.36it/s]Loading weights: 100%|██████████| 291/291 [00:02<00:00, 98.62it/s] 
+2026-05-29 14:45:03 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/generation_config.json "HTTP/1.1 401 Unauthorized"
+2026-05-29 14:45:03 [INFO] src.sensitive_layer: SensitiveLayerDetector initialized: scanning layers [8, 32) of 32 total. Method: inflection
+2026-05-29 14:45:03 [INFO] src.anchor_tokens: AnchorTokenIdentifier initialised: percentile=30.0%, filter_content_words=True (legacy thresholds τ=3.0, τ_var=1.0 kept for fallback)
+2026-05-29 14:45:03 [INFO] experiment_pirc: PIRC hyperparameters fixed before test: tau=3.0, alpha=1.0
+PIRC experiment:   0%|          | 0/5 [00:00<?, ?it/s]2026-05-29 14:45:03 [INFO] experiment_pirc: 
+============================================================
+2026-05-29 14:45:03 [INFO] experiment_pirc: Article 1/5 (idx=0)
+2026-05-29 14:45:03 [INFO] experiment_pirc: ============================================================
+2026-05-29 14:45:04 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:04 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-29 14:45:04 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-29 14:45:04 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/abisee/cnn_dailymail/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/README.md "HTTP/1.1 200 OK"
+2026-05-29 14:45:04 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:05 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:05 [INFO] httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/cnn_dailymail/cnn_dailymail.py "HTTP/1.1 200 OK"
+2026-05-29 14:45:05 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/cnn_dailymail/revision/96df5e686bee6baa90b8bee7c28b81fa3fa6223d "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:06 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/abisee/cnn_dailymail/revision/96df5e686bee6baa90b8bee7c28b81fa3fa6223d "HTTP/1.1 200 OK"
+2026-05-29 14:45:06 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:06 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:06 [INFO] httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=cnn_dailymail "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:07 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/1.0.0?recursive=true&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:07 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/abisee/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/1.0.0?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:45:07 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d?recursive=false&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:07 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/abisee/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:45:08 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:08 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:08 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/3.0.0?recursive=true&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:08 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/abisee/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/3.0.0?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:45:08 [INFO] src.pirc: Step 1: Detecting sensitive layer...
+2026-05-29 14:45:09 [ERROR] experiment_pirc:   All PIRC attempts failed for article 0
+Traceback (most recent call last):
+  File "/root/prompt_sensitivity/prompt_robustness/experiment_pirc.py", line 416, in run_pirc_experiment
+    pirc_metrics = run_pirc_for_article(
+  File "/root/prompt_sensitivity/prompt_robustness/experiment_pirc.py", line 172, in run_pirc_for_article
+    pirc_result = pirc_generator.run_pipeline_all_variants(
+  File "/root/prompt_sensitivity/prompt_robustness/src/pirc.py", line 336, in run_pipeline_all_variants
+    ell_star, S_curve = self.layer_detector.detect(
+  File "/root/prompt_sensitivity/prompt_robustness/src/sensitive_layer.py", line 235, in detect
+    S = self.compute_sensitivity_curve(tokenizer, paraphrases, device)
+  File "/root/prompt_sensitivity/prompt_robustness/src/sensitive_layer.py", line 99, in compute_sensitivity_curve
+    _, mean_ppl = self.logit_lens.compute_all_layer_ppl(
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 224, in compute_all_layer_ppl
+    ppl = self.compute_per_token_ppl(hidden_states[ell], input_ids)
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 106, in compute_per_token_ppl
+    logits = self.compute_logits(hidden_state)
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 84, in compute_logits
+    logits = self.lm_head(h_normed)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected mat1 and mat2 to have the same dtype, but got: float != c10::Half
+PIRC experiment:  20%|██        | 1/5 [00:05<00:20,  5.24s/it]2026-05-29 14:45:09 [INFO] experiment_pirc: 
+============================================================
+2026-05-29 14:45:09 [INFO] experiment_pirc: Article 2/5 (idx=1)
+2026-05-29 14:45:09 [INFO] experiment_pirc: ============================================================
+2026-05-29 14:45:09 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:09 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:09 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/abisee/cnn_dailymail/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/README.md "HTTP/1.1 200 OK"
+2026-05-29 14:45:09 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:10 [INFO] httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/cnn_dailymail/cnn_dailymail.py "HTTP/1.1 200 OK"
+2026-05-29 14:45:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:10 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:10 [INFO] httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=cnn_dailymail "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:11 [INFO] src.pirc: Step 1: Detecting sensitive layer...
+2026-05-29 14:45:11 [ERROR] experiment_pirc:   All PIRC attempts failed for article 1
+Traceback (most recent call last):
+  File "/root/prompt_sensitivity/prompt_robustness/experiment_pirc.py", line 416, in run_pirc_experiment
+    pirc_metrics = run_pirc_for_article(
+  File "/root/prompt_sensitivity/prompt_robustness/experiment_pirc.py", line 172, in run_pirc_for_article
+    pirc_result = pirc_generator.run_pipeline_all_variants(
+  File "/root/prompt_sensitivity/prompt_robustness/src/pirc.py", line 336, in run_pipeline_all_variants
+    ell_star, S_curve = self.layer_detector.detect(
+  File "/root/prompt_sensitivity/prompt_robustness/src/sensitive_layer.py", line 235, in detect
+    S = self.compute_sensitivity_curve(tokenizer, paraphrases, device)
+  File "/root/prompt_sensitivity/prompt_robustness/src/sensitive_layer.py", line 99, in compute_sensitivity_curve
+    _, mean_ppl = self.logit_lens.compute_all_layer_ppl(
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 224, in compute_all_layer_ppl
+    ppl = self.compute_per_token_ppl(hidden_states[ell], input_ids)
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 106, in compute_per_token_ppl
+    logits = self.compute_logits(hidden_state)
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 84, in compute_logits
+    logits = self.lm_head(h_normed)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected mat1 and mat2 to have the same dtype, but got: float != c10::Half
+PIRC experiment:  40%|████      | 2/5 [00:07<00:10,  3.56s/it]2026-05-29 14:45:11 [INFO] experiment_pirc: 
+============================================================
+2026-05-29 14:45:11 [INFO] experiment_pirc: Article 3/5 (idx=2)
+2026-05-29 14:45:11 [INFO] experiment_pirc: ============================================================
+2026-05-29 14:45:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:11 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/abisee/cnn_dailymail/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/README.md "HTTP/1.1 200 OK"
+2026-05-29 14:45:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:12 [INFO] httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/cnn_dailymail/cnn_dailymail.py "HTTP/1.1 200 OK"
+2026-05-29 14:45:12 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:13 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:13 [INFO] httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=cnn_dailymail "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:13 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:13 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:13 [INFO] src.pirc: Step 1: Detecting sensitive layer...
+2026-05-29 14:45:13 [ERROR] experiment_pirc:   All PIRC attempts failed for article 2
+Traceback (most recent call last):
+  File "/root/prompt_sensitivity/prompt_robustness/experiment_pirc.py", line 416, in run_pirc_experiment
+    pirc_metrics = run_pirc_for_article(
+  File "/root/prompt_sensitivity/prompt_robustness/experiment_pirc.py", line 172, in run_pirc_for_article
+    pirc_result = pirc_generator.run_pipeline_all_variants(
+  File "/root/prompt_sensitivity/prompt_robustness/src/pirc.py", line 336, in run_pipeline_all_variants
+    ell_star, S_curve = self.layer_detector.detect(
+  File "/root/prompt_sensitivity/prompt_robustness/src/sensitive_layer.py", line 235, in detect
+    S = self.compute_sensitivity_curve(tokenizer, paraphrases, device)
+  File "/root/prompt_sensitivity/prompt_robustness/src/sensitive_layer.py", line 99, in compute_sensitivity_curve
+    _, mean_ppl = self.logit_lens.compute_all_layer_ppl(
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 224, in compute_all_layer_ppl
+    ppl = self.compute_per_token_ppl(hidden_states[ell], input_ids)
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 106, in compute_per_token_ppl
+    logits = self.compute_logits(hidden_state)
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 84, in compute_logits
+    logits = self.lm_head(h_normed)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected mat1 and mat2 to have the same dtype, but got: float != c10::Half
+PIRC experiment:  60%|██████    | 3/5 [00:09<00:05,  3.00s/it]2026-05-29 14:45:13 [INFO] experiment_pirc: 
+============================================================
+2026-05-29 14:45:13 [INFO] experiment_pirc: Article 4/5 (idx=3)
+2026-05-29 14:45:13 [INFO] experiment_pirc: ============================================================
+2026-05-29 14:45:14 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:14 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:14 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/abisee/cnn_dailymail/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/README.md "HTTP/1.1 200 OK"
+2026-05-29 14:45:14 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:14 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:14 [INFO] httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/cnn_dailymail/cnn_dailymail.py "HTTP/1.1 200 OK"
+2026-05-29 14:45:15 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:15 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:15 [INFO] httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=cnn_dailymail "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:15 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:16 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:16 [INFO] src.pirc: Step 1: Detecting sensitive layer...
+2026-05-29 14:45:16 [ERROR] experiment_pirc:   All PIRC attempts failed for article 3
+Traceback (most recent call last):
+  File "/root/prompt_sensitivity/prompt_robustness/experiment_pirc.py", line 416, in run_pirc_experiment
+    pirc_metrics = run_pirc_for_article(
+  File "/root/prompt_sensitivity/prompt_robustness/experiment_pirc.py", line 172, in run_pirc_for_article
+    pirc_result = pirc_generator.run_pipeline_all_variants(
+  File "/root/prompt_sensitivity/prompt_robustness/src/pirc.py", line 336, in run_pipeline_all_variants
+    ell_star, S_curve = self.layer_detector.detect(
+  File "/root/prompt_sensitivity/prompt_robustness/src/sensitive_layer.py", line 235, in detect
+    S = self.compute_sensitivity_curve(tokenizer, paraphrases, device)
+  File "/root/prompt_sensitivity/prompt_robustness/src/sensitive_layer.py", line 99, in compute_sensitivity_curve
+    _, mean_ppl = self.logit_lens.compute_all_layer_ppl(
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 224, in compute_all_layer_ppl
+    ppl = self.compute_per_token_ppl(hidden_states[ell], input_ids)
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 106, in compute_per_token_ppl
+    logits = self.compute_logits(hidden_state)
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 84, in compute_logits
+    logits = self.lm_head(h_normed)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected mat1 and mat2 to have the same dtype, but got: float != c10::Half
+PIRC experiment:  80%|████████  | 4/5 [00:12<00:02,  2.76s/it]2026-05-29 14:45:16 [INFO] experiment_pirc: 
+============================================================
+2026-05-29 14:45:16 [INFO] experiment_pirc: Article 5/5 (idx=4)
+2026-05-29 14:45:16 [INFO] experiment_pirc: ============================================================
+2026-05-29 14:45:16 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:16 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:16 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/abisee/cnn_dailymail/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/README.md "HTTP/1.1 200 OK"
+2026-05-29 14:45:17 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:17 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:17 [INFO] httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/cnn_dailymail/cnn_dailymail.py "HTTP/1.1 200 OK"
+2026-05-29 14:45:17 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:17 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:18 [INFO] httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=cnn_dailymail "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:18 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:45:18 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:45:18 [INFO] src.pirc: Step 1: Detecting sensitive layer...
+2026-05-29 14:45:18 [ERROR] experiment_pirc:   All PIRC attempts failed for article 4
+Traceback (most recent call last):
+  File "/root/prompt_sensitivity/prompt_robustness/experiment_pirc.py", line 416, in run_pirc_experiment
+    pirc_metrics = run_pirc_for_article(
+  File "/root/prompt_sensitivity/prompt_robustness/experiment_pirc.py", line 172, in run_pirc_for_article
+    pirc_result = pirc_generator.run_pipeline_all_variants(
+  File "/root/prompt_sensitivity/prompt_robustness/src/pirc.py", line 336, in run_pipeline_all_variants
+    ell_star, S_curve = self.layer_detector.detect(
+  File "/root/prompt_sensitivity/prompt_robustness/src/sensitive_layer.py", line 235, in detect
+    S = self.compute_sensitivity_curve(tokenizer, paraphrases, device)
+  File "/root/prompt_sensitivity/prompt_robustness/src/sensitive_layer.py", line 99, in compute_sensitivity_curve
+    _, mean_ppl = self.logit_lens.compute_all_layer_ppl(
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 224, in compute_all_layer_ppl
+    ppl = self.compute_per_token_ppl(hidden_states[ell], input_ids)
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 106, in compute_per_token_ppl
+    logits = self.compute_logits(hidden_state)
+  File "/root/prompt_sensitivity/prompt_robustness/src/logit_lens.py", line 84, in compute_logits
+    logits = self.lm_head(h_normed)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected mat1 and mat2 to have the same dtype, but got: float != c10::Half
+PIRC experiment: 100%|██████████| 5/5 [00:14<00:00,  2.65s/it]PIRC experiment: 100%|██████████| 5/5 [00:14<00:00,  2.96s/it]
+2026-05-29 14:45:18 [INFO] experiment_pirc: PIRC results saved to results/pirc.json
+[14:45:19] === Evaluate ===
+2026-05-29 14:45:19 [INFO] evaluate: Loaded baseline (5 articles) and PIRC (5 articles) results
+2026-05-29 14:45:19 [INFO] evaluate: Common articles: 5, valid PIRC results: 0
+2026-05-29 14:45:19 [ERROR] evaluate: No valid paired results. Cannot evaluate.
+[14:45:19] === ALL DONE ===

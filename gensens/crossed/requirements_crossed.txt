@@ -1,0 +1,9 @@
+# ─────────────────────────────────────────────────────────────
+# requirements_crossed.txt — extra deps for the crossed-design benchmark
+# on top of the root requirements_gpu.txt (transformers, vllm,
+# sentence-transformers, datasets, rouge-score, scipy, numpy, pandas).
+#
+# Install:
+#   pip install -r ../../requirements_gpu.txt -r requirements_crossed.txt
+# ─────────────────────────────────────────────────────────────
+bert-score>=0.3.13

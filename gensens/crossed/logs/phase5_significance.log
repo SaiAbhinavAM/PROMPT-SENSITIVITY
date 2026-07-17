@@ -1,0 +1,123 @@
+[14:22:27] WARNING N_ARTICLES=5 is below the floor of 30 — significance results may be underpowered.
+[14:22:29] WARNING Most-vs-least seed test skipped: only 5 paired articles (need >= 20).
+[14:22:29] INFO Wrote significance results to /root/prompt_sensitivity/gensens/crossed/results/significance.json
+{
+  "n_articles": 5,
+  "warnings": [
+    "N_ARTICLES=5 is below the floor of 30 \u2014 significance results may be underpowered.",
+    "Most-vs-least seed test skipped: only 5 paired articles (need >= 20)."
+  ],
+  "pool_comparison": {
+    "n_pool_a": 175,
+    "n_pool_b": 75,
+    "u_statistic": 7925.0,
+    "p_value": 0.009337369433061673,
+    "rank_biserial_effect_size": -0.2076190476190476,
+    "pool_b_median": 0.1557817655971071,
+    "pool_a_median": 0.13511379583198252,
+    "direction": "Pool B more sensitive"
+  },
+  "dimension_ranking": [
+    {
+      "dimension": "Theme Isolation",
+      "n": 25,
+      "sensitivity_mean": 0.20942135222036118,
+      "ci_low": 0.16924635877377955,
+      "ci_high": 0.2577191979336236
+    },
+    {
+      "dimension": "Question Form",
+      "n": 20,
+      "sensitivity_mean": 0.1909874675327173,
+      "ci_low": 0.1453452129609965,
+      "ci_high": 0.2456305129686894
+    },
+    {
+      "dimension": "Analytical Framing",
+      "n": 20,
+      "sensitivity_mean": 0.18426477013561643,
+      "ci_low": 0.1501775707946331,
+      "ci_high": 0.22299258607356487
+    },
+    {
+      "dimension": "Emphasis Focus",
+      "n": 15,
+      "sensitivity_mean": 0.1780740174490856,
+      "ci_low": 0.14370728332897922,
+      "ci_high": 0.2220310979348208
+    },
+    {
+      "dimension": "Meta-reflection",
+      "n": 5,
+      "sensitivity_mean": 0.16889468688306936,
+      "ci_low": 0.12169935110942717,
+      "ci_high": 0.21609002265671157
+    },
+    {
+      "dimension": "Persona / Tone",
+      "n": 30,
+      "sensitivity_mean": 0.1675653186220624,
+      "ci_low": 0.1379255211675161,
+      "ci_high": 0.20201877859349748
+    },
+    {
+      "dimension": "Lexical Filter",
+      "n": 15,
+      "sensitivity_mean": 0.1515435528549937,
+      "ci_low": 0.12697390440030734,
+      "ci_high": 0.17619810737155925
+    },
+    {
+      "dimension": "Audience Perspective",
+      "n": 15,
+      "sensitivity_mean": 0.14580253060803747,
+      "ci_low": 0.11913543497714056,
+      "ci_high": 0.17948160676618172
+    },
+    {
+      "dimension": "Role Based",
+      "n": 20,
+      "sensitivity_mean": 0.1453952036540972,
+      "ci_low": 0.12054070158299741,
+      "ci_high": 0.175034628237358
+    },
+    {
+      "dimension": "Direct Command",
+      "n": 20,
+      "sensitivity_mean": 0.14254152637741865,
+      "ci_low": 0.1212006708745422,
+      "ci_high": 0.16734363500759247
+    },
+    {
+      "dimension": "Tone Register",
+      "n": 20,
+      "sensitivity_mean": 0.1372576248353747,
+      "ci_low": 0.11548034589709746,
+      "ci_high": 0.15980796132991515
+    },
+    {
+      "dimension": "Completeness Framing",
+      "n": 15,
+      "sensitivity_mean": 0.13599113730179063,
+      "ci_low": 0.11418777872833759,
+      "ci_high": 0.15981222721544047
+    },
+    {
+      "dimension": "Output Format",
+      "n": 15,
+      "sensitivity_mean": 0.11518386326723971,
+      "ci_low": 0.07840288863132135,
+      "ci_high": 0.1685747094244703
+    },
+    {
+      "dimension": "Constraint Based",
+      "n": 15,
+      "sensitivity_mean": 0.11331257898826469,
+      "ci_low": 0.08981491267083164,
+      "ci_high": 0.1360928491343603
+    }
+  ],
+  "most_sensitive_dimension": "Theme Isolation",
+  "least_sensitive_dimension": "Constraint Based",
+  "most_vs_least_sensitive_seed": null
+}

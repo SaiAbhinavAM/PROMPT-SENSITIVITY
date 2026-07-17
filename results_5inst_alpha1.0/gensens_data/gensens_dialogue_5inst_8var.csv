@@ -1,0 +1,423 @@
+instance_id,task,variant_idx,strategy,base_text,paraphrased_text,sbert_similarity,full_prompt,input_text,reference_output
+dial_0000,dialogue,0,formal_tone,What does the man recommend the woman do?,What course of action does the man suggest the woman take?,0.8499,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+W: I need a picture for my ID card. Can you recommend a photographer?
+M: Yes, Johnson's on Main street is excellent, fast and inexpensive.
+
+Question: What course of action does the man suggest the woman take?
+Options:
+- Not go anywhere.
+- Get ten pictures.
+- Go to Johnson's.
+Answer:","W: I need a picture for my ID card. Can you recommend a photographer?
+M: Yes, Johnson's on Main street is excellent, fast and inexpensive.",Go to Johnson's.
+dial_0001,dialogue,0,formal_tone,What do we learn about San Francisco?,What insights are provided into the city of San Francisco?,0.8978,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.
+
+Question: What insights are provided into the city of San Francisco?
+Options:
+- It is a city built in the mountains.
+- It has the world-famous bridge.
+- Visiting the city is not so easy.
+Answer:","W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.",It has the world-famous bridge.
+dial_0001,dialogue,1,casual_tone,What do we learn about San Francisco?,What's the lowdown on San Francisco?,0.8778,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.
+
+Question: What's the lowdown on San Francisco?
+Options:
+- It is a city built in the mountains.
+- It has the world-famous bridge.
+- Visiting the city is not so easy.
+Answer:","W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.",It has the world-famous bridge.
+dial_0001,dialogue,2,synonyms,What do we learn about San Francisco?,What insights are gained about San Francisco?,0.8867,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.
+
+Question: What insights are gained about San Francisco?
+Options:
+- It is a city built in the mountains.
+- It has the world-famous bridge.
+- Visiting the city is not so easy.
+Answer:","W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.",It has the world-famous bridge.
+dial_0001,dialogue,3,different_structure,What do we learn about San Francisco?,What information is provided about San Francisco?,0.8958,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.
+
+Question: What information is provided about San Francisco?
+Options:
+- It is a city built in the mountains.
+- It has the world-famous bridge.
+- Visiting the city is not so easy.
+Answer:","W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.",It has the world-famous bridge.
+dial_0001,dialogue,4,different_opening,What do we learn about San Francisco?,What insights are provided into San Francisco?,0.9081,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.
+
+Question: What insights are provided into San Francisco?
+Options:
+- It is a city built in the mountains.
+- It has the world-famous bridge.
+- Visiting the city is not so easy.
+Answer:","W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.",It has the world-famous bridge.
+dial_0001,dialogue,5,elaborated,What do we learn about San Francisco?,What insights or information are we given about the city of San Francisco?,0.9255,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.
+
+Question: What insights or information are we given about the city of San Francisco?
+Options:
+- It is a city built in the mountains.
+- It has the world-famous bridge.
+- Visiting the city is not so easy.
+Answer:","W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.",It has the world-famous bridge.
+dial_0001,dialogue,6,technical_vocab,What do we learn about San Francisco?,What insights or information are conveyed regarding San Francisco?,0.9109,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.
+
+Question: What insights or information are conveyed regarding San Francisco?
+Options:
+- It is a city built in the mountains.
+- It has the world-famous bridge.
+- Visiting the city is not so easy.
+Answer:","W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.",It has the world-famous bridge.
+dial_0001,dialogue,7,simple_vocab,What do we learn about San Francisco?,What can be gathered about San Francisco?,0.9217,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.
+
+Question: What can be gathered about San Francisco?
+Options:
+- It is a city built in the mountains.
+- It has the world-famous bridge.
+- Visiting the city is not so easy.
+Answer:","W: Have you ever been to New Orleans?
+M: No. What is it like?
+W: It's one of the most interesting cities in the United States. It has a French Quarter, with narrow streets and little shops. Many of the shops and restaurants are French.
+M: There's a lot of jazz music in New Orleans, isn't there?
+W: Yes. You hear wonderful jazz there. New Orleans and San Francisco are my two favorite cities. Have you been to San Francisco?
+M: No. What is it like?
+W: It has lovely views, and one of the most beautiful bridges in the world - the Golden Gate Bridge. It's a very hilly city. The hills are in the middle of the town, so you have to walk up and down hills when you go anywhere. When you arrive, your car needs good brakes.
+M: Do you have to drive? Can't you take buses?
+W: Well, most people who visit San Francisco ride in the cable cars. A cable car goes on tracks, and a strong cable pulls it up the hills.
+M: That doesn't sound very safe.
+W: Don't worry. Hundreds of people ride in cable cars every day.",It has the world-famous bridge.
+dial_0003,dialogue,0,formal_tone,The woman's last inquiry is mainly concerned with ________.,The primary focus of the woman's final inquiry is ________.,0.849,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+M: Parcel Express, good morning! How can I help you?
+W: Good morning. I'm thinking of sending a parcel to New York next week. Can you tell me what the procedure is, please?
+M: Certainly. When you ring us, we need the following information. The invoice address: that's probably your address, isn't it? And then, the pickup address. That's different. And the contact phone number.
+W: Just a moment. I'm taking notes. Phone number, right.
+M: Then we need the full name, address and phone number of the person you are sending the parcel to.
+W: Ok, anything else?
+M: Yes, the weight and dimensions of the parcel. That's height, weight and length. And the value of the goods and full description.
+W: Value, description.
+M: Yes, but don't seal the parcel. You need to leave it open so that the driver can check the contents when he collects it. After the recent bombing, the airline said that we'd have to check all parcels. They told us we had to do it.
+W: Fine. Now last question. How long will the parcel take to get to New York?
+M: One to two working days. There are daily flights at midday. And if we collect the parcel from you at 10:15 then your parcel catches that flight and it will arrive in 24 hours.
+W: Right. Thank you very much. You've been very helpful.
+M: Not at all. Goodbye.
+W: Goodbye.
+
+Question: The primary focus of the woman's final inquiry is ________.
+Options:
+- the time needed for sending the parcel
+- the flight time to New York
+- the parcel destination
+Answer:","M: Parcel Express, good morning! How can I help you?
+W: Good morning. I'm thinking of sending a parcel to New York next week. Can you tell me what the procedure is, please?
+M: Certainly. When you ring us, we need the following information. The invoice address: that's probably your address, isn't it? And then, the pickup address. That's different. And the contact phone number.
+W: Just a moment. I'm taking notes. Phone number, right.
+M: Then we need the full name, address and phone number of the person you are sending the parcel to.
+W: Ok, anything else?
+M: Yes, the weight and dimensions of the parcel. That's height, weight and length. And the value of the goods and full description.
+W: Value, description.
+M: Yes, but don't seal the parcel. You need to leave it open so that the driver can check the contents when he collects it. After the recent bombing, the airline said that we'd have to check all parcels. They told us we had to do it.
+W: Fine. Now last question. How long will the parcel take to get to New York?
+M: One to two working days. There are daily flights at midday. And if we collect the parcel from you at 10:15 then your parcel catches that flight and it will arrive in 24 hours.
+W: Right. Thank you very much. You've been very helpful.
+M: Not at all. Goodbye.
+W: Goodbye.",the time needed for sending the parcel
+dial_0003,dialogue,1,reordered_clauses,The woman's last inquiry is mainly concerned with ________.,What is the woman's primary concern in her last inquiry about?,0.8529,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+M: Parcel Express, good morning! How can I help you?
+W: Good morning. I'm thinking of sending a parcel to New York next week. Can you tell me what the procedure is, please?
+M: Certainly. When you ring us, we need the following information. The invoice address: that's probably your address, isn't it? And then, the pickup address. That's different. And the contact phone number.
+W: Just a moment. I'm taking notes. Phone number, right.
+M: Then we need the full name, address and phone number of the person you are sending the parcel to.
+W: Ok, anything else?
+M: Yes, the weight and dimensions of the parcel. That's height, weight and length. And the value of the goods and full description.
+W: Value, description.
+M: Yes, but don't seal the parcel. You need to leave it open so that the driver can check the contents when he collects it. After the recent bombing, the airline said that we'd have to check all parcels. They told us we had to do it.
+W: Fine. Now last question. How long will the parcel take to get to New York?
+M: One to two working days. There are daily flights at midday. And if we collect the parcel from you at 10:15 then your parcel catches that flight and it will arrive in 24 hours.
+W: Right. Thank you very much. You've been very helpful.
+M: Not at all. Goodbye.
+W: Goodbye.
+
+Question: What is the woman's primary concern in her last inquiry about?
+Options:
+- the time needed for sending the parcel
+- the flight time to New York
+- the parcel destination
+Answer:","M: Parcel Express, good morning! How can I help you?
+W: Good morning. I'm thinking of sending a parcel to New York next week. Can you tell me what the procedure is, please?
+M: Certainly. When you ring us, we need the following information. The invoice address: that's probably your address, isn't it? And then, the pickup address. That's different. And the contact phone number.
+W: Just a moment. I'm taking notes. Phone number, right.
+M: Then we need the full name, address and phone number of the person you are sending the parcel to.
+W: Ok, anything else?
+M: Yes, the weight and dimensions of the parcel. That's height, weight and length. And the value of the goods and full description.
+W: Value, description.
+M: Yes, but don't seal the parcel. You need to leave it open so that the driver can check the contents when he collects it. After the recent bombing, the airline said that we'd have to check all parcels. They told us we had to do it.
+W: Fine. Now last question. How long will the parcel take to get to New York?
+M: One to two working days. There are daily flights at midday. And if we collect the parcel from you at 10:15 then your parcel catches that flight and it will arrive in 24 hours.
+W: Right. Thank you very much. You've been very helpful.
+M: Not at all. Goodbye.
+W: Goodbye.",the time needed for sending the parcel
+dial_0003,dialogue,2,synonyms,The woman's last inquiry is mainly concerned with ________.,The woman's final question is primarily focused on _______.,0.9071,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+M: Parcel Express, good morning! How can I help you?
+W: Good morning. I'm thinking of sending a parcel to New York next week. Can you tell me what the procedure is, please?
+M: Certainly. When you ring us, we need the following information. The invoice address: that's probably your address, isn't it? And then, the pickup address. That's different. And the contact phone number.
+W: Just a moment. I'm taking notes. Phone number, right.
+M: Then we need the full name, address and phone number of the person you are sending the parcel to.
+W: Ok, anything else?
+M: Yes, the weight and dimensions of the parcel. That's height, weight and length. And the value of the goods and full description.
+W: Value, description.
+M: Yes, but don't seal the parcel. You need to leave it open so that the driver can check the contents when he collects it. After the recent bombing, the airline said that we'd have to check all parcels. They told us we had to do it.
+W: Fine. Now last question. How long will the parcel take to get to New York?
+M: One to two working days. There are daily flights at midday. And if we collect the parcel from you at 10:15 then your parcel catches that flight and it will arrive in 24 hours.
+W: Right. Thank you very much. You've been very helpful.
+M: Not at all. Goodbye.
+W: Goodbye.
+
+Question: The woman's final question is primarily focused on _______.
+Options:
+- the time needed for sending the parcel
+- the flight time to New York
+- the parcel destination
+Answer:","M: Parcel Express, good morning! How can I help you?
+W: Good morning. I'm thinking of sending a parcel to New York next week. Can you tell me what the procedure is, please?
+M: Certainly. When you ring us, we need the following information. The invoice address: that's probably your address, isn't it? And then, the pickup address. That's different. And the contact phone number.
+W: Just a moment. I'm taking notes. Phone number, right.
+M: Then we need the full name, address and phone number of the person you are sending the parcel to.
+W: Ok, anything else?
+M: Yes, the weight and dimensions of the parcel. That's height, weight and length. And the value of the goods and full description.
+W: Value, description.
+M: Yes, but don't seal the parcel. You need to leave it open so that the driver can check the contents when he collects it. After the recent bombing, the airline said that we'd have to check all parcels. They told us we had to do it.
+W: Fine. Now last question. How long will the parcel take to get to New York?
+M: One to two working days. There are daily flights at midday. And if we collect the parcel from you at 10:15 then your parcel catches that flight and it will arrive in 24 hours.
+W: Right. Thank you very much. You've been very helpful.
+M: Not at all. Goodbye.
+W: Goodbye.",the time needed for sending the parcel
+dial_0003,dialogue,3,technical_vocab,The woman's last inquiry is mainly concerned with ________.,The woman's final query predominantly focuses on ________.,0.8995,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+M: Parcel Express, good morning! How can I help you?
+W: Good morning. I'm thinking of sending a parcel to New York next week. Can you tell me what the procedure is, please?
+M: Certainly. When you ring us, we need the following information. The invoice address: that's probably your address, isn't it? And then, the pickup address. That's different. And the contact phone number.
+W: Just a moment. I'm taking notes. Phone number, right.
+M: Then we need the full name, address and phone number of the person you are sending the parcel to.
+W: Ok, anything else?
+M: Yes, the weight and dimensions of the parcel. That's height, weight and length. And the value of the goods and full description.
+W: Value, description.
+M: Yes, but don't seal the parcel. You need to leave it open so that the driver can check the contents when he collects it. After the recent bombing, the airline said that we'd have to check all parcels. They told us we had to do it.
+W: Fine. Now last question. How long will the parcel take to get to New York?
+M: One to two working days. There are daily flights at midday. And if we collect the parcel from you at 10:15 then your parcel catches that flight and it will arrive in 24 hours.
+W: Right. Thank you very much. You've been very helpful.
+M: Not at all. Goodbye.
+W: Goodbye.
+
+Question: The woman's final query predominantly focuses on ________.
+Options:
+- the time needed for sending the parcel
+- the flight time to New York
+- the parcel destination
+Answer:","M: Parcel Express, good morning! How can I help you?
+W: Good morning. I'm thinking of sending a parcel to New York next week. Can you tell me what the procedure is, please?
+M: Certainly. When you ring us, we need the following information. The invoice address: that's probably your address, isn't it? And then, the pickup address. That's different. And the contact phone number.
+W: Just a moment. I'm taking notes. Phone number, right.
+M: Then we need the full name, address and phone number of the person you are sending the parcel to.
+W: Ok, anything else?
+M: Yes, the weight and dimensions of the parcel. That's height, weight and length. And the value of the goods and full description.
+W: Value, description.
+M: Yes, but don't seal the parcel. You need to leave it open so that the driver can check the contents when he collects it. After the recent bombing, the airline said that we'd have to check all parcels. They told us we had to do it.
+W: Fine. Now last question. How long will the parcel take to get to New York?
+M: One to two working days. There are daily flights at midday. And if we collect the parcel from you at 10:15 then your parcel catches that flight and it will arrive in 24 hours.
+W: Right. Thank you very much. You've been very helpful.
+M: Not at all. Goodbye.
+W: Goodbye.",the time needed for sending the parcel
+dial_0004,dialogue,0,reordered_clauses,What is the probable relationship between the two speakers?,What can be inferred about the relationship between the two speakers?,0.9138,"[SYSTEM]: Read the dialogue and answer the question using the options provided.
+
+Dialogue:
+M: Sorry to trouble you. May I have a blanket please? I feel cold.
+W: Yes, of course, but could you wait until after take-off please?
+
+Question: What can be inferred about the relationship between the two speakers?
+Options:
+- Guest and receptionist.
+- Passenger and air hostess.
+- Customer and shop assistant.
+Answer:","M: Sorry to trouble you. May I have a blanket please? I feel cold.
+W: Yes, of course, but could you wait until after take-off please?",Passenger and air hostess.

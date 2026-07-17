@@ -1,0 +1,444 @@
+[14:46:19] === PIRC (retry with dtype fix) ===
+2026-05-29 14:46:21 [INFO] experiment_pirc: Loaded config from config.yaml
+2026-05-29 14:46:21 [INFO] experiment_pirc: Loaded baseline results: 5 articles
+2026-05-29 14:46:21 [INFO] experiment_pirc: Baseline: mean_ROUGE-L=0.2269, mean_var=0.000618
+2026-05-29 14:46:23 [INFO] experiment_pirc: Loading target model: meta-llama/Llama-3.1-8B-Instruct (float16)
+2026-05-29 14:46:23 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json "HTTP/1.1 401 Unauthorized"
+2026-05-29 14:46:24 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/tokenizer_config.json "HTTP/1.1 401 Unauthorized"
+2026-05-29 14:46:24 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-3.1-8B-Instruct/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-29 14:46:24 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-3.1-8B-Instruct/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:46:25 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/meta-llama/Llama-3.1-8B-Instruct "HTTP/1.1 200 OK"
+2026-05-29 14:46:25 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json "HTTP/1.1 401 Unauthorized"
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/291 [00:00<?, ?it/s]Loading weights:   0%|          | 1/291 [00:00<01:30,  3.22it/s]Loading weights:   1%|          | 2/291 [00:00<00:55,  5.21it/s]Loading weights:   8%|▊         | 22/291 [00:00<00:04, 58.13it/s]Loading weights:  11%|█         | 31/291 [00:00<00:03, 66.36it/s]Loading weights:  17%|█▋        | 49/291 [00:00<00:02, 83.29it/s]Loading weights:  23%|██▎       | 67/291 [00:00<00:02, 97.77it/s]Loading weights:  27%|██▋       | 78/291 [00:01<00:02, 97.69it/s]Loading weights:  32%|███▏      | 94/291 [00:01<00:01, 101.97it/s]Loading weights:  36%|███▌      | 105/291 [00:01<00:01, 103.47it/s]Loading weights:  42%|████▏     | 121/291 [00:01<00:01, 112.16it/s]Loading weights:  46%|████▌     | 133/291 [00:01<00:01, 108.88it/s]Loading weights:  51%|█████     | 148/291 [00:01<00:01, 116.83it/s]Loading weights:  55%|█████▍    | 160/291 [00:01<00:01, 117.27it/s]Loading weights:  60%|██████    | 175/291 [00:01<00:00, 120.56it/s]Loading weights:  65%|██████▍   | 188/291 [00:02<00:00, 114.61it/s]Loading weights:  69%|██████▉   | 202/291 [00:02<00:00, 113.34it/s]Loading weights:  74%|███████▎  | 214/291 [00:02<00:00, 114.35it/s]Loading weights:  79%|███████▊  | 229/291 [00:02<00:00, 116.13it/s]Loading weights:  83%|████████▎ | 241/291 [00:02<00:00, 112.64it/s]Loading weights:  88%|████████▊ | 256/291 [00:02<00:00, 111.95it/s]Loading weights:  92%|█████████▏| 268/291 [00:02<00:00, 113.50it/s]Loading weights:  97%|█████████▋| 283/291 [00:02<00:00, 109.11it/s]Loading weights: 100%|██████████| 291/291 [00:02<00:00, 101.00it/s]
+2026-05-29 14:46:29 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/generation_config.json "HTTP/1.1 401 Unauthorized"
+2026-05-29 14:46:30 [INFO] src.sensitive_layer: SensitiveLayerDetector initialized: scanning layers [8, 32) of 32 total. Method: inflection
+2026-05-29 14:46:30 [INFO] src.anchor_tokens: AnchorTokenIdentifier initialised: percentile=30.0%, filter_content_words=True (legacy thresholds τ=3.0, τ_var=1.0 kept for fallback)
+2026-05-29 14:46:30 [INFO] experiment_pirc: PIRC hyperparameters fixed before test: tau=3.0, alpha=1.0
+PIRC experiment:   0%|          | 0/5 [00:00<?, ?it/s]2026-05-29 14:46:30 [INFO] experiment_pirc: 
+============================================================
+2026-05-29 14:46:30 [INFO] experiment_pirc: Article 1/5 (idx=0)
+2026-05-29 14:46:30 [INFO] experiment_pirc: ============================================================
+2026-05-29 14:46:30 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:46:30 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:46:30 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/abisee/cnn_dailymail/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/README.md "HTTP/1.1 200 OK"
+2026-05-29 14:46:30 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:46:31 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 404 Not Found"
+2026-05-29 14:46:31 [INFO] httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/cnn_dailymail/cnn_dailymail.py "HTTP/1.1 200 OK"
+2026-05-29 14:46:32 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/cnn_dailymail/revision/96df5e686bee6baa90b8bee7c28b81fa3fa6223d "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:46:32 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/abisee/cnn_dailymail/revision/96df5e686bee6baa90b8bee7c28b81fa3fa6223d "HTTP/1.1 200 OK"
+2026-05-29 14:46:32 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:46:32 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 404 Not Found"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-29 14:46:32 [WARNING] huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-29 14:46:33 [INFO] httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=cnn_dailymail "HTTP/1.1 404 Not Found"
+2026-05-29 14:46:33 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/1.0.0?recursive=true&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:46:33 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/abisee/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/1.0.0?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:46:33 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d?recursive=false&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:46:34 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/abisee/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:46:34 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:46:34 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:46:34 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/3.0.0?recursive=true&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:46:34 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/datasets/abisee/cnn_dailymail/tree/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/3.0.0?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-29 14:46:34 [INFO] src.pirc: Step 1: Detecting sensitive layer...
+2026-05-29 14:46:36 [INFO] src.sensitive_layer: Inflection method: ℓ* = 9 (ΔS = nan)
+2026-05-29 14:46:36 [INFO] src.pirc: Step 2: Identifying anchor tokens at layer 9...
+2026-05-29 14:46:36 [INFO] src.anchor_tokens: Sequence lengths across 8 variants: [409, 406, 410, 406, 410, 407, 406, 406]. Using min_len=406 for alignment.
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+2026-05-29 14:46:36 [INFO] src.anchor_tokens: Anchors @ layer 9: 122/406 (30.0%) — method=percentile P=30.0%, content_word_filter=True
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos=  0  tok='<|begin_of_text|>'   mean_ppl=19904.000  var_ppl=0.0000  stability=0.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos=  1  tok='<|start_header_id|>'  mean_ppl=inf  var_ppl=nan  stability=2.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos=  2  tok='user'                mean_ppl=inf  var_ppl=nan  stability=4.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos=  3  tok='<|end_header_id|>'   mean_ppl=inf  var_ppl=nan  stability=6.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos=  5  tok='Sum'                 mean_ppl=inf  var_ppl=nan  stability=10.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos=  6  tok='mar'                 mean_ppl=inf  var_ppl=nan  stability=12.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos=  7  tok='ize'                 mean_ppl=inf  var_ppl=nan  stability=14.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos=  9  tok=' following'          mean_ppl=inf  var_ppl=nan  stability=18.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos= 10  tok=' article'            mean_ppl=inf  var_ppl=nan  stability=20.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos= 11  tok=' conc'               mean_ppl=inf  var_ppl=nan  stability=22.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos= 13  tok='ely'                 mean_ppl=inf  var_ppl=nan  stability=26.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos= 15  tok='Article'             mean_ppl=inf  var_ppl=nan  stability=30.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos= 17  tok='(C'                  mean_ppl=inf  var_ppl=nan  stability=34.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos= 18  tok='NN'                  mean_ppl=inf  var_ppl=nan  stability=36.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos= 21  tok=' Palestinian'        mean_ppl=inf  var_ppl=nan  stability=42.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos= 22  tok=' Authority'          mean_ppl=inf  var_ppl=nan  stability=44.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos= 23  tok=' officially'         mean_ppl=inf  var_ppl=nan  stability=46.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos= 24  tok=' became'             mean_ppl=inf  var_ppl=nan  stability=48.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos= 27  tok='123'                 mean_ppl=inf  var_ppl=nan  stability=54.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   pos= 28  tok='rd'                  mean_ppl=inf  var_ppl=nan  stability=56.0
+2026-05-29 14:46:36 [INFO] src.anchor_tokens:   … (102 more anchors)
+2026-05-29 14:46:36 [INFO] src.pirc: Step 3: Computing consensus hidden state at layer 9...
+2026-05-29 14:46:36 [INFO] src.pirc: Collected hidden states at layer 9: shape torch.Size([8, 407, 4096]), seq_lengths=[410, 407, 411, 407, 411, 408, 407, 407]
+2026-05-29 14:46:36 [INFO] src.pirc: Step 4: Generating all variants with PIRC clamping (α=1.0, 122 anchors)...
+2026-05-29 14:46:36 [INFO] src.pirc:   PIRC generation for variant 1/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:46:41 [INFO] src.pirc:   PIRC generation for variant 2/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:46:46 [INFO] src.pirc:   PIRC generation for variant 3/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:46:51 [INFO] src.pirc:   PIRC generation for variant 4/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:46:55 [INFO] src.pirc:   PIRC generation for variant 5/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:47:00 [INFO] src.pirc:   PIRC generation for variant 6/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:47:05 [INFO] src.pirc:   PIRC generation for variant 7/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:47:09 [INFO] src.pirc:   PIRC generation for variant 8/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:47:14 [INFO] src.pirc: PIRC pipeline complete: ℓ*=9, anchors=122, outputs=8
+2026-05-29 14:47:14 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:14 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:14 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:14 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:14 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:14 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:14 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:14 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:14 [INFO] experiment_pirc:   PIRC ROUGE-L: mean=0.0000, var=0.000000, variance_reduction=100.00%, ell*=9, anchors=122
+PIRC experiment:  20%|██        | 1/5 [00:44<02:59, 44.98s/it]2026-05-29 14:47:14 [INFO] experiment_pirc: 
+============================================================
+2026-05-29 14:47:14 [INFO] experiment_pirc: Article 2/5 (idx=1)
+2026-05-29 14:47:14 [INFO] experiment_pirc: ============================================================
+2026-05-29 14:47:15 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:47:15 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:47:15 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/abisee/cnn_dailymail/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/README.md "HTTP/1.1 200 OK"
+2026-05-29 14:47:15 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:47:15 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 404 Not Found"
+2026-05-29 14:47:16 [INFO] httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/cnn_dailymail/cnn_dailymail.py "HTTP/1.1 200 OK"
+2026-05-29 14:47:16 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:47:17 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-05-29 14:47:17 [INFO] httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=cnn_dailymail "HTTP/1.1 404 Not Found"
+2026-05-29 14:47:17 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:47:17 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:47:17 [INFO] src.pirc: Step 1: Detecting sensitive layer...
+2026-05-29 14:47:18 [INFO] src.sensitive_layer: Inflection method: ℓ* = 9 (ΔS = nan)
+2026-05-29 14:47:18 [INFO] src.pirc: Step 2: Identifying anchor tokens at layer 9...
+2026-05-29 14:47:19 [INFO] src.anchor_tokens: Sequence lengths across 8 variants: [453, 450, 454, 450, 454, 451, 450, 450]. Using min_len=450 for alignment.
+2026-05-29 14:47:19 [INFO] src.anchor_tokens: Anchors @ layer 9: 135/450 (30.0%) — method=percentile P=30.0%, content_word_filter=True
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos=  0  tok='<|begin_of_text|>'   mean_ppl=19904.000  var_ppl=0.0000  stability=3.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos=  1  tok='<|start_header_id|>'  mean_ppl=inf  var_ppl=nan  stability=8.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos=  2  tok='user'                mean_ppl=inf  var_ppl=nan  stability=10.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos=  3  tok='<|end_header_id|>'   mean_ppl=inf  var_ppl=nan  stability=12.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos=  5  tok='Sum'                 mean_ppl=inf  var_ppl=nan  stability=16.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos=  6  tok='mar'                 mean_ppl=inf  var_ppl=nan  stability=18.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos=  7  tok='ize'                 mean_ppl=inf  var_ppl=nan  stability=20.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos=  9  tok=' following'          mean_ppl=inf  var_ppl=nan  stability=24.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos= 10  tok=' article'            mean_ppl=inf  var_ppl=nan  stability=26.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos= 11  tok=' conc'               mean_ppl=inf  var_ppl=nan  stability=28.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos= 13  tok='ely'                 mean_ppl=inf  var_ppl=nan  stability=32.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos= 15  tok='Article'             mean_ppl=inf  var_ppl=nan  stability=36.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos= 17  tok='(C'                  mean_ppl=inf  var_ppl=nan  stability=40.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos= 18  tok='NN'                  mean_ppl=inf  var_ppl=nan  stability=42.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos= 20  tok='Never'               mean_ppl=inf  var_ppl=nan  stability=46.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos= 21  tok=' mind'               mean_ppl=inf  var_ppl=nan  stability=48.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos= 22  tok=' cats'               mean_ppl=inf  var_ppl=nan  stability=50.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos= 24  tok=' nine'               mean_ppl=inf  var_ppl=nan  stability=54.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos= 25  tok=' lives'              mean_ppl=inf  var_ppl=nan  stability=56.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   pos= 28  tok=' stray'              mean_ppl=inf  var_ppl=nan  stability=62.0
+2026-05-29 14:47:19 [INFO] src.anchor_tokens:   … (115 more anchors)
+2026-05-29 14:47:19 [INFO] src.pirc: Step 3: Computing consensus hidden state at layer 9...
+2026-05-29 14:47:19 [INFO] src.pirc: Collected hidden states at layer 9: shape torch.Size([8, 451, 4096]), seq_lengths=[454, 451, 455, 451, 455, 452, 451, 451]
+2026-05-29 14:47:19 [INFO] src.pirc: Step 4: Generating all variants with PIRC clamping (α=1.0, 135 anchors)...
+2026-05-29 14:47:19 [INFO] src.pirc:   PIRC generation for variant 1/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:47:24 [INFO] src.pirc:   PIRC generation for variant 2/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:47:28 [INFO] src.pirc:   PIRC generation for variant 3/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:47:33 [INFO] src.pirc:   PIRC generation for variant 4/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:47:38 [INFO] src.pirc:   PIRC generation for variant 5/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:47:43 [INFO] src.pirc:   PIRC generation for variant 6/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:47:47 [INFO] src.pirc:   PIRC generation for variant 7/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:47:52 [INFO] src.pirc:   PIRC generation for variant 8/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:47:57 [INFO] src.pirc: PIRC pipeline complete: ℓ*=9, anchors=135, outputs=8
+2026-05-29 14:47:57 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:57 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:57 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:57 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:57 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:57 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:57 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:57 [INFO] absl: Using default tokenizer.
+2026-05-29 14:47:57 [INFO] experiment_pirc:   PIRC ROUGE-L: mean=0.0227, var=0.000517, variance_reduction=50.73%, ell*=9, anchors=135
+PIRC experiment:  40%|████      | 2/5 [01:27<02:10, 43.36s/it]2026-05-29 14:47:57 [INFO] experiment_pirc: 
+============================================================
+2026-05-29 14:47:57 [INFO] experiment_pirc: Article 3/5 (idx=2)
+2026-05-29 14:47:57 [INFO] experiment_pirc: ============================================================
+2026-05-29 14:47:57 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:47:57 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:47:57 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/abisee/cnn_dailymail/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/README.md "HTTP/1.1 200 OK"
+2026-05-29 14:47:57 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:47:58 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 404 Not Found"
+2026-05-29 14:47:58 [INFO] httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/cnn_dailymail/cnn_dailymail.py "HTTP/1.1 200 OK"
+2026-05-29 14:47:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:47:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-05-29 14:47:59 [INFO] httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=cnn_dailymail "HTTP/1.1 404 Not Found"
+2026-05-29 14:47:59 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:48:00 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:48:00 [INFO] src.pirc: Step 1: Detecting sensitive layer...
+2026-05-29 14:48:00 [INFO] src.sensitive_layer: Inflection method: ℓ* = 9 (ΔS = nan)
+2026-05-29 14:48:00 [INFO] src.pirc: Step 2: Identifying anchor tokens at layer 9...
+2026-05-29 14:48:01 [INFO] src.anchor_tokens: Sequence lengths across 8 variants: [462, 459, 463, 459, 463, 460, 459, 459]. Using min_len=459 for alignment.
+2026-05-29 14:48:01 [INFO] src.anchor_tokens: Anchors @ layer 9: 138/459 (30.1%) — method=percentile P=30.0%, content_word_filter=True
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos=  0  tok='<|begin_of_text|>'   mean_ppl=19904.000  var_ppl=0.0000  stability=3.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos=  1  tok='<|start_header_id|>'  mean_ppl=inf  var_ppl=nan  stability=10.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos=  2  tok='user'                mean_ppl=inf  var_ppl=nan  stability=12.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos=  3  tok='<|end_header_id|>'   mean_ppl=inf  var_ppl=nan  stability=14.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos=  5  tok='Sum'                 mean_ppl=inf  var_ppl=nan  stability=18.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos=  6  tok='mar'                 mean_ppl=inf  var_ppl=nan  stability=20.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos=  7  tok='ize'                 mean_ppl=inf  var_ppl=nan  stability=22.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos=  9  tok=' following'          mean_ppl=inf  var_ppl=nan  stability=26.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos= 10  tok=' article'            mean_ppl=inf  var_ppl=nan  stability=28.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos= 11  tok=' conc'               mean_ppl=inf  var_ppl=nan  stability=30.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos= 13  tok='ely'                 mean_ppl=inf  var_ppl=nan  stability=34.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos= 15  tok='Article'             mean_ppl=inf  var_ppl=nan  stability=38.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos= 17  tok='(C'                  mean_ppl=inf  var_ppl=nan  stability=42.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos= 18  tok='NN'                  mean_ppl=inf  var_ppl=nan  stability=44.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos= 22  tok="'ve"                 mean_ppl=inf  var_ppl=nan  stability=52.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos= 24  tok=' following'          mean_ppl=inf  var_ppl=nan  stability=56.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos= 26  tok=' news'               mean_ppl=inf  var_ppl=nan  stability=60.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos= 27  tok=' lately'             mean_ppl=inf  var_ppl=nan  stability=62.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos= 29  tok=' there'              mean_ppl=inf  var_ppl=nan  stability=66.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   pos= 31  tok=' certain'            mean_ppl=inf  var_ppl=nan  stability=70.0
+2026-05-29 14:48:01 [INFO] src.anchor_tokens:   … (118 more anchors)
+2026-05-29 14:48:01 [INFO] src.pirc: Step 3: Computing consensus hidden state at layer 9...
+2026-05-29 14:48:01 [INFO] src.pirc: Collected hidden states at layer 9: shape torch.Size([8, 460, 4096]), seq_lengths=[463, 460, 464, 460, 464, 461, 460, 460]
+2026-05-29 14:48:01 [INFO] src.pirc: Step 4: Generating all variants with PIRC clamping (α=1.0, 138 anchors)...
+2026-05-29 14:48:01 [INFO] src.pirc:   PIRC generation for variant 1/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:48:06 [INFO] src.pirc:   PIRC generation for variant 2/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:48:11 [INFO] src.pirc:   PIRC generation for variant 3/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:48:15 [INFO] src.pirc:   PIRC generation for variant 4/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:48:20 [INFO] src.pirc:   PIRC generation for variant 5/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:48:25 [INFO] src.pirc:   PIRC generation for variant 6/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:48:29 [INFO] src.pirc:   PIRC generation for variant 7/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:48:34 [INFO] src.pirc:   PIRC generation for variant 8/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:48:39 [INFO] src.pirc: PIRC pipeline complete: ℓ*=9, anchors=138, outputs=8
+2026-05-29 14:48:39 [INFO] absl: Using default tokenizer.
+2026-05-29 14:48:39 [INFO] absl: Using default tokenizer.
+2026-05-29 14:48:39 [INFO] absl: Using default tokenizer.
+2026-05-29 14:48:39 [INFO] absl: Using default tokenizer.
+2026-05-29 14:48:39 [INFO] absl: Using default tokenizer.
+2026-05-29 14:48:39 [INFO] absl: Using default tokenizer.
+2026-05-29 14:48:39 [INFO] absl: Using default tokenizer.
+2026-05-29 14:48:39 [INFO] absl: Using default tokenizer.
+2026-05-29 14:48:39 [INFO] experiment_pirc:   PIRC ROUGE-L: mean=0.0139, var=0.000579, variance_reduction=26.91%, ell*=9, anchors=138
+PIRC experiment:  60%|██████    | 3/5 [02:09<01:25, 42.73s/it]2026-05-29 14:48:39 [INFO] experiment_pirc: 
+============================================================
+2026-05-29 14:48:39 [INFO] experiment_pirc: Article 4/5 (idx=3)
+2026-05-29 14:48:39 [INFO] experiment_pirc: ============================================================
+2026-05-29 14:48:39 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:48:39 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:48:39 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/abisee/cnn_dailymail/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/README.md "HTTP/1.1 200 OK"
+2026-05-29 14:48:39 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:48:40 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 404 Not Found"
+2026-05-29 14:48:40 [INFO] httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/cnn_dailymail/cnn_dailymail.py "HTTP/1.1 200 OK"
+2026-05-29 14:48:41 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:48:41 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-05-29 14:48:41 [INFO] httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=cnn_dailymail "HTTP/1.1 404 Not Found"
+2026-05-29 14:48:41 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:48:42 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:48:42 [INFO] src.pirc: Step 1: Detecting sensitive layer...
+2026-05-29 14:48:42 [INFO] src.sensitive_layer: Inflection method: ℓ* = 9 (ΔS = nan)
+2026-05-29 14:48:42 [INFO] src.pirc: Step 2: Identifying anchor tokens at layer 9...
+2026-05-29 14:48:42 [INFO] src.anchor_tokens: Sequence lengths across 8 variants: [257, 254, 258, 254, 258, 255, 254, 254]. Using min_len=254 for alignment.
+2026-05-29 14:48:42 [INFO] src.anchor_tokens: Anchors @ layer 9: 76/254 (29.9%) — method=percentile P=30.0%, content_word_filter=True
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos=  0  tok='<|begin_of_text|>'   mean_ppl=19904.000  var_ppl=0.0000  stability=2.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos=  1  tok='<|start_header_id|>'  mean_ppl=inf  var_ppl=nan  stability=18.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos=  2  tok='user'                mean_ppl=inf  var_ppl=nan  stability=20.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos=  3  tok='<|end_header_id|>'   mean_ppl=inf  var_ppl=nan  stability=22.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos=  5  tok='Sum'                 mean_ppl=inf  var_ppl=nan  stability=26.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos=  6  tok='mar'                 mean_ppl=inf  var_ppl=nan  stability=28.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos=  7  tok='ize'                 mean_ppl=inf  var_ppl=nan  stability=30.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos=  9  tok=' following'          mean_ppl=inf  var_ppl=nan  stability=34.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos= 10  tok=' article'            mean_ppl=inf  var_ppl=nan  stability=36.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos= 11  tok=' conc'               mean_ppl=inf  var_ppl=nan  stability=38.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos= 13  tok='ely'                 mean_ppl=inf  var_ppl=nan  stability=42.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos= 15  tok='Article'             mean_ppl=inf  var_ppl=nan  stability=46.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos= 17  tok='(C'                  mean_ppl=inf  var_ppl=nan  stability=50.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos= 18  tok='NN'                  mean_ppl=inf  var_ppl=nan  stability=52.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos= 20  tok='Five'                mean_ppl=inf  var_ppl=nan  stability=56.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos= 21  tok=' Americans'          mean_ppl=inf  var_ppl=nan  stability=58.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos= 22  tok=' who'                mean_ppl=inf  var_ppl=nan  stability=60.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos= 24  tok=' monitored'          mean_ppl=inf  var_ppl=nan  stability=64.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos= 26  tok=' three'              mean_ppl=inf  var_ppl=nan  stability=68.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   pos= 27  tok=' weeks'              mean_ppl=inf  var_ppl=nan  stability=70.0
+2026-05-29 14:48:42 [INFO] src.anchor_tokens:   … (56 more anchors)
+2026-05-29 14:48:42 [INFO] src.pirc: Step 3: Computing consensus hidden state at layer 9...
+2026-05-29 14:48:43 [INFO] src.pirc: Collected hidden states at layer 9: shape torch.Size([8, 255, 4096]), seq_lengths=[258, 255, 259, 255, 259, 256, 255, 255]
+2026-05-29 14:48:43 [INFO] src.pirc: Step 4: Generating all variants with PIRC clamping (α=1.0, 76 anchors)...
+2026-05-29 14:48:43 [INFO] src.pirc:   PIRC generation for variant 1/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:48:47 [INFO] src.pirc:   PIRC generation for variant 2/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:48:52 [INFO] src.pirc:   PIRC generation for variant 3/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:48:57 [INFO] src.pirc:   PIRC generation for variant 4/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:49:01 [INFO] src.pirc:   PIRC generation for variant 5/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:49:06 [INFO] src.pirc:   PIRC generation for variant 6/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:49:10 [INFO] src.pirc:   PIRC generation for variant 7/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:49:15 [INFO] src.pirc:   PIRC generation for variant 8/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:49:20 [INFO] src.pirc: PIRC pipeline complete: ℓ*=9, anchors=76, outputs=8
+2026-05-29 14:49:20 [INFO] absl: Using default tokenizer.
+2026-05-29 14:49:20 [INFO] absl: Using default tokenizer.
+2026-05-29 14:49:20 [INFO] absl: Using default tokenizer.
+2026-05-29 14:49:20 [INFO] absl: Using default tokenizer.
+2026-05-29 14:49:20 [INFO] absl: Using default tokenizer.
+2026-05-29 14:49:20 [INFO] absl: Using default tokenizer.
+2026-05-29 14:49:20 [INFO] absl: Using default tokenizer.
+2026-05-29 14:49:20 [INFO] absl: Using default tokenizer.
+2026-05-29 14:49:20 [INFO] experiment_pirc:   PIRC ROUGE-L: mean=0.0000, var=0.000000, variance_reduction=100.00%, ell*=9, anchors=76
+PIRC experiment:  80%|████████  | 4/5 [02:50<00:42, 42.06s/it]2026-05-29 14:49:20 [INFO] experiment_pirc: 
+============================================================
+2026-05-29 14:49:20 [INFO] experiment_pirc: Article 5/5 (idx=4)
+2026-05-29 14:49:20 [INFO] experiment_pirc: ============================================================
+2026-05-29 14:49:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:49:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:49:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/abisee/cnn_dailymail/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/README.md "HTTP/1.1 200 OK"
+2026-05-29 14:49:20 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:49:21 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/cnn_dailymail.py "HTTP/1.1 404 Not Found"
+2026-05-29 14:49:21 [INFO] httpx: HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/cnn_dailymail/cnn_dailymail.py "HTTP/1.1 200 OK"
+2026-05-29 14:49:22 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:49:22 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-05-29 14:49:22 [INFO] httpx: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=cnn_dailymail "HTTP/1.1 404 Not Found"
+2026-05-29 14:49:23 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-29 14:49:23 [INFO] httpx: HTTP Request: HEAD https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/96df5e686bee6baa90b8bee7c28b81fa3fa6223d/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-05-29 14:49:23 [INFO] src.pirc: Step 1: Detecting sensitive layer...
+2026-05-29 14:49:24 [INFO] src.sensitive_layer: Inflection method: ℓ* = 9 (ΔS = nan)
+2026-05-29 14:49:24 [INFO] src.pirc: Step 2: Identifying anchor tokens at layer 9...
+2026-05-29 14:49:24 [INFO] src.anchor_tokens: Sequence lengths across 8 variants: [431, 428, 432, 428, 432, 429, 428, 428]. Using min_len=428 for alignment.
+2026-05-29 14:49:24 [INFO] src.anchor_tokens: Anchors @ layer 9: 128/428 (29.9%) — method=percentile P=30.0%, content_word_filter=True
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos=  0  tok='<|begin_of_text|>'   mean_ppl=19904.000  var_ppl=0.0000  stability=2.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos=  1  tok='<|start_header_id|>'  mean_ppl=inf  var_ppl=nan  stability=6.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos=  2  tok='user'                mean_ppl=inf  var_ppl=nan  stability=8.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos=  3  tok='<|end_header_id|>'   mean_ppl=inf  var_ppl=nan  stability=10.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos=  5  tok='Sum'                 mean_ppl=inf  var_ppl=nan  stability=14.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos=  6  tok='mar'                 mean_ppl=inf  var_ppl=nan  stability=16.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos=  7  tok='ize'                 mean_ppl=inf  var_ppl=nan  stability=18.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos=  9  tok=' following'          mean_ppl=inf  var_ppl=nan  stability=22.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos= 10  tok=' article'            mean_ppl=inf  var_ppl=nan  stability=24.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos= 11  tok=' conc'               mean_ppl=inf  var_ppl=nan  stability=26.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos= 13  tok='ely'                 mean_ppl=inf  var_ppl=nan  stability=30.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos= 15  tok='Article'             mean_ppl=inf  var_ppl=nan  stability=34.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos= 17  tok='(C'                  mean_ppl=inf  var_ppl=nan  stability=38.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos= 18  tok='NN'                  mean_ppl=inf  var_ppl=nan  stability=40.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos= 21  tok=' Duke'               mean_ppl=inf  var_ppl=nan  stability=46.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos= 22  tok=' student'            mean_ppl=inf  var_ppl=nan  stability=48.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos= 24  tok=' admitted'           mean_ppl=inf  var_ppl=nan  stability=52.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos= 26  tok=' hanging'            mean_ppl=inf  var_ppl=nan  stability=56.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos= 29  tok='ose'                 mean_ppl=inf  var_ppl=nan  stability=62.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   pos= 30  tok=' made'               mean_ppl=inf  var_ppl=nan  stability=64.0
+2026-05-29 14:49:24 [INFO] src.anchor_tokens:   … (108 more anchors)
+2026-05-29 14:49:24 [INFO] src.pirc: Step 3: Computing consensus hidden state at layer 9...
+2026-05-29 14:49:24 [INFO] src.pirc: Collected hidden states at layer 9: shape torch.Size([8, 429, 4096]), seq_lengths=[432, 429, 433, 429, 433, 430, 429, 429]
+2026-05-29 14:49:24 [INFO] src.pirc: Step 4: Generating all variants with PIRC clamping (α=1.0, 128 anchors)...
+2026-05-29 14:49:24 [INFO] src.pirc:   PIRC generation for variant 1/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:49:29 [INFO] src.pirc:   PIRC generation for variant 2/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:49:34 [INFO] src.pirc:   PIRC generation for variant 3/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:49:39 [INFO] src.pirc:   PIRC generation for variant 4/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:49:43 [INFO] src.pirc:   PIRC generation for variant 5/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:49:48 [INFO] src.pirc:   PIRC generation for variant 6/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:49:52 [INFO] src.pirc:   PIRC generation for variant 7/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:49:57 [INFO] src.pirc:   PIRC generation for variant 8/8
+[transformers] Setting `pad_token_id` to `eos_token_id`:128001 for open-end generation.
+2026-05-29 14:50:02 [INFO] src.pirc: PIRC pipeline complete: ℓ*=9, anchors=128, outputs=8
+2026-05-29 14:50:02 [INFO] absl: Using default tokenizer.
+2026-05-29 14:50:02 [INFO] absl: Using default tokenizer.
+2026-05-29 14:50:02 [INFO] absl: Using default tokenizer.
+2026-05-29 14:50:02 [INFO] absl: Using default tokenizer.
+2026-05-29 14:50:02 [INFO] absl: Using default tokenizer.
+2026-05-29 14:50:02 [INFO] absl: Using default tokenizer.
+2026-05-29 14:50:02 [INFO] absl: Using default tokenizer.
+2026-05-29 14:50:02 [INFO] absl: Using default tokenizer.
+2026-05-29 14:50:02 [INFO] experiment_pirc:   PIRC ROUGE-L: mean=0.0233, var=0.000541, variance_reduction=-1087.24%, ell*=9, anchors=128
+PIRC experiment: 100%|██████████| 5/5 [03:32<00:00, 42.02s/it]PIRC experiment: 100%|██████████| 5/5 [03:32<00:00, 42.43s/it]
+2026-05-29 14:50:02 [INFO] experiment_pirc: PIRC results saved to results/pirc.json
+2026-05-29 14:50:02 [INFO] experiment_pirc: 
+============================================================
+2026-05-29 14:50:02 [INFO] experiment_pirc: PIRC EXPERIMENT SUMMARY
+2026-05-29 14:50:02 [INFO] experiment_pirc: ============================================================
+2026-05-29 14:50:02 [INFO] experiment_pirc: Articles processed: 5
+2026-05-29 14:50:02 [INFO] experiment_pirc: Successful: 5
+2026-05-29 14:50:02 [INFO] experiment_pirc: Mean PIRC ROUGE-L: 0.0120
+2026-05-29 14:50:02 [INFO] experiment_pirc: Mean Baseline ROUGE-L: 0.2269
+2026-05-29 14:50:02 [INFO] experiment_pirc: Mean PIRC ROUGE-L variance: 0.000327
+2026-05-29 14:50:02 [INFO] experiment_pirc: Mean variance reduction: -161.92%
+2026-05-29 14:50:02 [INFO] experiment_pirc: ℓ* range: [9, 9], mean=9.0, std=0.0
+2026-05-29 14:50:02 [INFO] experiment_pirc: Total time: 212.2s
+[14:50:03] === Evaluate ===
+2026-05-29 14:50:03 [INFO] evaluate: Loaded baseline (5 articles) and PIRC (5 articles) results
+2026-05-29 14:50:03 [INFO] evaluate: Common articles: 5, valid PIRC results: 5
+2026-05-29 14:50:03 [INFO] evaluate: Wilcoxon test: W=13.00, p=0.093750, significant=False (α=0.01, n=5)
+2026-05-29 14:50:03 [INFO] evaluate: Evaluation summary saved to results/eval_summary.json
+
+======================================================================
+LL-PIRC EVALUATION SUMMARY
+======================================================================
+
+Metric                                             Value
+-------------------------------------------------------
+Articles evaluated                                     5
+Successful PIRC runs                                   5
+
+--- ROUGE-L ---
+Baseline mean ROUGE-L                    0.2269
+PIRC mean ROUGE-L                        0.0120
+ROUGE-L change                           -0.2150
+ROUGE-L change (%)                       -94.72%
+
+--- Variance ---
+Baseline mean variance                   0.000618
+PIRC mean variance                       0.000327
+Relative variance reduction              47.08%
+Variance reduction 95% CI                [-0.000118, 0.000590]
+Variance effect size dz                  0.617
+
+--- Statistical Tests ---
+Variance Wilcoxon W                      13.00
+Variance Wilcoxon p-value                0.093750
+Significant (p < 0.010)?                 NO ✗
+ROUGE-L Wilcoxon p-value                 0.062500
+ROUGE-L change 95% CI                    [-0.255672, -0.173433]
+ROUGE-L effect size dz                   -4.050
+
+--- Sensitive Layer (ℓ*) ---
+ℓ* mean                                  9.0
+ℓ* std                                   0.0
+ℓ* range                                 [9, 9]
+ℓ* coefficient of variation              0.000
+======================================================================
+Traceback (most recent call last):
+  File "/root/prompt_sensitivity/prompt_robustness/evaluate.py", line 655, in <module>
+    main()
+  File "/root/prompt_sensitivity/prompt_robustness/evaluate.py", line 651, in main
+    run_evaluation(config)
+  File "/root/prompt_sensitivity/prompt_robustness/evaluate.py", line 617, in run_evaluation
+    plot_sensitivity_curves(
+  File "/root/prompt_sensitivity/prompt_robustness/evaluate.py", line 243, in plot_sensitivity_curves
+    import matplotlib.pyplot as plt
+ModuleNotFoundError: No module named 'matplotlib'

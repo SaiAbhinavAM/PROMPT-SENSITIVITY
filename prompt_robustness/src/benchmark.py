@@ -364,6 +364,24 @@ def generate_responses_to_csv(config: Config) -> str:
                     prompts = flatten_prompt_variants(generate_prompt_variants(sample["input_text"]))
                 responses = mi.generate_responses(prompts)
                 strategies = sample.get("strategies") or [None] * len(prompts)
+                # FLAWS §2.2 fix: compute the intra-model diagnostics (PPL
+                # variance, branching factor) WHILE the subject model is
+                # resident. The downstream score-from-CSV phase has no
+                # generation model, so without these IFI saturates at 1.0.
+                # Compute once per (model, instance) and replicate across
+                # the K variant rows so a partial resume still recovers the
+                # value. Wrapped in try/except so a metric-internal error
+                # never blocks a successful generation row from being saved.
+                try:
+                    ppl_var_inst = float(mi.compute_perplexity_variance(prompts, responses))
+                except Exception as ifi_e:
+                    logger.warning(f"PPL variance failed for {model_name}/{inst}: {ifi_e}")
+                    ppl_var_inst = ""
+                try:
+                    bf_inst = float(mi.compute_branching_factor(responses))
+                except Exception as ifi_e:
+                    logger.warning(f"Branching factor failed for {model_name}/{inst}: {ifi_e}")
+                    bf_inst = ""
                 rows = [{
                     "model": model_name, "instance_id": inst,
                     "topic_label": sample.get("topic_label", sample.get("task", "")),
@@ -371,6 +389,8 @@ def generate_responses_to_csv(config: Config) -> str:
                     "prompt": p, "response": r,
                     "input_text": sample.get("input_text", ""),
                     "reference_output": sample.get("reference_output", ""),
+                    "ppl_var_inst": ppl_var_inst,
+                    "bf_inst": bf_inst,
                 } for i, (p, r) in enumerate(zip(prompts, responses))]
                 writer.write_rows(rows)   # flush + fsync per sample
             except Exception as e:

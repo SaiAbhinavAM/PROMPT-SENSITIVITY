@@ -207,14 +207,48 @@ def _format_choices(choices: List[str]) -> str:
     return "\n".join(f"- {c}" for c in choices)
 
 
+def _load_dream_from_github() -> List[Dict[str, Any]]:
+    """Fallback: HF `datasets` ≥3.0 rejects script-based loaders, so download the
+    canonical DREAM train.json straight from the upstream GitHub repo and
+    reshape it to the same per-row schema HF used to emit."""
+    import json as _json
+    from urllib.request import urlopen
+
+    url = "https://raw.githubusercontent.com/nlpdata/dream/master/data/train.json"
+    logger.info(f"  HF load failed — falling back to upstream GitHub: {url}")
+    with urlopen(url, timeout=60) as resp:
+        raw = _json.loads(resp.read().decode("utf-8"))
+    rows: List[Dict[str, Any]] = []
+    # Schema (nlpdata/dream): [ [dialogue_turns], [{question, choice, answer}, ...], dialogue_id ]
+    for entry in raw:
+        if not isinstance(entry, list) or len(entry) < 3:
+            continue
+        turns, qas, did = entry[0], entry[1], entry[2]
+        for qa in qas:
+            rows.append({
+                "dialogue_id": did,
+                "dialogue":    turns,
+                "question":    qa.get("question", ""),
+                "choice":      qa.get("choice", []),
+                "answer":      qa.get("answer", ""),
+            })
+    return rows
+
+
 def load_dialogue(n: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
     """
     DREAM dialogue reading-comprehension: paraphrase the question.
     Fixed: the dialogue turns (+ answer options). Reference: the correct answer choice.
     """
     logger.info("Loading DREAM dataset (train split)...")
-    ds = load_dataset("dream", split="train", trust_remote_code=True)
-    logger.info(f"  Loaded {len(ds)} DREAM instances")
+    try:
+        ds = load_dataset("dream", split="train", trust_remote_code=True)
+        logger.info(f"  Loaded {len(ds)} DREAM instances via HF datasets")
+    except Exception as e:
+        # datasets >= 3.0 dropped script-based loaders. Fall back to upstream JSON.
+        logger.warning(f"  HF load failed: {e}")
+        ds = _load_dream_from_github()
+        logger.info(f"  Loaded {len(ds)} DREAM instances from upstream JSON")
 
     candidates = []
     for item in ds:

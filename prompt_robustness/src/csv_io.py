@@ -18,7 +18,7 @@ import csv
 import json
 import os
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 
@@ -36,6 +36,14 @@ RESPONSES_COLS = [
     # 70B judge outputs stored per variant so results are auditable without re-running
     "judge_raw_output",   # exact text the judge model produced
     "judge_score",        # normalised 0–1 score parsed from raw output
+    # IFI saturation fix: the subject model is only resident during the
+    # generate-only phase. The score-from-CSV phase has no generation model,
+    # so without these the evaluator must default ppl_var/bf to 0 → IFI
+    # saturates at 1.0 for every row (FLAWS §2.2). Compute once per
+    # (model, instance) during generation and replicate across the K variant
+    # rows so the value survives a partial resume. Blank for legacy CSVs.
+    "ppl_var_inst",       # per-(model, instance) normalised PPL variance
+    "bf_inst",            # per-(model, instance) normalised branching factor
 ]
 
 # Raw per-(model,instance) metric components. Composites are derived from these.
@@ -133,14 +141,32 @@ def read_responses_grouped(csv_path: str) -> Dict[Tuple[str, str], Dict]:
 
     Each value has: input_text, reference_output, topic_label, prompt_variants,
     precomputed_responses, strategies — i.e. exactly what evaluate_sample needs
-    to SCORE without re-generating.
+    to SCORE without re-generating. When the persisted CSV includes the
+    intra-model diagnostics (ppl_var_inst, bf_inst), these are surfaced as
+    precomputed_ppl_var / precomputed_bf so the score-from-CSV path can keep
+    a non-saturated IFI even with no subject model loaded (FLAWS §2.2 fix).
     """
     df = pd.read_csv(csv_path, dtype=str).fillna("")
     df["variant_idx"] = df["variant_idx"].astype(int)
+    has_ppl = "ppl_var_inst" in df.columns
+    has_bf  = "bf_inst" in df.columns
+
+    def _opt_float(series) -> Optional[float]:
+        """Extract a single precomputed metric value if present, else None."""
+        if series is None or len(series) == 0:
+            return None
+        v = str(series.iloc[0]).strip()
+        if v == "" or v.lower() == "nan":
+            return None
+        try:
+            return float(v)
+        except ValueError:
+            return None
+
     grouped: Dict[Tuple[str, str], Dict] = {}
     for (model, inst), g in df.groupby(["model", "instance_id"], sort=False):
         g = g.sort_values("variant_idx")
-        grouped[(model, inst)] = {
+        entry = {
             "model": model,
             "instance_id": inst,
             "topic_label": g["topic_label"].iloc[0],
@@ -150,6 +176,15 @@ def read_responses_grouped(csv_path: str) -> Dict[Tuple[str, str], Dict]:
             "precomputed_responses": g["response"].tolist(),
             "strategies": g["strategy"].tolist(),
         }
+        if has_ppl:
+            v = _opt_float(g["ppl_var_inst"])
+            if v is not None:
+                entry["precomputed_ppl_var"] = v
+        if has_bf:
+            v = _opt_float(g["bf_inst"])
+            if v is not None:
+                entry["precomputed_bf"] = v
+        grouped[(model, inst)] = entry
     return grouped
 
 

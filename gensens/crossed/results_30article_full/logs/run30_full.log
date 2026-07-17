@@ -1,0 +1,163 @@
+[14:14:07] Sourced .env
+
+══════════════════════════════════════════════════════
+  Config: MODEL_ID=meta-llama/Meta-Llama-3.1-8B-Instruct  N_ARTICLES=30  PHASES=2,3,4,5,6
+══════════════════════════════════════════════════════
+
+══════════════════════════════════════════════════════
+  Phase 2 — Per-cell sensitivity/quality metrics
+══════════════════════════════════════════════════════
+[14:14:07] INFO Loaded 8970 response rows.
+[14:14:07] WARNING Seed B12: has 5 variants, expected 6 (known upstream gap — see fix_changelog.json). Cells for this seed will use n_variants=5 instead of 6.
+[14:14:07] INFO 1500 complete cells to score.
+[14:14:07] INFO Preamble stripped from 4469/8970 outputs (50%) for content/quality metrics.
+[14:14:07] INFO Embedding 8970 (cleaned) outputs with sentence-transformers/all-mpnet-base-v2 ...
+[14:14:12] INFO No device provided, using cuda:0
+[14:14:12] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+[14:14:12] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/modules.json "HTTP/1.1 200 OK"
+[14:14:13] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+[14:14:13] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config_sentence_transformers.json "HTTP/1.1 200 OK"
+[14:14:13] INFO Loading SentenceTransformer model from sentence-transformers/all-mpnet-base-v2.
+[14:14:13] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config_sentence_transformers.json "HTTP/1.1 307 Temporary Redirect"
+[14:14:13] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config_sentence_transformers.json "HTTP/1.1 200 OK"
+[14:14:13] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+[14:14:13] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/README.md "HTTP/1.1 200 OK"
+[14:14:14] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/modules.json "HTTP/1.1 307 Temporary Redirect"
+[14:14:14] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/modules.json "HTTP/1.1 200 OK"
+[14:14:14] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/sentence_bert_config.json "HTTP/1.1 307 Temporary Redirect"
+[14:14:14] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/sentence_bert_config.json "HTTP/1.1 200 OK"
+[14:14:14] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+[14:14:14] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+[14:14:14] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 6714.77it/s]
+[14:14:15] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+[14:14:15] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+[14:14:15] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
+[14:14:15] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+[14:14:16] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+[14:14:16] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/tokenizer_config.json "HTTP/1.1 200 OK"
+[14:14:16] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+[14:14:16] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config.json "HTTP/1.1 200 OK"
+[14:14:16] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+[14:14:16] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/config.json "HTTP/1.1 200 OK"
+[14:14:16] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+[14:14:16] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/tokenizer_config.json "HTTP/1.1 200 OK"
+[14:14:17] INFO HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-mpnet-base-v2/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+[14:14:17] INFO HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-mpnet-base-v2/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+[14:14:17] INFO HTTP Request: HEAD https://huggingface.co/sentence-transformers/all-mpnet-base-v2/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+[14:14:17] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-mpnet-base-v2/e8c3b32edf5434bc2275fc9bab85f82640a19130/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+[14:14:17] INFO HTTP Request: GET https://huggingface.co/api/models/sentence-transformers/all-mpnet-base-v2 "HTTP/1.1 200 OK"
+Batches:   0%|          | 0/141 [00:00<?, ?it/s]Batches:   1%|          | 1/141 [00:00<02:17,  1.02it/s]Batches:   1%|▏         | 2/141 [00:01<01:48,  1.29it/s]Batches:   2%|▏         | 3/141 [00:02<01:38,  1.40it/s]Batches:   3%|▎         | 4/141 [00:02<01:33,  1.47it/s]Batches:   4%|▎         | 5/141 [00:03<01:30,  1.50it/s]Batches:   4%|▍         | 6/141 [00:04<01:28,  1.53it/s]Batches:   5%|▍         | 7/141 [00:04<01:27,  1.54it/s]Batches:   6%|▌         | 8/141 [00:05<01:25,  1.55it/s]Batches:   6%|▋         | 9/141 [00:06<01:24,  1.55it/s]Batches:   7%|▋         | 10/141 [00:06<01:23,  1.56it/s]Batches:   8%|▊         | 11/141 [00:07<01:23,  1.56it/s]Batches:   9%|▊         | 12/141 [00:07<01:22,  1.57it/s]Batches:   9%|▉         | 13/141 [00:08<01:21,  1.57it/s]Batches:  10%|▉         | 14/141 [00:09<01:20,  1.57it/s]Batches:  11%|█         | 15/141 [00:09<01:20,  1.57it/s]Batches:  11%|█▏        | 16/141 [00:10<01:19,  1.57it/s]Batches:  12%|█▏        | 17/141 [00:11<01:18,  1.58it/s]Batches:  13%|█▎        | 18/141 [00:11<01:17,  1.58it/s]Batches:  13%|█▎        | 19/141 [00:12<01:17,  1.58it/s]Batches:  14%|█▍        | 20/141 [00:13<01:16,  1.58it/s]Batches:  15%|█▍        | 21/141 [00:13<01:15,  1.58it/s]Batches:  16%|█▌        | 22/141 [00:14<01:15,  1.58it/s]Batches:  16%|█▋        | 23/141 [00:15<01:18,  1.51it/s]Batches:  17%|█▋        | 24/141 [00:15<01:21,  1.43it/s]Batches:  18%|█▊        | 25/141 [00:16<01:23,  1.39it/s]Batches:  18%|█▊        | 26/141 [00:17<01:20,  1.42it/s]Batches:  19%|█▉        | 27/141 [00:17<01:17,  1.47it/s]Batches:  20%|█▉        | 28/141 [00:18<01:15,  1.50it/s]Batches:  21%|██        | 29/141 [00:19<01:13,  1.52it/s]Batches:  21%|██▏       | 30/141 [00:19<01:12,  1.54it/s]Batches:  22%|██▏       | 31/141 [00:20<01:11,  1.55it/s]Batches:  23%|██▎       | 32/141 [00:21<01:10,  1.56it/s]Batches:  23%|██▎       | 33/141 [00:21<01:09,  1.56it/s]Batches:  24%|██▍       | 34/141 [00:22<01:08,  1.56it/s]Batches:  25%|██▍       | 35/141 [00:22<01:07,  1.57it/s]Batches:  26%|██▌       | 36/141 [00:23<01:11,  1.47it/s]Batches:  26%|██▌       | 37/141 [00:24<01:13,  1.41it/s]Batches:  27%|██▋       | 38/141 [00:25<01:14,  1.38it/s]Batches:  28%|██▊       | 39/141 [00:26<01:15,  1.35it/s]Batches:  28%|██▊       | 40/141 [00:26<01:11,  1.41it/s]Batches:  29%|██▉       | 41/141 [00:27<01:08,  1.46it/s]Batches:  30%|██▉       | 42/141 [00:27<01:06,  1.49it/s]Batches:  30%|███       | 43/141 [00:28<01:04,  1.52it/s]Batches:  31%|███       | 44/141 [00:29<01:03,  1.53it/s]Batches:  32%|███▏      | 45/141 [00:29<01:02,  1.55it/s]Batches:  33%|███▎      | 46/141 [00:30<01:01,  1.56it/s]Batches:  33%|███▎      | 47/141 [00:31<01:00,  1.56it/s]Batches:  34%|███▍      | 48/141 [00:31<00:59,  1.57it/s]Batches:  35%|███▍      | 49/141 [00:32<00:57,  1.60it/s]Batches:  35%|███▌      | 50/141 [00:33<00:57,  1.59it/s]Batches:  36%|███▌      | 51/141 [00:33<00:56,  1.59it/s]Batches:  37%|███▋      | 52/141 [00:34<00:55,  1.61it/s]Batches:  38%|███▊      | 53/141 [00:34<00:54,  1.63it/s]Batches:  38%|███▊      | 54/141 [00:35<00:52,  1.67it/s]Batches:  39%|███▉      | 55/141 [00:36<00:51,  1.66it/s]Batches:  40%|███▉      | 56/141 [00:36<00:51,  1.66it/s]Batches:  40%|████      | 57/141 [00:37<00:49,  1.70it/s]Batches:  41%|████      | 58/141 [00:37<00:48,  1.72it/s]Batches:  42%|████▏     | 59/141 [00:38<00:47,  1.73it/s]Batches:  43%|████▎     | 60/141 [00:38<00:47,  1.71it/s]Batches:  43%|████▎     | 61/141 [00:39<00:45,  1.76it/s]Batches:  44%|████▍     | 62/141 [00:40<00:45,  1.73it/s]Batches:  45%|████▍     | 63/141 [00:40<00:44,  1.76it/s]Batches:  45%|████▌     | 64/141 [00:41<00:42,  1.80it/s]Batches:  46%|████▌     | 65/141 [00:41<00:42,  1.81it/s]Batches:  47%|████▋     | 66/141 [00:42<00:40,  1.83it/s]Batches:  48%|████▊     | 67/141 [00:42<00:40,  1.85it/s]Batches:  48%|████▊     | 68/141 [00:43<00:39,  1.87it/s]Batches:  49%|████▉     | 69/141 [00:43<00:37,  1.91it/s]Batches:  50%|████▉     | 70/141 [00:44<00:36,  1.96it/s]Batches:  50%|█████     | 71/141 [00:44<00:35,  1.99it/s]Batches:  51%|█████     | 72/141 [00:45<00:34,  1.99it/s]Batches:  52%|█████▏    | 73/141 [00:45<00:33,  2.03it/s]Batches:  52%|█████▏    | 74/141 [00:46<00:32,  2.04it/s]Batches:  53%|█████▎    | 75/141 [00:46<00:31,  2.08it/s]Batches:  54%|█████▍    | 76/141 [00:47<00:31,  2.07it/s]Batches:  55%|█████▍    | 77/141 [00:47<00:30,  2.07it/s]Batches:  55%|█████▌    | 78/141 [00:48<00:30,  2.10it/s]Batches:  56%|█████▌    | 79/141 [00:48<00:28,  2.15it/s]Batches:  57%|█████▋    | 80/141 [00:48<00:28,  2.15it/s]Batches:  57%|█████▋    | 81/141 [00:49<00:27,  2.21it/s]Batches:  58%|█████▊    | 82/141 [00:49<00:26,  2.25it/s]Batches:  59%|█████▉    | 83/141 [00:50<00:25,  2.28it/s]Batches:  60%|█████▉    | 84/141 [00:50<00:24,  2.35it/s]Batches:  60%|██████    | 85/141 [00:51<00:23,  2.40it/s]Batches:  61%|██████    | 86/141 [00:51<00:22,  2.42it/s]Batches:  62%|██████▏   | 87/141 [00:51<00:22,  2.45it/s]Batches:  62%|██████▏   | 88/141 [00:52<00:21,  2.48it/s]Batches:  63%|██████▎   | 89/141 [00:52<00:21,  2.42it/s]Batches:  64%|██████▍   | 90/141 [00:53<00:20,  2.47it/s]Batches:  65%|██████▍   | 91/141 [00:53<00:19,  2.52it/s]Batches:  65%|██████▌   | 92/141 [00:53<00:19,  2.47it/s]Batches:  66%|██████▌   | 93/141 [00:54<00:18,  2.56it/s]Batches:  67%|██████▋   | 94/141 [00:54<00:17,  2.64it/s]Batches:  67%|██████▋   | 95/141 [00:54<00:17,  2.68it/s]Batches:  68%|██████▊   | 96/141 [00:55<00:16,  2.73it/s]Batches:  69%|██████▉   | 97/141 [00:55<00:15,  2.77it/s]Batches:  70%|██████▉   | 98/141 [00:55<00:15,  2.81it/s]Batches:  70%|███████   | 99/141 [00:56<00:14,  2.84it/s]Batches:  71%|███████   | 100/141 [00:56<00:14,  2.86it/s]Batches:  72%|███████▏  | 101/141 [00:56<00:13,  2.88it/s]Batches:  72%|███████▏  | 102/141 [00:57<00:13,  2.89it/s]Batches:  73%|███████▎  | 103/141 [00:57<00:12,  3.03it/s]Batches:  74%|███████▍  | 104/141 [00:57<00:12,  3.05it/s]Batches:  74%|███████▍  | 105/141 [00:58<00:11,  3.06it/s]Batches:  75%|███████▌  | 106/141 [00:58<00:11,  3.07it/s]Batches:  76%|███████▌  | 107/141 [00:58<00:10,  3.16it/s]Batches:  77%|███████▋  | 108/141 [00:59<00:10,  3.28it/s]Batches:  77%|███████▋  | 109/141 [00:59<00:09,  3.35it/s]Batches:  78%|███████▊  | 110/141 [00:59<00:09,  3.42it/s]Batches:  79%|███████▊  | 111/141 [00:59<00:08,  3.48it/s]Batches:  79%|███████▉  | 112/141 [01:00<00:08,  3.53it/s]Batches:  80%|████████  | 113/141 [01:00<00:07,  3.65it/s]Batches:  81%|████████  | 114/141 [01:00<00:07,  3.58it/s]Batches:  82%|████████▏ | 115/141 [01:01<00:07,  3.60it/s]Batches:  82%|████████▏ | 116/141 [01:01<00:06,  3.71it/s]Batches:  83%|████████▎ | 117/141 [01:01<00:06,  3.86it/s]Batches:  84%|████████▎ | 118/141 [01:01<00:05,  3.92it/s]Batches:  84%|████████▍ | 119/141 [01:02<00:05,  4.01it/s]Batches:  85%|████████▌ | 120/141 [01:02<00:05,  4.15it/s]Batches:  86%|████████▌ | 121/141 [01:02<00:04,  4.27it/s]Batches:  87%|████████▋ | 122/141 [01:02<00:04,  4.31it/s]Batches:  87%|████████▋ | 123/141 [01:02<00:04,  4.39it/s]Batches:  88%|████████▊ | 124/141 [01:03<00:03,  4.51it/s]Batches:  89%|████████▊ | 125/141 [01:03<00:03,  4.67it/s]Batches:  89%|████████▉ | 126/141 [01:03<00:03,  4.71it/s]Batches:  90%|█████████ | 127/141 [01:03<00:02,  4.96it/s]Batches:  91%|█████████ | 128/141 [01:03<00:02,  5.20it/s]Batches:  91%|█████████▏| 129/141 [01:04<00:02,  5.36it/s]Batches:  92%|█████████▏| 130/141 [01:04<00:01,  5.60it/s]Batches:  93%|█████████▎| 131/141 [01:04<00:01,  5.93it/s]Batches:  94%|█████████▎| 132/141 [01:04<00:01,  6.19it/s]Batches:  94%|█████████▍| 133/141 [01:04<00:01,  6.58it/s]Batches:  95%|█████████▌| 134/141 [01:04<00:01,  6.96it/s]Batches:  96%|█████████▌| 135/141 [01:04<00:00,  7.39it/s]Batches:  96%|█████████▋| 136/141 [01:04<00:00,  7.92it/s]Batches:  98%|█████████▊| 138/141 [01:05<00:00,  8.98it/s]Batches:  99%|█████████▉| 140/141 [01:05<00:00,  9.97it/s]Batches: 100%|██████████| 141/141 [01:05<00:00,  2.16it/s]
+Batches:   0%|          | 0/1 [00:00<?, ?it/s]Batches: 100%|██████████| 1/1 [00:00<00:00, 12.23it/s]
+[14:15:23] INFO Computing ROUGE-L ...
+[14:15:23] INFO Using default tokenizer.
+[14:16:17] INFO Computing BERTScore over 8970 pairs (this can take a while) ...
+[14:16:18] INFO HTTP Request: HEAD https://huggingface.co/roberta-large/resolve/main/config.json "HTTP/1.1 200 OK"
+[14:16:18] INFO HTTP Request: HEAD https://huggingface.co/roberta-large/resolve/main/tokenizer_config.json "HTTP/1.1 200 OK"
+[14:16:18] INFO HTTP Request: GET https://huggingface.co/api/models/roberta-large/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 307 Temporary Redirect"
+[14:16:19] INFO HTTP Request: GET https://huggingface.co/api/models/FacebookAI/roberta-large/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+[14:16:19] INFO HTTP Request: GET https://huggingface.co/api/models/roberta-large/tree/main?recursive=true&expand=false "HTTP/1.1 307 Temporary Redirect"
+[14:16:19] INFO HTTP Request: GET https://huggingface.co/api/models/FacebookAI/roberta-large/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+[14:16:20] INFO HTTP Request: HEAD https://huggingface.co/roberta-large/resolve/main/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/389 [00:00<?, ?it/s]Loading weights: 100%|██████████| 389/389 [00:00<00:00, 7004.07it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: roberta-large
+Key                       | Status     | 
+--------------------------+------------+-
+lm_head.layer_norm.weight | UNEXPECTED | 
+lm_head.bias              | UNEXPECTED | 
+lm_head.layer_norm.bias   | UNEXPECTED | 
+lm_head.dense.bias        | UNEXPECTED | 
+lm_head.dense.weight      | UNEXPECTED | 
+pooler.dense.weight       | MISSING    | 
+pooler.dense.bias         | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+[14:19:10] INFO Loading NLI model tasksource/deberta-base-long-nli for faithfulness ...
+[14:19:10] INFO No device provided, using cuda:0
+[14:19:11] INFO HTTP Request: HEAD https://huggingface.co/tasksource/deberta-base-long-nli/resolve/main/modules.json "HTTP/1.1 404 Not Found"
+[14:19:11] INFO No modules.json found for tasksource/deberta-base-long-nli, initializing a new CrossEncoder model.
+[14:19:11] INFO HTTP Request: GET https://huggingface.co/api/models/tasksource/deberta-base-long-nli "HTTP/1.1 200 OK"
+[14:19:11] INFO HTTP Request: HEAD https://huggingface.co/tasksource/deberta-base-long-nli/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+[14:19:11] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/tasksource/deberta-base-long-nli/04dcf11f844b07bc57015169fca2b7d6df8299d5/config.json "HTTP/1.1 200 OK"
+[14:19:12] INFO HTTP Request: HEAD https://huggingface.co/tasksource/deberta-base-long-nli/resolve/main/adapter_config.json "HTTP/1.1 404 Not Found"
+[14:19:12] INFO HTTP Request: HEAD https://huggingface.co/tasksource/deberta-base-long-nli/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+[14:19:12] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/tasksource/deberta-base-long-nli/04dcf11f844b07bc57015169fca2b7d6df8299d5/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/202 [00:00<?, ?it/s]Loading weights: 100%|██████████| 202/202 [00:00<00:00, 6611.90it/s]
+[14:19:12] INFO HTTP Request: HEAD https://huggingface.co/tasksource/deberta-base-long-nli/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+[14:19:13] INFO HTTP Request: HEAD https://huggingface.co/tasksource/deberta-base-long-nli/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+[14:19:13] INFO HTTP Request: HEAD https://huggingface.co/tasksource/deberta-base-long-nli/resolve/main/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
+[14:19:13] INFO HTTP Request: HEAD https://huggingface.co/tasksource/deberta-base-long-nli/resolve/main/preprocessor_config.json "HTTP/1.1 404 Not Found"
+[14:19:14] INFO HTTP Request: HEAD https://huggingface.co/tasksource/deberta-base-long-nli/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+[14:19:14] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/tasksource/deberta-base-long-nli/04dcf11f844b07bc57015169fca2b7d6df8299d5/tokenizer_config.json "HTTP/1.1 200 OK"
+[14:19:14] INFO HTTP Request: HEAD https://huggingface.co/tasksource/deberta-base-long-nli/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+[14:19:14] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/tasksource/deberta-base-long-nli/04dcf11f844b07bc57015169fca2b7d6df8299d5/config.json "HTTP/1.1 200 OK"
+[14:19:14] INFO HTTP Request: HEAD https://huggingface.co/tasksource/deberta-base-long-nli/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+[14:19:14] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/tasksource/deberta-base-long-nli/04dcf11f844b07bc57015169fca2b7d6df8299d5/config.json "HTTP/1.1 200 OK"
+[14:19:15] INFO HTTP Request: HEAD https://huggingface.co/tasksource/deberta-base-long-nli/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+[14:19:15] INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/tasksource/deberta-base-long-nli/04dcf11f844b07bc57015169fca2b7d6df8299d5/tokenizer_config.json "HTTP/1.1 200 OK"
+[14:19:15] INFO HTTP Request: GET https://huggingface.co/api/models/tasksource/deberta-base-long-nli/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+[14:19:15] INFO HTTP Request: GET https://huggingface.co/api/models/tasksource/deberta-base-long-nli/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+[14:19:16] INFO HTTP Request: GET https://huggingface.co/api/models/tasksource/deberta-base-long-nli "HTTP/1.1 200 OK"
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (1681 > 1280). Running this sequence through the model will result in indexing errors
+[14:19:38] INFO Scoring 8970 NLI (article, output) pairs ...
+Batches:   0%|          | 0/141 [00:00<?, ?it/s]Batches:   0%|          | 0/141 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/prompt_sensitivity/gensens/crossed/scripts/compute_cell_metrics.py", line 489, in <module>
+    main()
+  File "/home/prompt_sensitivity/gensens/crossed/scripts/compute_cell_metrics.py", line 335, in main
+    nli_logits = nli.predict(nli_pairs, batch_size=64, show_progress_bar=True, apply_softmax=False)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/sentence_transformers/util/decorators.py", line 41, in wrapper
+    return func(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/sentence_transformers/util/decorators.py", line 185, in wrapper
+    return func(self, *args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/sentence_transformers/cross_encoder/model.py", line 689, in predict
+    out_features = self.forward(features, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/sentence_transformers/base/model.py", line 511, in forward
+    input = module(input, **module_kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/sentence_transformers/base/modules/transformer.py", line 1096, in forward
+    model_output = model_method(**filtered_kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/transformers/models/deberta_v2/modeling_deberta_v2.py", line 1059, in forward
+    outputs = self.deberta(
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/transformers/models/deberta_v2/modeling_deberta_v2.py", line 765, in forward
+    encoder_outputs = self.encoder(
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/transformers/models/deberta_v2/modeling_deberta_v2.py", line 653, in forward
+    output_states, attn_weights = layer_module(
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/transformers/models/deberta_v2/modeling_deberta_v2.py", line 432, in forward
+    attention_output, att_matrix = self.attention(
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/transformers/models/deberta_v2/modeling_deberta_v2.py", line 365, in forward
+    self_output, att_matrix = self.self(
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/transformers/models/deberta_v2/modeling_deberta_v2.py", line 246, in forward
+    rel_att = self.disentangled_attention_bias(
+  File "/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/transformers/models/deberta_v2/modeling_deberta_v2.py", line 338, in disentangled_attention_bias
+    p2c_att = torch.gather(
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 4.68 GiB. GPU 0 has a total capacity of 23.60 GiB of which 4.29 GiB is free. Including non-PyTorch memory, this process has 19.30 GiB memory in use. Of the allocated memory 18.96 GiB is allocated by PyTorch, and 68.85 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

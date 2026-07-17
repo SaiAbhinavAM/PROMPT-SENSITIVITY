@@ -1,0 +1,1019 @@
+[14:19:45] === Resume: Phases 2, 3, 4 (responses.csv resume + BGE embedder + gptqmodel) ===
+[14:19:45] Sourced /root/prompt_sensitivity/.env (HF_TOKEN set)
+[14:19:45] Generator: hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4  (awq_marlin)
+
+══════════════════════════════════════════════════════
+  GenSens + PRI Pipeline  │  Jarvis Labs GPU Runner
+══════════════════════════════════════════════════════
+[14:19:45] Phases to run : 2,3,4
+[14:19:45] Model         : hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4
+[14:19:45] Tasks         : all
+[14:19:45] Instances/task: 5
+[14:19:45] Variants/inst : 8
+[14:19:45] Seed          : 42
+[14:19:53] Dependencies OK.
+[14:19:53] GPU: NVIDIA A100-SXM4-80GB  |  VRAM: 81920 MiB
+[14:19:53]   Profile: H100-80GB  →  gpu_mem_frac=0.90  max_model_len=8192
+
+══════════════════════════════════════════════════════
+  Phase 2 │ PRI Benchmark  [models: meta-llama/Llama-3.1-8B-Instruct,Qwen/Qwen2.5-7B-Instruct,mistralai/Mistral-7B-Instruct-v0.3,hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4]
+══════════════════════════════════════════════════════
+[14:19:53] Combined 4 task datasets → /root/prompt_sensitivity/gensens/data/gensens_all_5inst_8var.jsonl  (20 instances)
+[14:19:53] Step 2a: Generating responses for all subject models...
+✍️  Generate-only: models=['meta-llama/Llama-3.1-8B-Instruct', 'Qwen/Qwen2.5-7B-Instruct', 'mistralai/Mistral-7B-Instruct-v0.3', 'hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4']
+↻ Resuming generation: 57 (model,instance) pairs already on disk
+
+🚀 Generating responses: meta-llama/Llama-3.1-8B-Instruct
+
+--- Loading: meta-llama/Llama-3.1-8B-Instruct (causal) on cuda ---
+Loading weights:   0%|          | 0/291 [00:00<?, ?it/s]Loading weights:   0%|          | 1/291 [00:00<00:34,  8.52it/s]Loading weights:  14%|█▍        | 41/291 [00:00<00:01, 220.61it/s]Loading weights:  25%|██▍       | 72/291 [00:00<00:00, 259.60it/s]Loading weights:  34%|███▍      | 99/291 [00:00<00:00, 261.43it/s]Loading weights:  44%|████▎     | 127/291 [00:00<00:00, 267.64it/s]Loading weights:  54%|█████▍    | 157/291 [00:00<00:00, 271.54it/s]Loading weights:  64%|██████▎   | 185/291 [00:00<00:00, 264.16it/s]Loading weights:  73%|███████▎  | 213/291 [00:00<00:00, 262.87it/s]Loading weights:  84%|████████▎ | 243/291 [00:00<00:00, 272.32it/s]Loading weights:  93%|█████████▎| 271/291 [00:01<00:00, 270.36it/s]Loading weights: 100%|██████████| 291/291 [00:01<00:00, 259.09it/s]
+    ✓ meta-llama/Llama-3.1-8B-Instruct loaded.
+Generating meta-llama/Llama-3.1-8B-Instruct:   0%|          | 0/19 [00:00<?, ?it/s]Generating meta-llama/Llama-3.1-8B-Instruct: 100%|██████████| 19/19 [00:00<00:00, 542120.93it/s]
+
+🚀 Generating responses: Qwen/Qwen2.5-7B-Instruct
+
+--- Loading: Qwen/Qwen2.5-7B-Instruct (causal) on cuda ---
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<00:43,  7.71it/s]Loading weights:  15%|█▌        | 51/339 [00:00<00:01, 249.02it/s]Loading weights:  30%|███       | 102/339 [00:00<00:00, 346.50it/s]Loading weights:  44%|████▍     | 149/339 [00:00<00:00, 386.94it/s]Loading weights:  57%|█████▋    | 192/339 [00:00<00:00, 399.05it/s]Loading weights:  69%|██████▊   | 233/339 [00:00<00:00, 368.94it/s]Loading weights:  80%|███████▉  | 271/339 [00:00<00:00, 358.74it/s]Loading weights:  95%|█████████▍| 321/339 [00:00<00:00, 399.76it/s]Loading weights: 100%|██████████| 339/339 [00:00<00:00, 367.21it/s]
+    ✓ Qwen/Qwen2.5-7B-Instruct loaded.
+Generating Qwen/Qwen2.5-7B-Instruct:   0%|          | 0/19 [00:00<?, ?it/s]Generating Qwen/Qwen2.5-7B-Instruct: 100%|██████████| 19/19 [00:00<00:00, 603725.58it/s]
+
+🚀 Generating responses: mistralai/Mistral-7B-Instruct-v0.3
+
+--- Loading: mistralai/Mistral-7B-Instruct-v0.3 (causal) on cuda ---
+Loading weights:   0%|          | 0/291 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 41/291 [00:00<00:00, 394.84it/s]Loading weights:  28%|██▊       | 82/291 [00:00<00:00, 401.91it/s]Loading weights:  42%|████▏     | 123/291 [00:00<00:00, 334.02it/s]Loading weights:  54%|█████▍    | 158/291 [00:00<00:00, 312.72it/s]Loading weights:  65%|██████▌   | 190/291 [00:00<00:00, 300.19it/s]Loading weights:  76%|███████▌  | 221/291 [00:00<00:00, 303.08it/s]Loading weights:  90%|█████████ | 263/291 [00:00<00:00, 337.78it/s]Loading weights: 100%|██████████| 291/291 [00:00<00:00, 326.37it/s]
+    ✓ mistralai/Mistral-7B-Instruct-v0.3 loaded.
+Generating mistralai/Mistral-7B-Instruct-v0.3:   0%|          | 0/19 [00:00<?, ?it/s]Generating mistralai/Mistral-7B-Instruct-v0.3: 100%|██████████| 19/19 [00:00<00:00, 594714.75it/s]
+/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/transformers/quantizers/auto.py:262: UserWarning: You passed `quantization_config` or equivalent parameters to `from_pretrained` but the model you're loading already has a `quantization_config` attribute. The `quantization_config` from the model will be used.However, loading attributes (e.g. ['backend', 'max_input_length']) will be overwritten with the one you passed to `from_pretrained`. The rest will be ignored.
+  warnings.warn(warning_msg)
+
+🚀 Generating responses: hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4
+
+--- Loading: hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4 (causal) on cuda  quant=awq_marlin ---
+
+WARN  Python GIL is enabled: Multi-gpu quant acceleration for MoE models is sub-optimal and multi-core accelerated cpu packing is also disabled. We recommend Python >= 3.13.3t with Pytorch > 2.8 for mult-gpu quantization and multi-cpu packing with env `PYTHON_GIL=0`.
+INFO  ENV: Auto setting PYTORCH_ALLOC_CONF='expandable_segments:True,max_split_size_mb:256,garbage_collection_threshold:0.7' for memory saving.
+INFO  ENV: Auto setting CUDA_DEVICE_ORDER=PCI_BUS_ID for correctness.          
+fatal: not a git repository (or any of the parent directories): .git
+INFO  
+
+┌─────────────┐    ┌────────────────────────┐    ┌────────────┐    ┌─────────┐
+│ GPT-QModel  │ -> │ ▓▓▓▓▓▓▓▓▓▓▓▓ 16bit     │ -> │ ▒▒▒▒ 8bit  │ -> │ ░░ 4bit │
+└─────────────┘    └────────────────────────┘    └────────────┘    └─────────┘
+GPT-QModel   : 7.0.0
+Transformers : 5.7.0
+Torch        : 2.11.0+cu130
+Triton       : 3.6.0
+INFO  Kernel: selected: `AwqMarlinLinear`                                      
+Loading weights:   0%|          | 0/1843 [00:00<?, ?it/s]Loading weights:   0%|          | 7/1843 [00:00<00:26, 68.18it/s]Loading weights:   4%|▍         | 76/1843 [00:00<00:04, 418.11it/s]Loading weights:   8%|▊         | 145/1843 [00:00<00:03, 529.02it/s]Loading weights:  12%|█▏        | 212/1843 [00:00<00:02, 575.87it/s]Loading weights:  15%|█▌        | 283/1843 [00:00<00:02, 614.84it/s]Loading weights:  19%|█▉        | 352/1843 [00:00<00:02, 635.08it/s]Loading weights:  23%|██▎       | 420/1843 [00:00<00:02, 640.62it/s]Loading weights:  26%|██▋       | 488/1843 [00:00<00:02, 649.14it/s]Loading weights:  30%|███       | 558/1843 [00:00<00:01, 659.02it/s]Loading weights:  34%|███▍      | 628/1843 [00:01<00:01, 665.31it/s]Loading weights:  38%|███▊      | 696/1843 [00:01<00:01, 666.63it/s]Loading weights:  42%|████▏     | 766/1843 [00:01<00:01, 671.97it/s]Loading weights:  45%|████▌     | 834/1843 [00:01<00:01, 670.26it/s]Loading weights:  49%|████▉     | 903/1843 [00:01<00:01, 661.62it/s]Loading weights:  53%|█████▎    | 970/1843 [00:01<00:01, 655.87it/s]Loading weights:  57%|█████▋    | 1045/1843 [00:01<00:01, 681.88it/s]Loading weights:  61%|██████    | 1120/1843 [00:01<00:01, 700.73it/s]Loading weights:  65%|██████▍   | 1191/1843 [00:01<00:00, 697.94it/s]Loading weights:  68%|██████▊   | 1261/1843 [00:01<00:00, 689.94it/s]Loading weights:  72%|███████▏  | 1331/1843 [00:02<00:00, 687.81it/s]Loading weights:  76%|███████▌  | 1400/1843 [00:02<00:00, 684.24it/s]Loading weights:  80%|███████▉  | 1469/1843 [00:02<00:00, 682.22it/s]Loading weights:  83%|████████▎ | 1538/1843 [00:02<00:00, 677.75it/s]Loading weights:  87%|████████▋ | 1607/1843 [00:02<00:00, 679.21it/s]Loading weights:  91%|█████████ | 1675/1843 [00:02<00:00, 674.18it/s]Loading weights:  95%|█████████▌| 1758/1843 [00:02<00:00, 708.31it/s]Loading weights:  99%|█████████▉| 1829/1843 [00:02<00:00, 703.28it/s]Loading weights: 100%|██████████| 1843/1843 [00:02<00:00, 661.07it/s]
+INFO  Marlin fp16: compiling torch.ops JIT extension in `/home/.cache/gptqmodel/torch_extensions/marlin_fp16/af9b74508f6c07e5`.
+[0 of 100] ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░| 0:00:00 / 0:00:00 [0/100] 0.0%Compiling extension: Marlin fp16... elapsed 0.0s / estimated ~117s | 0:00:00 / 0Compiling extension: Marlin fp16... elapsed 1.0s / estimated ~117s | 0:00:01 / 0Compiling extension: Marlin fp16... elapsed 2.0s / estimated ~117s | 0:00:02 / 0Compiling extension: Marlin fp16... elapsed 3.0s / estimated ~117s | 0:00:03 / 0Compiling extension: Marlin fp16... elapsed 4.0s / estimated ~117s | 0:00:04 / 0Compiling extension: Marlin fp16... elapsed 5.0s / estimated ~117s | 0:00:05 / 0Compiling extension: Marlin fp16... elapsed 6.0s / estimated ~117s | 0:00:06 / 0Compiling extension: Marlin fp16... elapsed 7.0s / estimated ~117s | 0:00:07 / 0Compiling extension: Marlin fp16... elapsed 8.0s / estimated ~117s | 0:00:08 / 0Compiling extension: Marlin fp16... elapsed 9.0s / estimated ~117s | 0:00:09 / 0Compiling extension: Marlin fp16... elapsed 10s / estimated ~117s  | 0:00:10 / 0Compiling extension: Marlin fp16... elapsed 11s / estimated ~117s  | 0:00:11 / 0Compiling extension: Marlin fp16... elapsed 12s / estimated ~117s  | 0:00:12 / 0Compiling extension: Marlin fp16... elapsed 13s / estimated ~117s  | 0:00:13 / 0Compiling extension: Marlin fp16... elapsed 14s / estimated ~117s  | 0:00:14 / 0Compiling extension: Marlin fp16... elapsed 15s / estimated ~117s  | 0:00:15 / 0Compiling extension: Marlin fp16... elapsed 16s / estimated ~117s  | 0:00:16 / 0Compiling extension: Marlin fp16... elapsed 17s / estimated ~117s  | 0:00:17 / 0Compiling extension: Marlin fp16... elapsed 18s / estimated ~117s  | 0:00:18 / 0Compiling extension: Marlin fp16... elapsed 19s / estimated ~117s  | 0:00:19 / 0Compiling extension: Marlin fp16... elapsed 20s / estimated ~117s  | 0:00:20 / 0Compiling extension: Marlin fp16... elapsed 21s / estimated ~117s  | 0:00:21 / 0Compiling extension: Marlin fp16... elapsed 22s / estimated ~117s  | 0:00:22 / 0Compiling extension: Marlin fp16... elapsed 23s / estimated ~117s  | 0:00:23 / 0Compiling extension: Marlin fp16... elapsed 24s / estimated ~117s  | 0:00:24 / 0Compiling extension: Marlin fp16... elapsed 25s / estimated ~117s  | 0:00:25 / 0Compiling extension: Marlin fp16... elapsed 26s / estimated ~117s  | 0:00:26 / 0Compiling extension: Marlin fp16... elapsed 27s / estimated ~117s  | 0:00:27 / 0Compiling extension: Marlin fp16... elapsed 28s / estimated ~117s  | 0:00:28 / 0Compiling extension: Marlin fp16... elapsed 29s / estimated ~117s  | 0:00:29 / 0Compiling extension: Marlin fp16... elapsed 30s / estimated ~117s  | 0:00:30 / 0Compiling extension: Marlin fp16... elapsed 31s / estimated ~117s  | 0:00:31 / 0Compiling extension: Marlin fp16... elapsed 32s / estimated ~117s  | 0:00:32 / 0Compiling extension: Marlin fp16... elapsed 33s / estimated ~117s  | 0:00:33 / 0Compiling extension: Marlin fp16... elapsed 34s / estimated ~117s  | 0:00:34 / 0Compiling extension: Marlin fp16... elapsed 35s / estimated ~117s  | 0:00:35 / 0Compiling extension: Marlin fp16... elapsed 36s / estimated ~117s  | 0:00:36 / 0Compiling extension: Marlin fp16... elapsed 37s / estimated ~117s  | 0:00:37 / 0Compiling extension: Marlin fp16... elapsed 38s / estimated ~117s  | 0:00:38 / 0Compiling extension: Marlin fp16... elapsed 39s / estimated ~117s  | 0:00:39 / 0Compiling extension: Marlin fp16... elapsed 40s / estimated ~117s  | 0:00:40 / 0Compiling extension: Marlin fp16... elapsed 41s / estimated ~117s  | 0:00:41 / 0Compiling extension: Marlin fp16... elapsed 42s / estimated ~117s  | 0:00:42 / 0Compiling extension: Marlin fp16... elapsed 43s / estimated ~117s  | 0:00:43 / 0Compiling extension: Marlin fp16... elapsed 44s / estimated ~117s  | 0:00:44 / 0Compiling extension: Marlin fp16... elapsed 45s / estimated ~117s  | 0:00:45 / 0Compiling extension: Marlin fp16... elapsed 46s / estimated ~117s  | 0:00:46 / 0Compiling extension: Marlin fp16... elapsed 47s / estimated ~117s  | 0:00:47 / 0Compiling extension: Marlin fp16... elapsed 48s / estimated ~117s  | 0:00:48 / 0Compiling extension: Marlin fp16... elapsed 49s / estimated ~117s  | 0:00:49 / 0Compiling extension: Marlin fp16... elapsed 50s / estimated ~117s  | 0:00:50 / 0Compiling extension: Marlin fp16... elapsed 51s / estimated ~117s  | 0:00:51 / 0Compiling extension: Marlin fp16... elapsed 52s / estimated ~117s  | 0:00:52 / 0Compiling extension: Marlin fp16... elapsed 53s / estimated ~117s  | 0:00:53 / 0Compiling extension: Marlin fp16... elapsed 54s / estimated ~117s  | 0:00:54 / 0Compiling extension: Marlin fp16... elapsed 55s / estimated ~117s  | 0:00:55 / 0Compiling extension: Marlin fp16... elapsed 56s / estimated ~117s  | 0:00:56 / 0Compiling extension: Marlin fp16... elapsed 57s / estimated ~117s  | 0:00:57 / 0Compiling extension: Marlin fp16... elapsed 58s / estimated ~117s  | 0:00:58 / 0Compiling extension: Marlin fp16... elapsed 59s / estimated ~117s  | 0:00:59 / 0Compiling extension: Marlin fp16... elapsed 60s / estimated ~117s  | 0:01:00 / 0Compiling extension: Marlin fp16... elapsed 61s / estimated ~117s  | 0:01:01 / 0Compiling extension: Marlin fp16... elapsed 62s / estimated ~117s  | 0:01:02 / 0Compiling extension: Marlin fp16... elapsed 63s / estimated ~117s  | 0:01:03 / 0Compiling extension: Marlin fp16... elapsed 64s / estimated ~117s  | 0:01:04 / 0Compiling extension: Marlin fp16... elapsed 65s / estimated ~117s  | 0:01:05 / 0Compiling extension: Marlin fp16... elapsed 66s / estimated ~117s  | 0:01:06 / 0Compiling extension: Marlin fp16... elapsed 67s / estimated ~117s  | 0:01:07 / 0Compiling extension: Marlin fp16... elapsed 68s / estimated ~117s  | 0:01:08 / 0Compiling extension: Marlin fp16... elapsed 69s / estimated ~117s  | 0:01:09 / 0Compiling extension: Marlin fp16... elapsed 70s / estimated ~117s  | 0:01:10 / 0Compiling extension: Marlin fp16... elapsed 71s / estimated ~117s  | 0:01:11 / 0Compiling extension: Marlin fp16... elapsed 72s / estimated ~117s  | 0:01:12 / 0Compiling extension: Marlin fp16... elapsed 73s / estimated ~117s  | 0:01:13 / 0Compiling extension: Marlin fp16... elapsed 74s / estimated ~117s  | 0:01:14 / 0Compiling extension: Marlin fp16... elapsed 75s / estimated ~117s  | 0:01:15 / 0Compiling extension: Marlin fp16... elapsed 76s / estimated ~117s  | 0:01:16 / 0Compiling extension: Marlin fp16... elapsed 77s / estimated ~117s  | 0:01:17 / 0Compiling extension: Marlin fp16... elapsed 78s / estimated ~117s  | 0:01:18 / 0Compiling extension: Marlin fp16... elapsed 79s / estimated ~117s  | 0:01:19 / 0Compiling extension: Marlin fp16... elapsed 80s / estimated ~117s  | 0:01:20 / 0Compiling extension: Marlin fp16... elapsed 81s / estimated ~117s  | 0:01:21 / 0Compiling extension: Marlin fp16... elapsed 82s / estimated ~117s  | 0:01:22 / 0Compiling extension: Marlin fp16... elapsed 83s / estimated ~117s  | 0:01:23 / 0Compiling extension: Marlin fp16... elapsed 84s / estimated ~117s  | 0:01:24 / 0Compiling extension: Marlin fp16... elapsed 85s / estimated ~117s  | 0:01:25 / 0Compiling extension: Marlin fp16... elapsed 86s / estimated ~117s  | 0:01:26 / 0Compiling extension: Marlin fp16... elapsed 87s / estimated ~117s  | 0:01:27 / 0Compiling extension: Marlin fp16... elapsed 88s / estimated ~117s  | 0:01:28 / 0Compiling extension: Marlin fp16... elapsed 89s / estimated ~117s  | 0:01:29 / 0Compiling extension: Marlin fp16... elapsed 90s / estimated ~117s  | 0:01:30 / 0Compiling extension: Marlin fp16... elapsed 91s / estimated ~117s  | 0:01:31 / 0Compiling extension: Marlin fp16... elapsed 92s / estimated ~117s  | 0:01:32 / 0Compiling extension: Marlin fp16... elapsed 93s / estimated ~117s  | 0:01:33 / 0Compiling extension: Marlin fp16... elapsed 94s / estimated ~117s  | 0:01:34 / 0Compiling extension: Marlin fp16... elapsed 95s / estimated ~117s  | 0:01:35 / 0Compiling extension: Marlin fp16... elapsed 96s / estimated ~117s  | 0:01:36 / 0Compiling extension: Marlin fp16... elapsed 97s / estimated ~117s  | 0:01:37 / 0Compiling extension: Marlin fp16... elapsed 98s / estimated ~117s  | 0:01:38 / 0Compiling extension: Marlin fp16... elapsed 99s / estimated ~117s  | 0:01:39 / 0Compiling extension: Marlin fp16... elapsed 100s / estimated ~117s | 0:01:40 / 0Compiling extension: Marlin fp16... elapsed 101s / estimated ~117s | 0:01:41 / 0Compiling extension: Marlin fp16... elapsed 102s / estimated ~117s | 0:01:42 / 0Compiling extension: Marlin fp16... elapsed 103s / estimated ~117s | 0:01:43 / 0Compiling extension: Marlin fp16... elapsed 104s / estimated ~117s | 0:01:44 / 0Compiling extension: Marlin fp16... elapsed 105s / estimated ~117s | 0:01:45 / 0Compiling extension: Marlin fp16... elapsed 106s / estimated ~117s | 0:01:46 / 0Compiling extension: Marlin fp16... elapsed 107s / estimated ~117s | 0:01:47 / 0Compiling extension: Marlin fp16... elapsed 108s / estimated ~117s | 0:01:48 / 0Compiling extension: Marlin fp16... elapsed 109s / estimated ~117s | 0:01:49 / 0Compiling extension: Marlin fp16... elapsed 110s / estimated ~117s | 0:01:50 / 0Compiling extension: Marlin fp16... elapsed 111s / estimated ~117s | 0:01:50 / 0                                                                                INFO  Marlin fp16: torch.ops JIT extension ready in 111s (estimated ~117s, -6.2s).
+INFO  gc.collect() reclaimed 37 objects in 0.339s                              
+    ✓ hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4 loaded.
+Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:   0%|          | 0/19 [00:00<?, ?it/s][transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:   5%|▌         | 1/19 [00:17<05:09, 17.17s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  11%|█         | 2/19 [00:38<05:37, 19.87s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  16%|█▌        | 3/19 [01:04<06:00, 22.54s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  21%|██        | 4/19 [01:48<07:45, 31.02s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  26%|██▋       | 5/19 [02:20<07:19, 31.36s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  32%|███▏      | 6/19 [02:41<05:59, 27.68s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  37%|███▋      | 7/19 [03:00<05:00, 25.08s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  42%|████▏     | 8/19 [03:20<04:17, 23.37s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  47%|████▋     | 9/19 [03:40<03:42, 22.21s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  53%|█████▎    | 10/19 [03:59<03:11, 21.28s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  58%|█████▊    | 11/19 [03:59<01:59, 14.94s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  63%|██████▎   | 12/19 [04:14<01:44, 14.87s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  68%|██████▊   | 13/19 [04:20<01:12, 12.05s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  74%|███████▎  | 14/19 [04:27<00:52, 10.48s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  79%|███████▉  | 15/19 [04:43<00:49, 12.40s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  84%|████████▍ | 16/19 [05:02<00:42, 14.26s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  89%|████████▉ | 17/19 [05:21<00:31, 15.77s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4:  95%|█████████▍| 18/19 [05:40<00:16, 16.67s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4: 100%|██████████| 19/19 [05:59<00:00, 17.30s/it]Generating hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4: 100%|██████████| 19/19 [05:59<00:00, 18.91s/it]
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 4 responses in 17.17s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 8 responses in 21.76s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 8 responses in 25.70s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 8 responses in 44.01s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 8 responses in 31.97s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 8 responses in 20.52s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 8 responses in 19.73s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 7 responses in 19.70s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 8 responses in 19.65s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 4 responses in 19.19s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 1 responses in 0.56s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 8 responses in 14.73s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 4 responses in 5.55s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 1 responses in 6.84s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 1 responses in 16.87s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 2 responses in 18.56s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 8 responses in 19.28s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 6 responses in 18.78s
+[hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4] Generated 6 responses in 18.77s
+💾 responses.csv written → /root/prompt_sensitivity/prompt_robustness/results/responses.csv
+✅ responses.csv written. Next: score with  python main.py --responses-csv results/responses.csv
+[14:28:15] Step 2b: Scoring from responses.csv (judge + NLI, no subject model)...
+🔁 Scoring from results/responses.csv (no generation model)
+Scoring 76/76 groups from results/responses.csv (0 already done) — no generation model
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 8340.65it/s]
+Using 4 GenSens paraphrase variants
+INFO 05-29 14:28:53 [utils.py:278] non-default args: {'trust_remote_code': True, 'max_model_len': 4096, 'gpu_memory_utilization': 0.9, 'disable_log_stats': True, 'quantization': 'awq_marlin', 'model': 'hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4'}
+INFO 05-29 14:28:55 [model.py:617] Resolved architecture: LlamaForCausalLM
+INFO 05-29 14:28:55 [model.py:1752] Using max model len 4096
+INFO 05-29 14:28:56 [awq_marlin.py:268] The model is convertible to awq_marlin during runtime. Using awq_marlin kernel.
+INFO 05-29 14:28:56 [scheduler.py:239] Chunked prefill is enabled with max_num_batched_tokens=8192.
+Parse safetensors files:   0%|          | 0/9 [00:00<?, ?it/s]Parse safetensors files:  11%|█         | 1/9 [00:00<00:02,  3.68it/s]Parse safetensors files:  33%|███▎      | 3/9 [00:00<00:01,  5.66it/s]Parse safetensors files: 100%|██████████| 9/9 [00:00<00:00, 14.81it/s]
+INFO 05-29 14:28:57 [vllm.py:977] Asynchronous scheduling is enabled.
+INFO 05-29 14:28:57 [kernel.py:270] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(EngineCore pid=3804) INFO 05-29 14:29:09 [core.py:112] Initializing a V1 LLM engine (v0.22.0) with config: model='hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4', speculative_config=None, tokenizer='hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.float16, max_seq_len=4096, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=awq_marlin, quantization_config=None, enforce_eager=False, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False), seed=0, served_model_name=hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.VLLM_COMPILE: 3>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['none'], 'ir_enable_torch_wrap': True, 'splitting_ops': ['vllm::unified_attention_with_output', 'vllm::unified_mla_attention_with_output', 'vllm::mamba_mixer2', 'vllm::mamba_mixer', 'vllm::short_conv', 'vllm::linear_attention', 'vllm::plamo2_mamba_mixer', 'vllm::qwen_gdn_attention_core', 'vllm::gdn_attention_core_xpu', 'vllm::olmo_hybrid_gdn_full_forward', 'vllm::kda_attention', 'vllm::sparse_attn_indexer', 'vllm::rocm_aiter_sparse_attn_indexer', 'vllm::deepseek_v4_attention', 'vllm::unified_kv_cache_update', 'vllm::unified_mla_kv_cache_update'], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.FULL_AND_PIECEWISE: (2, 1)>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [1, 2, 4, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464, 480, 496, 512], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': False, 'fuse_act_quant': False, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False}, 'max_cudagraph_capture_size': 512, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native']), enable_flashinfer_autotune=True, moe_backend='auto', linear_backend='auto')
+(EngineCore pid=3804) INFO 05-29 14:29:10 [parallel_state.py:1422] world_size=1 rank=0 local_rank=0 distributed_init_method=tcp://217.18.55.92:35965 backend=nccl
+(EngineCore pid=3804) INFO 05-29 14:29:10 [parallel_state.py:1735] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
+(EngineCore pid=3804) INFO 05-29 14:29:11 [topk_topp_sampler.py:45] Using FlashInfer for top-p & top-k sampling.
+(EngineCore pid=3804) INFO 05-29 14:29:11 [gpu_model_runner.py:5037] Starting to load model hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4...
+(EngineCore pid=3804) INFO 05-29 14:29:11 [awq_marlin.py:436] Using MarlinLinearKernel for AWQMarlinLinearMethod
+(EngineCore pid=3804) INFO 05-29 14:29:12 [cuda.py:378] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+(EngineCore pid=3804) INFO 05-29 14:29:12 [flash_attn.py:636] Using FlashAttention version 2
+(EngineCore pid=3804) INFO 05-29 14:29:15 [weight_utils.py:922] Filesystem type for checkpoints: XFS. Checkpoint size: 37.04 GiB. Available RAM: 949.06 GiB.
+(EngineCore pid=3804) INFO 05-29 14:29:15 [weight_utils.py:945] Auto-prefetch is disabled because the filesystem (XFS) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+(EngineCore pid=3804) Loading safetensors checkpoint shards:   0% Completed | 0/9 [00:00<?, ?it/s]
+(EngineCore pid=3804) Loading safetensors checkpoint shards:  11% Completed | 1/9 [00:00<00:03,  2.49it/s]
+(EngineCore pid=3804) Loading safetensors checkpoint shards:  22% Completed | 2/9 [00:00<00:02,  2.50it/s]
+(EngineCore pid=3804) Loading safetensors checkpoint shards:  33% Completed | 3/9 [00:01<00:02,  2.51it/s]
+(EngineCore pid=3804) Loading safetensors checkpoint shards:  44% Completed | 4/9 [00:01<00:01,  2.51it/s]
+(EngineCore pid=3804) Loading safetensors checkpoint shards:  56% Completed | 5/9 [00:01<00:01,  2.55it/s]
+(EngineCore pid=3804) Loading safetensors checkpoint shards:  67% Completed | 6/9 [00:02<00:01,  2.53it/s]
+(EngineCore pid=3804) Loading safetensors checkpoint shards:  78% Completed | 7/9 [00:02<00:00,  2.52it/s]
+(EngineCore pid=3804) Loading safetensors checkpoint shards:  89% Completed | 8/9 [00:03<00:00,  2.86it/s]
+(EngineCore pid=3804) Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:03<00:00,  3.63it/s]
+(EngineCore pid=3804) Loading safetensors checkpoint shards: 100% Completed | 9/9 [00:03<00:00,  2.87it/s]
+(EngineCore pid=3804) 
+(EngineCore pid=3804) INFO 05-29 14:29:18 [default_loader.py:397] Loading weights took 3.14 seconds
+(EngineCore pid=3804) INFO 05-29 14:29:24 [gpu_model_runner.py:5132] Model loading took 37.1 GiB memory and 11.898980 seconds
+(EngineCore pid=3804) INFO 05-29 14:29:40 [backends.py:1089] Using cache directory: /home/.cache/vllm/torch_compile_cache/cb55ee2c6b/rank_0_0/backbone for vLLM's torch.compile
+(EngineCore pid=3804) INFO 05-29 14:29:40 [backends.py:1148] Dynamo bytecode transform time: 15.30 s
+(EngineCore pid=3804) INFO 05-29 14:29:43 [backends.py:378] Cache the graph of compile range (1, 8192) for later use
+(EngineCore pid=3804) INFO 05-29 14:29:51 [backends.py:393] Compiling a graph for compile range (1, 8192) takes 10.05 s
+(EngineCore pid=3804) INFO 05-29 14:30:02 [decorators.py:708] saved AOT compiled function to /home/.cache/vllm/torch_compile_cache/torch_aot_compile/72914103f5ee8abbf50ed87e2758294db60b1bd12474c44dbb76a1deec535e7d/rank_0_0/model
+(EngineCore pid=3804) INFO 05-29 14:30:02 [monitor.py:53] torch.compile took 38.18 s in total
+(EngineCore pid=3804) INFO 05-29 14:30:09 [monitor.py:81] Initial profiling/warmup run took 6.05 s
+(EngineCore pid=3804) INFO 05-29 14:30:15 [gpu_model_runner.py:6279] Profiling CUDA graph memory: PIECEWISE=51 (largest=512), FULL=35 (largest=256)
+(EngineCore pid=3804) INFO 05-29 14:30:18 [gpu_model_runner.py:6365] Estimated CUDA graph memory: 1.28 GiB total
+(EngineCore pid=3804) INFO 05-29 14:30:18 [gpu_worker.py:466] Available KV cache memory: 30.59 GiB
+(EngineCore pid=3804) INFO 05-29 14:30:18 [gpu_worker.py:481] CUDA graph memory profiling is enabled (default since v0.21.0). The current --gpu-memory-utilization=0.9000 is equivalent to --gpu-memory-utilization=0.8839 without CUDA graph memory profiling. To maintain the same effective KV cache size as before, increase --gpu-memory-utilization to 0.9161. To disable, set VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=0.
+(EngineCore pid=3804) INFO 05-29 14:30:18 [kv_cache_utils.py:1733] GPU KV cache size: 100,224 tokens
+(EngineCore pid=3804) INFO 05-29 14:30:18 [kv_cache_utils.py:1734] Maximum concurrency for 4,096 tokens per request: 24.47x
+(EngineCore pid=3804) Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   0%|          | 0/51 [00:00<?, ?it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   2%|▏         | 1/51 [00:00<00:20,  2.41it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   4%|▍         | 2/51 [00:00<00:19,  2.51it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   6%|▌         | 3/51 [00:01<00:18,  2.58it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   8%|▊         | 4/51 [00:01<00:17,  2.62it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  10%|▉         | 5/51 [00:01<00:16,  2.72it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  12%|█▏        | 6/51 [00:02<00:16,  2.77it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  14%|█▎        | 7/51 [00:02<00:15,  2.83it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  16%|█▌        | 8/51 [00:02<00:14,  2.88it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  18%|█▊        | 9/51 [00:03<00:14,  2.99it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  20%|█▉        | 10/51 [00:03<00:13,  3.07it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  22%|██▏       | 11/51 [00:03<00:12,  3.16it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  24%|██▎       | 12/51 [00:04<00:12,  3.24it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  25%|██▌       | 13/51 [00:04<00:11,  3.40it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  27%|██▋       | 14/51 [00:04<00:10,  3.52it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  29%|██▉       | 15/51 [00:04<00:09,  3.64it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  31%|███▏      | 16/51 [00:05<00:09,  3.74it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  33%|███▎      | 17/51 [00:05<00:08,  3.94it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  35%|███▌      | 18/51 [00:05<00:08,  4.06it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  37%|███▋      | 19/51 [00:05<00:07,  4.19it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  39%|███▉      | 20/51 [00:06<00:07,  4.29it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  41%|████      | 21/51 [00:06<00:06,  4.42it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  43%|████▎     | 22/51 [00:06<00:06,  4.51it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  45%|████▌     | 23/51 [00:06<00:06,  4.60it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  47%|████▋     | 24/51 [00:06<00:05,  4.66it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  49%|████▉     | 25/51 [00:07<00:05,  4.91it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  51%|█████     | 26/51 [00:07<00:04,  5.05it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  53%|█████▎    | 27/51 [00:07<00:04,  5.23it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  55%|█████▍    | 28/51 [00:07<00:04,  5.35it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  57%|█████▋    | 29/51 [00:07<00:03,  5.53it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  59%|█████▉    | 30/51 [00:07<00:03,  5.66it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  61%|██████    | 31/51 [00:08<00:03,  5.79it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  63%|██████▎   | 32/51 [00:08<00:03,  5.88it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  65%|██████▍   | 33/51 [00:08<00:02,  6.25it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  67%|██████▋   | 34/51 [00:08<00:02,  6.40it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  69%|██████▊   | 35/51 [00:08<00:02,  6.63it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  71%|███████   | 36/51 [00:08<00:02,  6.82it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  73%|███████▎  | 37/51 [00:08<00:01,  7.05it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  75%|███████▍  | 38/51 [00:09<00:01,  7.25it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  76%|███████▋  | 39/51 [00:09<00:01,  7.44it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  78%|███████▊  | 40/51 [00:09<00:01,  7.65it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  82%|████████▏ | 42/51 [00:09<00:01,  8.69it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  86%|████████▋ | 44/51 [00:09<00:00,  9.61it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  90%|█████████ | 46/51 [00:09<00:00, 10.58it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  94%|█████████▍| 48/51 [00:09<00:00, 11.47it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  98%|█████████▊| 50/51 [00:10<00:00, 12.21it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE): 100%|██████████| 51/51 [00:10<00:00,  5.00it/s]
+(EngineCore pid=3804) Capturing CUDA graphs (decode, FULL):   0%|          | 0/35 [00:00<?, ?it/s]Capturing CUDA graphs (decode, FULL):   3%|▎         | 1/35 [00:00<00:07,  4.58it/s]Capturing CUDA graphs (decode, FULL):   6%|▌         | 2/35 [00:00<00:07,  4.51it/s]Capturing CUDA graphs (decode, FULL):   9%|▊         | 3/35 [00:00<00:06,  4.58it/s]Capturing CUDA graphs (decode, FULL):  11%|█▏        | 4/35 [00:00<00:06,  4.61it/s]Capturing CUDA graphs (decode, FULL):  14%|█▍        | 5/35 [00:01<00:06,  4.69it/s]Capturing CUDA graphs (decode, FULL):  17%|█▋        | 6/35 [00:01<00:06,  4.75it/s]Capturing CUDA graphs (decode, FULL):  20%|██        | 7/35 [00:01<00:05,  4.83it/s]Capturing CUDA graphs (decode, FULL):  23%|██▎       | 8/35 [00:01<00:05,  4.89it/s]Capturing CUDA graphs (decode, FULL):  26%|██▌       | 9/35 [00:01<00:05,  5.16it/s]Capturing CUDA graphs (decode, FULL):  29%|██▊       | 10/35 [00:02<00:04,  5.28it/s]Capturing CUDA graphs (decode, FULL):  31%|███▏      | 11/35 [00:02<00:04,  5.43it/s]Capturing CUDA graphs (decode, FULL):  34%|███▍      | 12/35 [00:02<00:04,  5.55it/s]Capturing CUDA graphs (decode, FULL):  37%|███▋      | 13/35 [00:02<00:03,  5.74it/s]Capturing CUDA graphs (decode, FULL):  40%|████      | 14/35 [00:02<00:03,  5.88it/s]Capturing CUDA graphs (decode, FULL):  43%|████▎     | 15/35 [00:02<00:03,  6.03it/s]Capturing CUDA graphs (decode, FULL):  46%|████▌     | 16/35 [00:03<00:03,  6.12it/s]Capturing CUDA graphs (decode, FULL):  49%|████▊     | 17/35 [00:03<00:02,  6.56it/s]Capturing CUDA graphs (decode, FULL):  51%|█████▏    | 18/35 [00:03<00:02,  6.76it/s]Capturing CUDA graphs (decode, FULL):  54%|█████▍    | 19/35 [00:03<00:02,  7.04it/s]Capturing CUDA graphs (decode, FULL):  57%|█████▋    | 20/35 [00:03<00:02,  7.25it/s]Capturing CUDA graphs (decode, FULL):  60%|██████    | 21/35 [00:03<00:01,  7.57it/s]Capturing CUDA graphs (decode, FULL):  63%|██████▎   | 22/35 [00:03<00:01,  7.77it/s]Capturing CUDA graphs (decode, FULL):  66%|██████▌   | 23/35 [00:03<00:01,  8.00it/s]Capturing CUDA graphs (decode, FULL):  69%|██████▊   | 24/35 [00:03<00:01,  8.26it/s]Capturing CUDA graphs (decode, FULL):  74%|███████▍  | 26/35 [00:04<00:00,  9.57it/s]Capturing CUDA graphs (decode, FULL):  80%|████████  | 28/35 [00:04<00:00, 10.77it/s]Capturing CUDA graphs (decode, FULL):  86%|████████▌ | 30/35 [00:04<00:00, 12.00it/s]Capturing CUDA graphs (decode, FULL):  91%|█████████▏| 32/35 [00:04<00:00, 13.26it/s]Capturing CUDA graphs (decode, FULL):  97%|█████████▋| 34/35 [00:04<00:00, 14.24it/s]Capturing CUDA graphs (decode, FULL): 100%|██████████| 35/35 [00:04<00:00,  7.37it/s]
+(EngineCore pid=3804) INFO 05-29 14:30:34 [gpu_model_runner.py:6456] Graph capturing finished in 16 secs, took 1.13 GiB
+(EngineCore pid=3804) INFO 05-29 14:30:34 [gpu_worker.py:619] CUDA graph pool memory: 1.13 GiB (actual), 1.28 GiB (estimated), difference: 0.14 GiB (12.6%).
+(EngineCore pid=3804) INFO 05-29 14:30:34 [jit_monitor.py:54] Kernel JIT monitor activated — Triton JIT compilations during inference will be logged as warnings.
+(EngineCore pid=3804) INFO 05-29 14:30:34 [core.py:302] init engine (profile, create kv cache, warmup model) took 70.41 s (compilation: 38.18 s)
+(EngineCore pid=3804) INFO 05-29 14:30:39 [vllm.py:977] Asynchronous scheduling is enabled.
+(EngineCore pid=3804) INFO 05-29 14:30:39 [kernel.py:270] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 220.13it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s](EngineCore pid=3804) WARNING 05-29 14:30:39 [jit_monitor.py:103] Triton kernel JIT compilation during inference: _compute_slot_mapping_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+Processed prompts:  25%|██▌       | 1/4 [00:01<00:03,  1.12s/it, est. speed input: 591.59 toks/s, output: 1.79 toks/s]Processed prompts:  75%|███████▌  | 3/4 [00:01<00:00,  2.56it/s, est. speed input: 1425.06 toks/s, output: 5.75 toks/s]Processed prompts: 100%|██████████| 4/4 [00:01<00:00,  2.56it/s, est. speed input: 1865.03 toks/s, output: 8.47 toks/s]Processed prompts: 100%|██████████| 4/4 [00:01<00:00,  2.82it/s, est. speed input: 1865.03 toks/s, output: 8.47 toks/s]
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 452.53it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:01<00:03,  1.12s/it, est. speed input: 1019.97 toks/s, output: 1.79 toks/s]Processed prompts: 100%|██████████| 4/4 [00:01<00:00,  1.12s/it, est. speed input: 3965.22 toks/s, output: 7.00 toks/s]Processed prompts: 100%|██████████| 4/4 [00:01<00:00,  3.50it/s, est. speed input: 3965.22 toks/s, output: 7.00 toks/s]
+[Robust] PRI: 0.837 | ORI: 0.755 | IFI: 1.000 | Diagnostic_PRI: 0.722 | Consistency: 0.943 | Correctness (CS): 0.776 | Faithfulness: 0.750 | HS(diag): 0.054 | Human Score: 0.800 | Final: 0.822
+      Avg Len: 99.8 | Avg Cov: 0.650 | Confidence: 0.823
+      [Advanced] TRD_sem: 0.016 | KPIG_adv: 0.264 | Faithfulness: 0.750 | USD: 0.037
+      [ROUGE] R1: 0.475 | R2: 0.192 | RL: 0.253
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 650.24it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:10,  1.47s/it, est. speed input: 471.51 toks/s, output: 2.72 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.47s/it, est. speed input: 3683.51 toks/s, output: 21.33 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  5.33it/s, est. speed input: 3683.51 toks/s, output: 21.33 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 678.05it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:10,  1.46s/it, est. speed input: 503.04 toks/s, output: 1.37 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.46s/it, est. speed input: 3934.74 toks/s, output: 10.80 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  5.40it/s, est. speed input: 3934.74 toks/s, output: 10.80 toks/s]
+[Robust] PRI: 0.894 | ORI: 0.755 | IFI: 1.000 | Diagnostic_PRI: 0.728 | Consistency: 0.914 | Correctness (CS): 0.796 | Faithfulness: 1.000 | HS(diag): 0.384 | Human Score: 0.975 | Final: 0.927
+      Avg Len: 152.8 | Avg Cov: 0.804 | Confidence: 0.903
+      [Advanced] TRD_sem: 0.026 | KPIG_adv: 0.269 | Faithfulness: 1.000 | USD: 0.081
+      [ROUGE] R1: 0.302 | R2: 0.093 | RL: 0.207
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 643.09it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:10,  1.55s/it, est. speed input: 449.30 toks/s, output: 2.57 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.55s/it, est. speed input: 3528.65 toks/s, output: 20.22 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  5.06it/s, est. speed input: 3528.65 toks/s, output: 20.22 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 467.54it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:12,  1.80s/it, est. speed input: 616.83 toks/s, output: 1.11 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.80s/it, est. speed input: 4863.59 toks/s, output: 8.76 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  4.38it/s, est. speed input: 4863.59 toks/s, output: 8.76 toks/s]
+[Robust] PRI: 0.820 | ORI: 0.737 | IFI: 1.000 | Diagnostic_PRI: 0.702 | Consistency: 0.881 | Correctness (CS): 0.622 | Faithfulness: 1.000 | HS(diag): 0.439 | Human Score: 0.850 | Final: 0.832
+      -> High hallucination detected → reliability reduced
+      Avg Len: 154.6 | Avg Cov: 0.423 | Confidence: 0.835
+      [Advanced] TRD_sem: 0.037 | KPIG_adv: 0.246 | Faithfulness: 1.000 | USD: 0.030
+      [ROUGE] R1: 0.266 | R2: 0.073 | RL: 0.151
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 412.78it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:10,  1.44s/it, est. speed input: 497.55 toks/s, output: 1.39 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.44s/it, est. speed input: 3761.37 toks/s, output: 17.07 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  5.25it/s, est. speed input: 3761.37 toks/s, output: 17.07 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 375.12it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:12,  1.75s/it, est. speed input: 650.30 toks/s, output: 1.14 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.75s/it, est. speed input: 5126.20 toks/s, output: 9.02 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  4.51it/s, est. speed input: 5126.20 toks/s, output: 9.02 toks/s]
+[Robust] PRI: 0.766 | ORI: 0.721 | IFI: 1.000 | Diagnostic_PRI: 0.696 | Consistency: 0.879 | Correctness (CS): 0.603 | Faithfulness: 0.812 | HS(diag): 0.246 | Human Score: 0.875 | Final: 0.809
+      Avg Len: 149.0 | Avg Cov: 0.461 | Confidence: 0.765
+      [Advanced] TRD_sem: 0.038 | KPIG_adv: 0.247 | Faithfulness: 0.812 | USD: 0.109
+      [ROUGE] R1: 0.204 | R2: 0.062 | RL: 0.102
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 581.81it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:10,  1.48s/it, est. speed input: 491.54 toks/s, output: 1.35 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.48s/it, est. speed input: 3785.79 toks/s, output: 16.93 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  5.21it/s, est. speed input: 3785.79 toks/s, output: 16.93 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 419.79it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:12,  1.81s/it, est. speed input: 643.37 toks/s, output: 1.11 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.81s/it, est. speed input: 5072.06 toks/s, output: 8.72 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  4.36it/s, est. speed input: 5072.06 toks/s, output: 8.72 toks/s]
+[Robust] PRI: 0.721 | ORI: 0.724 | IFI: 1.000 | Diagnostic_PRI: 0.689 | Consistency: 0.836 | Correctness (CS): 0.524 | Faithfulness: 0.812 | HS(diag): 0.397 | Human Score: 0.875 | Final: 0.783
+      Avg Len: 152.4 | Avg Cov: 0.366 | Confidence: 0.724
+      [Advanced] TRD_sem: 0.051 | KPIG_adv: 0.237 | Faithfulness: 0.812 | USD: 0.154
+      [ROUGE] R1: 0.191 | R2: 0.033 | RL: 0.113
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 949.26it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:09,  1.29s/it, est. speed input: 276.64 toks/s, output: 1.55 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.29s/it, est. speed input: 2119.11 toks/s, output: 22.20 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  5.92it/s, est. speed input: 2119.11 toks/s, output: 22.20 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 1179.54it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.28s/it, est. speed input: 286.99 toks/s, output: 1.56 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.28s/it, est. speed input: 2246.97 toks/s, output: 12.22 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.11it/s, est. speed input: 2246.97 toks/s, output: 12.22 toks/s]
+[Moderate] PRI: 0.654 | ORI: 0.741 | IFI: 1.000 | Diagnostic_PRI: 0.669 | Consistency: 0.863 | Correctness (CS): 0.301 | Faithfulness: 0.812 | HS(diag): 0.542 | Human Score: 0.850 | Final: 0.732
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 152.4 | Avg Cov: 0.142 | Confidence: 0.659
+      [Advanced] TRD_sem: 0.042 | KPIG_adv: 0.213 | Faithfulness: 0.812 | USD: 0.196
+      [ROUGE] R1: 0.197 | R2: 0.068 | RL: 0.108
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 604.30it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.28s/it, est. speed input: 263.63 toks/s, output: 3.12 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.28s/it, est. speed input: 2062.71 toks/s, output: 24.42 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.10it/s, est. speed input: 2062.71 toks/s, output: 24.42 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 972.56it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.27s/it, est. speed input: 273.70 toks/s, output: 1.57 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.27s/it, est. speed input: 2143.55 toks/s, output: 12.32 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.16it/s, est. speed input: 2143.55 toks/s, output: 12.32 toks/s]
+[Robust] PRI: 0.787 | ORI: 0.744 | IFI: 1.000 | Diagnostic_PRI: 0.682 | Consistency: 0.867 | Correctness (CS): 0.542 | Faithfulness: 1.000 | HS(diag): 0.730 | Human Score: 0.925 | Final: 0.842
+      -> High hallucination detected → reliability reduced
+      Avg Len: 160.1 | Avg Cov: 0.257 | Confidence: 0.803
+      [Advanced] TRD_sem: 0.041 | KPIG_adv: 0.225 | Faithfulness: 1.000 | USD: 0.138
+      [ROUGE] R1: 0.350 | R2: 0.084 | RL: 0.179
+Using 7 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/7 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 7/7 [00:00<00:00, 824.77it/s]
+Processed prompts:   0%|          | 0/7 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  14%|█▍        | 1/7 [00:01<00:06,  1.15s/it, est. speed input: 310.84 toks/s, output: 3.46 toks/s]Processed prompts: 100%|██████████| 7/7 [00:01<00:00,  1.15s/it, est. speed input: 2123.01 toks/s, output: 23.66 toks/s]Processed prompts: 100%|██████████| 7/7 [00:01<00:00,  5.92it/s, est. speed input: 2123.01 toks/s, output: 23.66 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/7 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 7/7 [00:00<00:00, 1068.61it/s]
+Processed prompts:   0%|          | 0/7 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  14%|█▍        | 1/7 [00:01<00:06,  1.12s/it, est. speed input: 330.68 toks/s, output: 1.79 toks/s]Processed prompts: 100%|██████████| 7/7 [00:01<00:00,  1.12s/it, est. speed input: 2257.99 toks/s, output: 12.24 toks/s]Processed prompts: 100%|██████████| 7/7 [00:01<00:00,  6.12it/s, est. speed input: 2257.99 toks/s, output: 12.24 toks/s]
+[Robust] PRI: 0.816 | ORI: 0.759 | IFI: 1.000 | Diagnostic_PRI: 0.683 | Consistency: 0.907 | Correctness (CS): 0.580 | Faithfulness: 1.000 | HS(diag): 0.500 | Human Score: 0.971 | Final: 0.878
+      -> High hallucination detected → reliability reduced
+      Avg Len: 160.0 | Avg Cov: 0.291 | Confidence: 0.829
+      [Advanced] TRD_sem: 0.028 | KPIG_adv: 0.222 | Faithfulness: 1.000 | USD: 0.155
+      [ROUGE] R1: 0.264 | R2: 0.092 | RL: 0.140
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 891.05it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:09,  1.30s/it, est. speed input: 267.16 toks/s, output: 3.07 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.30s/it, est. speed input: 2090.32 toks/s, output: 24.04 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.01it/s, est. speed input: 2090.32 toks/s, output: 24.04 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 1213.63it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.27s/it, est. speed input: 282.86 toks/s, output: 1.58 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.27s/it, est. speed input: 2213.13 toks/s, output: 12.37 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.19it/s, est. speed input: 2213.13 toks/s, output: 12.37 toks/s]
+[Moderate] PRI: 0.691 | ORI: 0.737 | IFI: 1.000 | Diagnostic_PRI: 0.664 | Consistency: 0.862 | Correctness (CS): 0.275 | Faithfulness: 1.000 | HS(diag): 0.597 | Human Score: 0.950 | Final: 0.795
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 145.5 | Avg Cov: 0.131 | Confidence: 0.712
+      [Advanced] TRD_sem: 0.043 | KPIG_adv: 0.210 | Faithfulness: 1.000 | USD: 0.259
+      [ROUGE] R1: 0.122 | R2: 0.040 | RL: 0.075
+Using 4 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 521.11it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:02,  1.41it/s, est. speed input: 492.28 toks/s, output: 5.66 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  1.41it/s, est. speed input: 1894.96 toks/s, output: 21.78 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  5.44it/s, est. speed input: 1894.96 toks/s, output: 21.78 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 886.89it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:02,  1.45it/s, est. speed input: 519.93 toks/s, output: 2.90 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  1.45it/s, est. speed input: 1999.70 toks/s, output: 11.17 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  5.58it/s, est. speed input: 1999.70 toks/s, output: 11.17 toks/s]
+[Moderate] PRI: 0.694 | ORI: 0.758 | IFI: 1.000 | Diagnostic_PRI: 0.669 | Consistency: 0.884 | Correctness (CS): 0.259 | Faithfulness: 1.000 | HS(diag): 0.656 | Human Score: 1.000 | Final: 0.817
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 144.8 | Avg Cov: 0.140 | Confidence: 0.714
+      [Advanced] TRD_sem: 0.032 | KPIG_adv: 0.210 | Faithfulness: 1.000 | USD: 0.306
+      [ROUGE] R1: 0.168 | R2: 0.044 | RL: 0.086
+Using 1 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 997.93it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  6.00it/s, est. speed input: 906.13 toks/s, output: 24.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  6.00it/s, est. speed input: 906.13 toks/s, output: 24.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.99it/s, est. speed input: 906.13 toks/s, output: 24.00 toks/s]
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1344.33it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.25it/s, est. speed input: 1328.65 toks/s, output: 16.50 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.25it/s, est. speed input: 1328.65 toks/s, output: 16.50 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.23it/s, est. speed input: 1328.65 toks/s, output: 16.50 toks/s]
+[Robust] PRI: 0.945 | ORI: 0.804 | IFI: 1.000 | Diagnostic_PRI: 0.688 | Consistency: 1.000 | Correctness (CS): 0.842 | Faithfulness: 1.000 | HS(diag): 0.385 | Human Score: 1.000 | Final: 0.967
+      Avg Len: 30.0 | Avg Cov: 1.000 | Confidence: 0.947
+      [Advanced] TRD_sem: 0.000 | KPIG_adv: 1.000 | Faithfulness: 1.000 | USD: 0.055
+      [ROUGE] R1: 0.216 | R2: 0.171 | RL: 0.216
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 782.61it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:03,  1.87it/s, est. speed input: 825.02 toks/s, output: 7.50 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00,  1.87it/s, est. speed input: 5477.78 toks/s, output: 56.95 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00, 14.23it/s, est. speed input: 5477.78 toks/s, output: 56.95 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 1002.67it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:03,  1.94it/s, est. speed input: 873.60 toks/s, output: 3.88 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00,  1.94it/s, est. speed input: 5817.99 toks/s, output: 29.48 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00, 14.73it/s, est. speed input: 5817.99 toks/s, output: 29.48 toks/s]
+[Robust] PRI: 0.901 | ORI: 0.712 | IFI: 1.000 | Diagnostic_PRI: 0.731 | Consistency: 0.898 | Correctness (CS): 0.834 | Faithfulness: 1.000 | HS(diag): 0.377 | Human Score: 0.475 | Final: 0.731
+      Avg Len: 48.5 | Avg Cov: 1.000 | Confidence: 0.911
+      [Advanced] TRD_sem: 0.031 | KPIG_adv: 0.300 | Faithfulness: 1.000 | USD: 0.426
+      [ROUGE] R1: 0.261 | R2: 0.228 | RL: 0.261
+Using 4 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 821.00it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  2.12it/s, est. speed input: 957.33 toks/s, output: 8.49 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  2.12it/s, est. speed input: 3591.77 toks/s, output: 32.07 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  8.01it/s, est. speed input: 3591.77 toks/s, output: 32.07 toks/s]
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 921.72it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  2.40it/s, est. speed input: 1107.22 toks/s, output: 4.80 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  2.40it/s, est. speed input: 4128.67 toks/s, output: 18.03 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  9.01it/s, est. speed input: 4128.67 toks/s, output: 18.03 toks/s]
+[Robust] PRI: 0.937 | ORI: 0.783 | IFI: 1.000 | Diagnostic_PRI: 0.761 | Consistency: 0.941 | Correctness (CS): 0.888 | Faithfulness: 1.000 | HS(diag): 0.477 | Human Score: 0.250 | Final: 0.662
+      -> High hallucination detected → reliability reduced
+      Avg Len: 41.8 | Avg Cov: 1.000 | Confidence: 0.943
+      [Advanced] TRD_sem: 0.016 | KPIG_adv: 0.300 | Faithfulness: 1.000 | USD: 0.687
+      [ROUGE] R1: 0.283 | R2: 0.253 | RL: 0.283
+Using 1 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1141.62it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  6.51it/s, est. speed input: 1386.31 toks/s, output: 13.02 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  6.51it/s, est. speed input: 1386.31 toks/s, output: 13.02 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  6.50it/s, est. speed input: 1386.31 toks/s, output: 13.02 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1426.63it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.58it/s, est. speed input: 1244.47 toks/s, output: 11.16 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.58it/s, est. speed input: 1244.47 toks/s, output: 11.16 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.57it/s, est. speed input: 1244.47 toks/s, output: 11.16 toks/s]
+[Robust] PRI: 0.837 | ORI: 0.774 | IFI: 1.000 | Diagnostic_PRI: 0.457 | Consistency: 1.000 | Correctness (CS): 0.890 | Faithfulness: 0.500 | HS(diag): 0.818 | Human Score: 1.000 | Final: 0.902
+      -> High hallucination detected → reliability reduced
+      Avg Len: 79.0 | Avg Cov: 1.000 | Confidence: 0.797
+      [Advanced] TRD_sem: 0.000 | KPIG_adv: 1.000 | Faithfulness: 0.500 | USD: 0.163
+      [ROUGE] R1: 0.095 | R2: 0.073 | RL: 0.095
+Using 1 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 756.14it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  3.80it/s, est. speed input: 1118.47 toks/s, output: 15.22 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  3.80it/s, est. speed input: 1118.47 toks/s, output: 15.22 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  3.80it/s, est. speed input: 1118.47 toks/s, output: 15.22 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1159.93it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  4.83it/s, est. speed input: 1468.98 toks/s, output: 9.66 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  4.83it/s, est. speed input: 1468.98 toks/s, output: 9.66 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  4.83it/s, est. speed input: 1468.98 toks/s, output: 9.66 toks/s]
+[Robust] PRI: 0.948 | ORI: 0.728 | IFI: 1.000 | Diagnostic_PRI: 0.395 | Consistency: 1.000 | Correctness (CS): 0.851 | Faithfulness: 1.000 | HS(diag): 0.911 | Human Score: 1.000 | Final: 0.969
+      -> High hallucination detected → reliability reduced
+      Avg Len: 161.0 | Avg Cov: 1.000 | Confidence: 0.950
+      [Advanced] TRD_sem: 0.000 | KPIG_adv: 0.837 | Faithfulness: 1.000 | USD: 0.052
+      [ROUGE] R1: 0.098 | R2: 0.022 | RL: 0.077
+Using 2 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/2 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 2/2 [00:00<00:00, 1009.58it/s]
+Processed prompts:   0%|          | 0/2 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  50%|█████     | 1/2 [00:00<00:00,  2.48it/s, est. speed input: 721.55 toks/s, output: 9.92 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  2.48it/s, est. speed input: 1351.21 toks/s, output: 18.57 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  4.64it/s, est. speed input: 1351.21 toks/s, output: 18.57 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/2 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 2/2 [00:00<00:00, 1237.99it/s]
+Processed prompts:   0%|          | 0/2 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  50%|█████     | 1/2 [00:00<00:00,  2.87it/s, est. speed input: 863.56 toks/s, output: 5.74 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  2.87it/s, est. speed input: 1600.42 toks/s, output: 10.63 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  5.31it/s, est. speed input: 1600.42 toks/s, output: 10.63 toks/s]
+[Robust] PRI: 0.770 | ORI: 0.752 | IFI: 1.000 | Diagnostic_PRI: 0.692 | Consistency: 0.820 | Correctness (CS): 0.549 | Faithfulness: 1.000 | HS(diag): 0.839 | Human Score: 1.000 | Final: 0.862
+      -> High hallucination detected → reliability reduced
+      Avg Len: 152.5 | Avg Cov: 0.312 | Confidence: 0.790
+      [Advanced] TRD_sem: 0.037 | KPIG_adv: 0.233 | Faithfulness: 1.000 | USD: 0.230
+      [ROUGE] R1: 0.248 | R2: 0.046 | RL: 0.151
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 986.81it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.26s/it, est. speed input: 270.92 toks/s, output: 1.59 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.26s/it, est. speed input: 2072.46 toks/s, output: 22.87 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.10it/s, est. speed input: 2072.46 toks/s, output: 22.87 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 1162.62it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.28s/it, est. speed input: 272.76 toks/s, output: 1.56 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.28s/it, est. speed input: 2135.41 toks/s, output: 12.21 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.10it/s, est. speed input: 2135.41 toks/s, output: 12.21 toks/s]
+[Moderate] PRI: 0.639 | ORI: 0.681 | IFI: 1.000 | Diagnostic_PRI: 0.662 | Consistency: 0.829 | Correctness (CS): 0.209 | Faithfulness: 0.938 | HS(diag): 0.900 | Human Score: 1.000 | Final: 0.783
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 154.0 | Avg Cov: 0.000 | Confidence: 0.658
+      [Advanced] TRD_sem: 0.054 | KPIG_adv: 0.225 | Faithfulness: 0.938 | USD: 0.361
+      [ROUGE] R1: 0.088 | R2: 0.007 | RL: 0.059
+Using 6 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 1211.93it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:04,  1.14it/s, est. speed input: 270.02 toks/s, output: 4.56 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.14it/s, est. speed input: 1796.93 toks/s, output: 26.49 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  6.62it/s, est. speed input: 1796.93 toks/s, output: 26.49 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 1365.56it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:04,  1.21it/s, est. speed input: 299.09 toks/s, output: 2.42 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.21it/s, est. speed input: 1977.77 toks/s, output: 14.06 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  7.03it/s, est. speed input: 1977.77 toks/s, output: 14.06 toks/s]
+[Moderate] PRI: 0.650 | ORI: 0.738 | IFI: 1.000 | Diagnostic_PRI: 0.679 | Consistency: 0.847 | Correctness (CS): 0.293 | Faithfulness: 0.833 | HS(diag): 0.889 | Human Score: 1.000 | Final: 0.790
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 146.8 | Avg Cov: 0.056 | Confidence: 0.658
+      [Advanced] TRD_sem: 0.046 | KPIG_adv: 0.223 | Faithfulness: 0.833 | USD: 0.350
+      [ROUGE] R1: 0.254 | R2: 0.026 | RL: 0.146
+Using 6 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 656.71it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:04,  1.16it/s, est. speed input: 345.82 toks/s, output: 2.33 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.16it/s, est. speed input: 1782.20 toks/s, output: 19.11 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  6.37it/s, est. speed input: 1782.20 toks/s, output: 19.11 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 922.84it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:04,  1.14it/s, est. speed input: 349.45 toks/s, output: 2.28 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.14it/s, est. speed input: 1919.34 toks/s, output: 13.24 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  6.62it/s, est. speed input: 1919.34 toks/s, output: 13.24 toks/s]
+[Moderate] PRI: 0.592 | ORI: 0.709 | IFI: 1.000 | Diagnostic_PRI: 0.677 | Consistency: 0.792 | Correctness (CS): 0.371 | Faithfulness: 0.583 | HS(diag): 0.862 | Human Score: 0.733 | Final: 0.649
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 160.5 | Avg Cov: 0.167 | Confidence: 0.582
+      [Advanced] TRD_sem: 0.063 | KPIG_adv: 0.229 | Faithfulness: 0.583 | USD: 0.141
+      [ROUGE] R1: 0.241 | R2: 0.026 | RL: 0.142
+Using 4 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 460.91it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  2.59it/s, est. speed input: 1661.24 toks/s, output: 5.18 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  2.59it/s, est. speed input: 6161.22 toks/s, output: 19.37 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  9.68it/s, est. speed input: 6161.22 toks/s, output: 19.37 toks/s]
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 368.18it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  2.45it/s, est. speed input: 2724.58 toks/s, output: 4.90 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  2.45it/s, est. speed input: 10841.72 toks/s, output: 19.56 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  9.78it/s, est. speed input: 10841.72 toks/s, output: 19.56 toks/s]
+[Robust] PRI: 0.784 | ORI: 0.780 | IFI: 1.000 | Diagnostic_PRI: 0.729 | Consistency: 0.952 | Correctness (CS): 0.796 | Faithfulness: 0.500 | HS(diag): 0.222 | Human Score: 0.800 | Final: 0.791
+      Avg Len: 82.8 | Avg Cov: 0.675 | Confidence: 0.749
+      [Advanced] TRD_sem: 0.013 | KPIG_adv: 0.262 | Faithfulness: 0.500 | USD: 0.016
+      [ROUGE] R1: 0.409 | R2: 0.133 | RL: 0.191
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 573.64it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.20s/it, est. speed input: 578.31 toks/s, output: 3.34 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.20s/it, est. speed input: 4514.41 toks/s, output: 26.08 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.52it/s, est. speed input: 4514.41 toks/s, output: 26.08 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 643.20it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.18s/it, est. speed input: 618.17 toks/s, output: 1.69 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.18s/it, est. speed input: 4831.83 toks/s, output: 13.23 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.61it/s, est. speed input: 4831.83 toks/s, output: 13.23 toks/s]
+[Robust] PRI: 0.877 | ORI: 0.759 | IFI: 1.000 | Diagnostic_PRI: 0.727 | Consistency: 0.913 | Correctness (CS): 0.748 | Faithfulness: 1.000 | HS(diag): 0.520 | Human Score: 0.900 | Final: 0.886
+      -> High hallucination detected → reliability reduced
+      Avg Len: 156.4 | Avg Cov: 0.714 | Confidence: 0.887
+      [Advanced] TRD_sem: 0.027 | KPIG_adv: 0.267 | Faithfulness: 1.000 | USD: 0.023
+      [ROUGE] R1: 0.274 | R2: 0.078 | RL: 0.189
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 598.78it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.21s/it, est. speed input: 575.18 toks/s, output: 1.65 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.21s/it, est. speed input: 4378.76 toks/s, output: 23.64 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.30it/s, est. speed input: 4378.76 toks/s, output: 23.64 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 448.38it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.23s/it, est. speed input: 897.09 toks/s, output: 1.63 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.23s/it, est. speed input: 7076.94 toks/s, output: 12.78 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.39it/s, est. speed input: 7076.94 toks/s, output: 12.78 toks/s]
+[Robust] PRI: 0.774 | ORI: 0.718 | IFI: 1.000 | Diagnostic_PRI: 0.689 | Consistency: 0.849 | Correctness (CS): 0.573 | Faithfulness: 0.938 | HS(diag): 0.555 | Human Score: 0.850 | Final: 0.805
+      -> High hallucination detected → reliability reduced
+      Avg Len: 159.2 | Avg Cov: 0.346 | Confidence: 0.786
+      [Advanced] TRD_sem: 0.047 | KPIG_adv: 0.239 | Faithfulness: 0.938 | USD: 0.076
+      [ROUGE] R1: 0.227 | R2: 0.054 | RL: 0.140
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 623.28it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.24s/it, est. speed input: 575.26 toks/s, output: 3.21 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.24s/it, est. speed input: 4491.48 toks/s, output: 25.13 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.28it/s, est. speed input: 4491.48 toks/s, output: 25.13 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 456.51it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:07,  1.08s/it, est. speed input: 1056.27 toks/s, output: 1.86 toks/s]Processed prompts:  25%|██▌       | 2/8 [00:01<00:03,  1.81it/s, est. speed input: 1796.29 toks/s, output: 3.16 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.81it/s, est. speed input: 7032.61 toks/s, output: 12.38 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.19it/s, est. speed input: 7032.61 toks/s, output: 12.38 toks/s]
+[Robust] PRI: 0.850 | ORI: 0.702 | IFI: 1.000 | Diagnostic_PRI: 0.691 | Consistency: 0.903 | Correctness (CS): 0.683 | Faithfulness: 1.000 | HS(diag): 0.441 | Human Score: 0.800 | Final: 0.830
+      -> High hallucination detected → reliability reduced
+      Avg Len: 148.4 | Avg Cov: 0.586 | Confidence: 0.862
+      [Advanced] TRD_sem: 0.030 | KPIG_adv: 0.252 | Faithfulness: 1.000 | USD: 0.050
+      [ROUGE] R1: 0.231 | R2: 0.089 | RL: 0.135
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 629.86it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.25s/it, est. speed input: 582.74 toks/s, output: 1.60 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.25s/it, est. speed input: 4453.49 toks/s, output: 21.46 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.13it/s, est. speed input: 4453.49 toks/s, output: 21.46 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 472.18it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:07,  1.10s/it, est. speed input: 1052.63 toks/s, output: 1.81 toks/s]Processed prompts:  25%|██▌       | 2/8 [00:01<00:03,  1.77it/s, est. speed input: 1798.10 toks/s, output: 3.09 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.77it/s, est. speed input: 7038.44 toks/s, output: 12.10 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.05it/s, est. speed input: 7038.44 toks/s, output: 12.10 toks/s]
+[Robust] PRI: 0.762 | ORI: 0.687 | IFI: 1.000 | Diagnostic_PRI: 0.692 | Consistency: 0.796 | Correctness (CS): 0.641 | Faithfulness: 0.875 | HS(diag): 0.544 | Human Score: 0.925 | Final: 0.827
+      -> High hallucination detected → reliability reduced
+      Avg Len: 146.0 | Avg Cov: 0.562 | Confidence: 0.771
+      [Advanced] TRD_sem: 0.064 | KPIG_adv: 0.255 | Faithfulness: 0.875 | USD: 0.163
+      [ROUGE] R1: 0.217 | R2: 0.049 | RL: 0.134
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 688.96it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.20s/it, est. speed input: 295.59 toks/s, output: 1.67 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.20s/it, est. speed input: 2236.57 toks/s, output: 22.33 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.38it/s, est. speed input: 2236.57 toks/s, output: 22.33 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 992.38it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.18s/it, est. speed input: 300.01 toks/s, output: 1.69 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.18s/it, est. speed input: 2382.34 toks/s, output: 13.21 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.61it/s, est. speed input: 2382.34 toks/s, output: 13.21 toks/s]
+[Moderate] PRI: 0.681 | ORI: 0.745 | IFI: 1.000 | Diagnostic_PRI: 0.671 | Consistency: 0.887 | Correctness (CS): 0.308 | Faithfulness: 0.875 | HS(diag): 0.573 | Human Score: 0.875 | Final: 0.759
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 153.5 | Avg Cov: 0.152 | Confidence: 0.690
+      [Advanced] TRD_sem: 0.035 | KPIG_adv: 0.214 | Faithfulness: 0.875 | USD: 0.194
+      [ROUGE] R1: 0.193 | R2: 0.060 | RL: 0.103
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 897.51it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.23s/it, est. speed input: 273.82 toks/s, output: 3.26 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.23s/it, est. speed input: 2137.72 toks/s, output: 25.49 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.37it/s, est. speed input: 2137.72 toks/s, output: 25.49 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 1109.16it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.24s/it, est. speed input: 279.97 toks/s, output: 1.62 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.24s/it, est. speed input: 2188.46 toks/s, output: 12.67 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.33it/s, est. speed input: 2188.46 toks/s, output: 12.67 toks/s]
+[Robust] PRI: 0.791 | ORI: 0.743 | IFI: 1.000 | Diagnostic_PRI: 0.683 | Consistency: 0.863 | Correctness (CS): 0.559 | Faithfulness: 1.000 | HS(diag): 0.732 | Human Score: 0.925 | Final: 0.844
+      -> High hallucination detected → reliability reduced
+      Avg Len: 159.0 | Avg Cov: 0.268 | Confidence: 0.807
+      [Advanced] TRD_sem: 0.043 | KPIG_adv: 0.226 | Faithfulness: 1.000 | USD: 0.134
+      [ROUGE] R1: 0.344 | R2: 0.077 | RL: 0.169
+Using 7 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/7 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 7/7 [00:00<00:00, 879.57it/s]
+Processed prompts:   0%|          | 0/7 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  14%|█▍        | 1/7 [00:01<00:06,  1.09s/it, est. speed input: 329.61 toks/s, output: 3.67 toks/s]Processed prompts: 100%|██████████| 7/7 [00:01<00:00,  1.09s/it, est. speed input: 2247.08 toks/s, output: 25.06 toks/s]Processed prompts: 100%|██████████| 7/7 [00:01<00:00,  6.26it/s, est. speed input: 2247.08 toks/s, output: 25.06 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/7 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 7/7 [00:00<00:00, 1097.41it/s]
+Processed prompts:   0%|          | 0/7 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  14%|█▍        | 1/7 [00:01<00:06,  1.05s/it, est. speed input: 350.63 toks/s, output: 1.90 toks/s]Processed prompts: 100%|██████████| 7/7 [00:01<00:00,  1.05s/it, est. speed input: 2390.52 toks/s, output: 12.97 toks/s]Processed prompts: 100%|██████████| 7/7 [00:01<00:00,  6.48it/s, est. speed input: 2390.52 toks/s, output: 12.97 toks/s]
+[Robust] PRI: 0.817 | ORI: 0.763 | IFI: 1.000 | Diagnostic_PRI: 0.685 | Consistency: 0.926 | Correctness (CS): 0.562 | Faithfulness: 1.000 | HS(diag): 0.549 | Human Score: 1.000 | Final: 0.890
+      -> High hallucination detected → reliability reduced
+      Avg Len: 161.9 | Avg Cov: 0.263 | Confidence: 0.829
+      [Advanced] TRD_sem: 0.022 | KPIG_adv: 0.222 | Faithfulness: 1.000 | USD: 0.183
+      [ROUGE] R1: 0.262 | R2: 0.081 | RL: 0.132
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 742.96it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.21s/it, est. speed input: 285.03 toks/s, output: 3.31 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.21s/it, est. speed input: 2236.23 toks/s, output: 25.91 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.48it/s, est. speed input: 2236.23 toks/s, output: 25.91 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 1074.77it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.19s/it, est. speed input: 297.59 toks/s, output: 1.68 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.19s/it, est. speed input: 2335.65 toks/s, output: 13.15 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.57it/s, est. speed input: 2335.65 toks/s, output: 13.15 toks/s]
+[Robust] PRI: 0.709 | ORI: 0.757 | IFI: 1.000 | Diagnostic_PRI: 0.670 | Consistency: 0.900 | Correctness (CS): 0.283 | Faithfulness: 1.000 | HS(diag): 0.571 | Human Score: 0.950 | Final: 0.805
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 153.0 | Avg Cov: 0.131 | Confidence: 0.727
+      [Advanced] TRD_sem: 0.031 | KPIG_adv: 0.211 | Faithfulness: 1.000 | USD: 0.241
+      [ROUGE] R1: 0.127 | R2: 0.042 | RL: 0.078
+Using 4 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 589.85it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  1.51it/s, est. speed input: 526.25 toks/s, output: 6.05 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  1.51it/s, est. speed input: 2019.70 toks/s, output: 23.21 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  5.80it/s, est. speed input: 2019.70 toks/s, output: 23.21 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 953.31it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  1.57it/s, est. speed input: 562.53 toks/s, output: 3.14 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  1.57it/s, est. speed input: 2158.18 toks/s, output: 12.06 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  6.03it/s, est. speed input: 2158.18 toks/s, output: 12.06 toks/s]
+[Moderate] PRI: 0.674 | ORI: 0.727 | IFI: 1.000 | Diagnostic_PRI: 0.662 | Consistency: 0.824 | Correctness (CS): 0.268 | Faithfulness: 1.000 | HS(diag): 0.674 | Human Score: 0.850 | Final: 0.744
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 145.5 | Avg Cov: 0.137 | Confidence: 0.697
+      [Advanced] TRD_sem: 0.049 | KPIG_adv: 0.212 | Faithfulness: 1.000 | USD: 0.176
+      [ROUGE] R1: 0.163 | R2: 0.043 | RL: 0.084
+Using 1 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1256.53it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.47it/s, est. speed input: 999.66 toks/s, output: 33.87 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.47it/s, est. speed input: 999.66 toks/s, output: 33.87 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.44it/s, est. speed input: 999.66 toks/s, output: 33.87 toks/s]
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1555.75it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 17.08it/s, est. speed input: 2188.02 toks/s, output: 34.17 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 17.03it/s, est. speed input: 2188.02 toks/s, output: 34.17 toks/s]
+[Robust] PRI: 0.850 | ORI: 1.000 | IFI: 1.000 | Diagnostic_PRI: 1.000 | Consistency: 1.000 | Correctness (CS): 1.000 | Faithfulness: 1.000 | HS(diag): 0.000 | Human Score: 0.400 | Final: 0.670
+      -> Summary too short → lacks detail
+      Avg Len: 3.0 | Avg Cov: 1.000 | Confidence: 1.000
+      [Advanced] TRD_sem: 0.000 | KPIG_adv: 1.000 | Faithfulness: 1.000 | USD: 0.450
+      [ROUGE] R1: 1.000 | R2: 1.000 | RL: 1.000
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 734.70it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:04,  1.46it/s, est. speed input: 671.10 toks/s, output: 2.91 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00,  1.46it/s, est. speed input: 4837.25 toks/s, output: 40.31 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00, 10.75it/s, est. speed input: 4837.25 toks/s, output: 40.31 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 889.97it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:04,  1.41it/s, est. speed input: 627.62 toks/s, output: 2.83 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00,  1.41it/s, est. speed input: 5008.55 toks/s, output: 21.78 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00, 10.89it/s, est. speed input: 5008.55 toks/s, output: 21.78 toks/s]
+[Robust] PRI: 0.864 | ORI: 0.734 | IFI: 1.000 | Diagnostic_PRI: 0.743 | Consistency: 0.877 | Correctness (CS): 0.798 | Faithfulness: 0.938 | HS(diag): 0.492 | Human Score: 0.700 | Final: 0.799
+      -> High hallucination detected → reliability reduced
+      Avg Len: 106.5 | Avg Cov: 1.000 | Confidence: 0.871
+      [Advanced] TRD_sem: 0.038 | KPIG_adv: 0.300 | Faithfulness: 0.938 | USD: 0.164
+      [ROUGE] R1: 0.113 | R2: 0.096 | RL: 0.113
+Using 4 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 964.54it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:00,  7.43it/s, est. speed input: 3031.26 toks/s, output: 29.71 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  7.43it/s, est. speed input: 10045.85 toks/s, output: 98.42 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00, 24.58it/s, est. speed input: 10045.85 toks/s, output: 98.42 toks/s]
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 997.28it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  50%|█████     | 2/4 [00:00<00:00, 17.31it/s, est. speed input: 7245.50 toks/s, output: 34.62 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00, 17.31it/s, est. speed input: 14443.17 toks/s, output: 69.05 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00, 34.47it/s, est. speed input: 14443.17 toks/s, output: 69.05 toks/s]
+[Robust] PRI: 0.837 | ORI: 0.815 | IFI: 1.000 | Diagnostic_PRI: 0.771 | Consistency: 0.967 | Correctness (CS): 0.994 | Faithfulness: 1.000 | HS(diag): 0.000 | Human Score: 0.500 | Final: 0.702
+      -> Summary too short → lacks detail
+      Avg Len: 7.2 | Avg Cov: 1.000 | Confidence: 0.987
+      [Advanced] TRD_sem: 0.009 | KPIG_adv: 0.300 | Faithfulness: 1.000 | USD: 0.337
+      [ROUGE] R1: 1.000 | R2: 1.000 | RL: 1.000
+Using 1 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1599.05it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 15.82it/s, est. speed input: 1931.95 toks/s, output: 31.66 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 15.77it/s, est. speed input: 1931.95 toks/s, output: 31.66 toks/s]
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1360.90it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 11.42it/s, est. speed input: 1508.27 toks/s, output: 22.85 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 11.41it/s, est. speed input: 1508.27 toks/s, output: 22.85 toks/s]
+[Robust] PRI: 0.744 | ORI: 1.000 | IFI: 1.000 | Diagnostic_PRI: 1.000 | Consistency: 1.000 | Correctness (CS): 1.000 | Faithfulness: 0.500 | HS(diag): 0.000 | Human Score: 0.400 | Final: 0.606
+      -> Summary too short → lacks detail
+      Avg Len: 4.0 | Avg Cov: 1.000 | Confidence: 0.833
+      [Advanced] TRD_sem: 0.000 | KPIG_adv: 1.000 | Faithfulness: 0.500 | USD: 0.344
+      [ROUGE] R1: 1.000 | R2: 1.000 | RL: 1.000
+Using 1 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 708.62it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  3.96it/s, est. speed input: 1165.83 toks/s, output: 15.86 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  3.96it/s, est. speed input: 1165.83 toks/s, output: 15.86 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  3.96it/s, est. speed input: 1165.83 toks/s, output: 15.86 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1187.18it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.05it/s, est. speed input: 1534.14 toks/s, output: 10.09 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.05it/s, est. speed input: 1534.14 toks/s, output: 10.09 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.04it/s, est. speed input: 1534.14 toks/s, output: 10.09 toks/s]
+[Robust] PRI: 0.938 | ORI: 0.716 | IFI: 1.000 | Diagnostic_PRI: 0.320 | Consistency: 1.000 | Correctness (CS): 0.823 | Faithfulness: 1.000 | HS(diag): 0.942 | Human Score: 1.000 | Final: 0.963
+      -> High hallucination detected → reliability reduced
+      Avg Len: 155.0 | Avg Cov: 1.000 | Confidence: 0.941
+      [Advanced] TRD_sem: 0.000 | KPIG_adv: 0.809 | Faithfulness: 1.000 | USD: 0.062
+      [ROUGE] R1: 0.079 | R2: 0.011 | RL: 0.056
+Using 2 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/2 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 2/2 [00:00<00:00, 964.43it/s]
+Processed prompts:   0%|          | 0/2 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  50%|█████     | 1/2 [00:00<00:00,  2.54it/s, est. speed input: 740.95 toks/s, output: 10.15 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  2.54it/s, est. speed input: 1383.56 toks/s, output: 18.98 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  4.74it/s, est. speed input: 1383.56 toks/s, output: 18.98 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/2 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 2/2 [00:00<00:00, 1197.18it/s]
+Processed prompts:   0%|          | 0/2 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  50%|█████     | 1/2 [00:00<00:00,  2.94it/s, est. speed input: 887.70 toks/s, output: 5.88 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  2.94it/s, est. speed input: 1639.63 toks/s, output: 10.88 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  5.43it/s, est. speed input: 1639.63 toks/s, output: 10.88 toks/s]
+[Robust] PRI: 0.733 | ORI: 0.751 | IFI: 1.000 | Diagnostic_PRI: 0.697 | Consistency: 0.849 | Correctness (CS): 0.410 | Faithfulness: 1.000 | HS(diag): 0.863 | Human Score: 1.000 | Final: 0.840
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 152.5 | Avg Cov: 0.188 | Confidence: 0.753
+      [Advanced] TRD_sem: 0.031 | KPIG_adv: 0.238 | Faithfulness: 1.000 | USD: 0.267
+      [ROUGE] R1: 0.262 | R2: 0.073 | RL: 0.122
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 971.10it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.27s/it, est. speed input: 266.84 toks/s, output: 3.14 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.27s/it, est. speed input: 2089.26 toks/s, output: 24.58 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.14it/s, est. speed input: 2089.26 toks/s, output: 24.58 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 1136.71it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.26s/it, est. speed input: 277.14 toks/s, output: 1.58 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.26s/it, est. speed input: 2170.49 toks/s, output: 12.40 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.20it/s, est. speed input: 2170.49 toks/s, output: 12.40 toks/s]
+[Moderate] PRI: 0.677 | ORI: 0.693 | IFI: 1.000 | Diagnostic_PRI: 0.679 | Consistency: 0.836 | Correctness (CS): 0.265 | Faithfulness: 1.000 | HS(diag): 0.859 | Human Score: 1.000 | Final: 0.806
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 165.0 | Avg Cov: 0.062 | Confidence: 0.700
+      [Advanced] TRD_sem: 0.051 | KPIG_adv: 0.238 | Faithfulness: 1.000 | USD: 0.323
+      [ROUGE] R1: 0.107 | R2: 0.016 | RL: 0.068
+Using 6 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 1097.32it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:04,  1.08it/s, est. speed input: 308.27 toks/s, output: 4.31 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.08it/s, est. speed input: 1863.05 toks/s, output: 25.11 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  6.27it/s, est. speed input: 1863.05 toks/s, output: 25.11 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 1232.47it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:04,  1.14it/s, est. speed input: 337.07 toks/s, output: 2.28 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.14it/s, est. speed input: 2033.19 toks/s, output: 13.25 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  6.62it/s, est. speed input: 2033.19 toks/s, output: 13.25 toks/s]
+[Moderate] PRI: 0.666 | ORI: 0.730 | IFI: 1.000 | Diagnostic_PRI: 0.682 | Consistency: 0.830 | Correctness (CS): 0.241 | Faithfulness: 1.000 | HS(diag): 0.892 | Human Score: 1.000 | Final: 0.800
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 163.3 | Avg Cov: 0.000 | Confidence: 0.690
+      [Advanced] TRD_sem: 0.051 | KPIG_adv: 0.229 | Faithfulness: 1.000 | USD: 0.334
+      [ROUGE] R1: 0.269 | R2: 0.028 | RL: 0.148
+Using 6 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 1131.96it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:04,  1.12it/s, est. speed input: 332.63 toks/s, output: 2.24 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.12it/s, est. speed input: 1812.83 toks/s, output: 22.53 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  6.14it/s, est. speed input: 1812.83 toks/s, output: 22.53 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 1300.76it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:04,  1.12it/s, est. speed input: 343.54 toks/s, output: 2.24 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.12it/s, est. speed input: 1987.09 toks/s, output: 13.03 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  6.51it/s, est. speed input: 1987.09 toks/s, output: 13.03 toks/s]
+[Moderate] PRI: 0.700 | ORI: 0.749 | IFI: 1.000 | Diagnostic_PRI: 0.695 | Consistency: 0.869 | Correctness (CS): 0.351 | Faithfulness: 0.917 | HS(diag): 0.851 | Human Score: 0.967 | Final: 0.807
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 166.8 | Avg Cov: 0.167 | Confidence: 0.712
+      [Advanced] TRD_sem: 0.039 | KPIG_adv: 0.236 | Faithfulness: 0.917 | USD: 0.267
+      [ROUGE] R1: 0.301 | R2: 0.053 | RL: 0.161
+Using 4 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 347.92it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  2.10it/s, est. speed input: 1397.79 toks/s, output: 4.19 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  2.10it/s, est. speed input: 5368.05 toks/s, output: 19.80 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  7.92it/s, est. speed input: 5368.05 toks/s, output: 19.80 toks/s]
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 329.02it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  2.20it/s, est. speed input: 2546.50 toks/s, output: 4.39 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  2.20it/s, est. speed input: 9536.55 toks/s, output: 16.59 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  8.29it/s, est. speed input: 9536.55 toks/s, output: 16.59 toks/s]
+[Robust] PRI: 0.800 | ORI: 0.746 | IFI: 1.000 | Diagnostic_PRI: 0.721 | Consistency: 0.881 | Correctness (CS): 0.831 | Faithfulness: 0.625 | HS(diag): 0.085 | Human Score: 0.800 | Final: 0.800
+      Avg Len: 108.0 | Avg Cov: 0.750 | Confidence: 0.779
+      [Advanced] TRD_sem: 0.033 | KPIG_adv: 0.265 | Faithfulness: 0.625 | USD: 0.000
+      [ROUGE] R1: 0.446 | R2: 0.240 | RL: 0.227
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 319.82it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:06,  1.02it/s, est. speed input: 679.30 toks/s, output: 4.07 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.02it/s, est. speed input: 5111.92 toks/s, output: 30.82 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.70it/s, est. speed input: 5111.92 toks/s, output: 30.82 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 463.20it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:05,  1.18it/s, est. speed input: 831.95 toks/s, output: 2.36 toks/s]Processed prompts:  25%|██▌       | 2/8 [00:01<00:02,  2.23it/s, est. speed input: 1382.62 toks/s, output: 3.93 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  2.23it/s, est. speed input: 5367.85 toks/s, output: 15.31 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.65it/s, est. speed input: 5367.85 toks/s, output: 15.31 toks/s]
+[Robust] PRI: 0.898 | ORI: 0.762 | IFI: 1.000 | Diagnostic_PRI: 0.730 | Consistency: 0.920 | Correctness (CS): 0.799 | Faithfulness: 1.000 | HS(diag): 0.325 | Human Score: 0.975 | Final: 0.929
+      Avg Len: 130.9 | Avg Cov: 0.768 | Confidence: 0.906
+      [Advanced] TRD_sem: 0.025 | KPIG_adv: 0.269 | Faithfulness: 1.000 | USD: 0.077
+      [ROUGE] R1: 0.342 | R2: 0.093 | RL: 0.216
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 411.45it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:07,  1.07s/it, est. speed input: 630.54 toks/s, output: 3.74 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.07s/it, est. speed input: 4945.76 toks/s, output: 29.16 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.29it/s, est. speed input: 4945.76 toks/s, output: 29.16 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 317.14it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:04,  1.40it/s, est. speed input: 1522.12 toks/s, output: 2.80 toks/s]Processed prompts:  25%|██▌       | 2/8 [00:01<00:02,  2.01it/s, est. speed input: 2056.43 toks/s, output: 3.77 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  2.01it/s, est. speed input: 8031.88 toks/s, output: 14.72 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.36it/s, est. speed input: 8031.88 toks/s, output: 14.72 toks/s]
+[Robust] PRI: 0.858 | ORI: 0.758 | IFI: 1.000 | Diagnostic_PRI: 0.721 | Consistency: 0.913 | Correctness (CS): 0.695 | Faithfulness: 1.000 | HS(diag): 0.277 | Human Score: 0.800 | Final: 0.835
+      Avg Len: 141.2 | Avg Cov: 0.538 | Confidence: 0.869
+      [Advanced] TRD_sem: 0.027 | KPIG_adv: 0.260 | Faithfulness: 1.000 | USD: 0.058
+      [ROUGE] R1: 0.335 | R2: 0.104 | RL: 0.207
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 150.49it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:03,  1.77it/s, est. speed input: 1230.15 toks/s, output: 3.53 toks/s]Processed prompts:  25%|██▌       | 2/8 [00:01<00:03,  1.76it/s, est. speed input: 1220.47 toks/s, output: 3.53 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.76it/s, est. speed input: 4762.93 toks/s, output: 13.79 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.89it/s, est. speed input: 4762.93 toks/s, output: 13.79 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 254.82it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.17s/it, est. speed input: 956.29 toks/s, output: 1.71 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.17s/it, est. speed input: 7440.01 toks/s, output: 13.38 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.69it/s, est. speed input: 7440.01 toks/s, output: 13.38 toks/s]
+[Robust] PRI: 0.729 | ORI: 0.744 | IFI: 1.000 | Diagnostic_PRI: 0.711 | Consistency: 0.898 | Correctness (CS): 0.699 | Faithfulness: 0.500 | HS(diag): 0.153 | Human Score: 0.750 | Final: 0.737
+      Avg Len: 125.5 | Avg Cov: 0.594 | Confidence: 0.699
+      [Advanced] TRD_sem: 0.032 | KPIG_adv: 0.254 | Faithfulness: 0.500 | USD: 0.021
+      [ROUGE] R1: 0.278 | R2: 0.098 | RL: 0.143
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 438.00it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:06,  1.08it/s, est. speed input: 767.36 toks/s, output: 2.16 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.08it/s, est. speed input: 5606.89 toks/s, output: 27.79 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.94it/s, est. speed input: 5606.89 toks/s, output: 27.79 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 340.33it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:05,  1.27it/s, est. speed input: 1452.99 toks/s, output: 2.53 toks/s]Processed prompts:  25%|██▌       | 2/8 [00:00<00:02,  2.41it/s, est. speed input: 2424.22 toks/s, output: 4.24 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00,  2.41it/s, est. speed input: 9419.62 toks/s, output: 16.48 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00,  8.24it/s, est. speed input: 9419.62 toks/s, output: 16.48 toks/s]
+[Robust] PRI: 0.818 | ORI: 0.732 | IFI: 1.000 | Diagnostic_PRI: 0.713 | Consistency: 0.884 | Correctness (CS): 0.702 | Faithfulness: 0.875 | HS(diag): 0.367 | Human Score: 0.850 | Final: 0.831
+      Avg Len: 123.2 | Avg Cov: 0.652 | Confidence: 0.820
+      [Advanced] TRD_sem: 0.036 | KPIG_adv: 0.261 | Faithfulness: 0.875 | USD: 0.032
+      [ROUGE] R1: 0.273 | R2: 0.086 | RL: 0.181
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 374.98it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:07,  1.06s/it, est. speed input: 298.87 toks/s, output: 3.78 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.06s/it, est. speed input: 2370.29 toks/s, output: 29.48 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.37it/s, est. speed input: 2370.29 toks/s, output: 29.48 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 602.08it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:07,  1.02s/it, est. speed input: 319.95 toks/s, output: 1.96 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.02s/it, est. speed input: 2536.75 toks/s, output: 15.30 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.65it/s, est. speed input: 2536.75 toks/s, output: 15.30 toks/s]
+[Moderate] PRI: 0.660 | ORI: 0.756 | IFI: 1.000 | Diagnostic_PRI: 0.672 | Consistency: 0.908 | Correctness (CS): 0.313 | Faithfulness: 0.750 | HS(diag): 0.529 | Human Score: 0.825 | Final: 0.726
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 123.8 | Avg Cov: 0.164 | Confidence: 0.657
+      [Advanced] TRD_sem: 0.028 | KPIG_adv: 0.213 | Faithfulness: 0.750 | USD: 0.165
+      [ROUGE] R1: 0.165 | R2: 0.051 | RL: 0.098
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 484.81it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:06,  1.00it/s, est. speed input: 305.07 toks/s, output: 2.01 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.00it/s, est. speed input: 2277.44 toks/s, output: 28.49 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.60it/s, est. speed input: 2277.44 toks/s, output: 28.49 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 795.09it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:07,  1.00s/it, est. speed input: 301.71 toks/s, output: 1.99 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.00s/it, est. speed input: 2401.49 toks/s, output: 15.51 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.75it/s, est. speed input: 2401.49 toks/s, output: 15.51 toks/s]
+[Robust] PRI: 0.762 | ORI: 0.733 | IFI: 1.000 | Diagnostic_PRI: 0.673 | Consistency: 0.847 | Correctness (CS): 0.540 | Faithfulness: 0.938 | HS(diag): 0.759 | Human Score: 0.850 | Final: 0.797
+      -> High hallucination detected → reliability reduced
+      Avg Len: 127.2 | Avg Cov: 0.250 | Confidence: 0.775
+      [Advanced] TRD_sem: 0.048 | KPIG_adv: 0.219 | Faithfulness: 0.938 | USD: 0.088
+      [ROUGE] R1: 0.281 | R2: 0.077 | RL: 0.161
+Using 7 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/7 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 7/7 [00:00<00:00, 702.65it/s]
+Processed prompts:   0%|          | 0/7 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  14%|█▍        | 1/7 [00:00<00:05,  1.03it/s, est. speed input: 339.76 toks/s, output: 4.13 toks/s]Processed prompts: 100%|██████████| 7/7 [00:00<00:00,  1.03it/s, est. speed input: 2333.91 toks/s, output: 28.09 toks/s]Processed prompts: 100%|██████████| 7/7 [00:00<00:00,  7.02it/s, est. speed input: 2333.91 toks/s, output: 28.09 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/7 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 7/7 [00:00<00:00, 954.03it/s]
+Processed prompts:   0%|          | 0/7 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  14%|█▍        | 1/7 [00:00<00:05,  1.06it/s, est. speed input: 358.37 toks/s, output: 2.11 toks/s]Processed prompts: 100%|██████████| 7/7 [00:00<00:00,  1.06it/s, est. speed input: 2461.65 toks/s, output: 14.38 toks/s]Processed prompts: 100%|██████████| 7/7 [00:00<00:00,  7.19it/s, est. speed input: 2461.65 toks/s, output: 14.38 toks/s]
+[Robust] PRI: 0.785 | ORI: 0.761 | IFI: 1.000 | Diagnostic_PRI: 0.681 | Consistency: 0.915 | Correctness (CS): 0.483 | Faithfulness: 1.000 | HS(diag): 0.531 | Human Score: 0.943 | Final: 0.848
+      -> High hallucination detected → reliability reduced
+      Avg Len: 137.9 | Avg Cov: 0.232 | Confidence: 0.800
+      [Advanced] TRD_sem: 0.026 | KPIG_adv: 0.220 | Faithfulness: 1.000 | USD: 0.158
+      [ROUGE] R1: 0.231 | R2: 0.081 | RL: 0.129
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 916.11it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:07,  1.14s/it, est. speed input: 284.35 toks/s, output: 3.52 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.14s/it, est. speed input: 2214.95 toks/s, output: 27.48 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.87it/s, est. speed input: 2214.95 toks/s, output: 27.48 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 1192.71it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:07,  1.06s/it, est. speed input: 313.67 toks/s, output: 1.88 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.06s/it, est. speed input: 2441.28 toks/s, output: 14.69 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.34it/s, est. speed input: 2441.28 toks/s, output: 14.69 toks/s]
+[Robust] PRI: 0.713 | ORI: 0.756 | IFI: 1.000 | Diagnostic_PRI: 0.667 | Consistency: 0.909 | Correctness (CS): 0.284 | Faithfulness: 1.000 | HS(diag): 0.563 | Human Score: 0.975 | Final: 0.818
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 132.0 | Avg Cov: 0.142 | Confidence: 0.731
+      [Advanced] TRD_sem: 0.028 | KPIG_adv: 0.208 | Faithfulness: 1.000 | USD: 0.262
+      [ROUGE] R1: 0.115 | R2: 0.043 | RL: 0.072
+Using 4 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 263.46it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  1.76it/s, est. speed input: 558.03 toks/s, output: 7.04 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  1.76it/s, est. speed input: 2131.25 toks/s, output: 26.85 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  6.71it/s, est. speed input: 2131.25 toks/s, output: 26.85 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 498.49it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  1.86it/s, est. speed input: 608.96 toks/s, output: 3.72 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  1.86it/s, est. speed input: 2321.58 toks/s, output: 14.18 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  7.09it/s, est. speed input: 2321.58 toks/s, output: 14.18 toks/s]
+[Moderate] PRI: 0.695 | ORI: 0.746 | IFI: 1.000 | Diagnostic_PRI: 0.660 | Consistency: 0.890 | Correctness (CS): 0.253 | Faithfulness: 1.000 | HS(diag): 0.643 | Human Score: 1.000 | Final: 0.817
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 122.5 | Avg Cov: 0.099 | Confidence: 0.714
+      [Advanced] TRD_sem: 0.030 | KPIG_adv: 0.205 | Faithfulness: 1.000 | USD: 0.305
+      [ROUGE] R1: 0.139 | R2: 0.037 | RL: 0.076
+Using 1 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 667.35it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.94it/s, est. speed input: 1055.39 toks/s, output: 35.77 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.94it/s, est. speed input: 1055.39 toks/s, output: 35.77 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.91it/s, est. speed input: 1055.39 toks/s, output: 35.77 toks/s]
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 992.26it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 17.03it/s, est. speed input: 2182.03 toks/s, output: 34.08 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 16.98it/s, est. speed input: 2182.03 toks/s, output: 34.08 toks/s]
+[Robust] PRI: 0.850 | ORI: 1.000 | IFI: 1.000 | Diagnostic_PRI: 1.000 | Consistency: 1.000 | Correctness (CS): 1.000 | Faithfulness: 1.000 | HS(diag): 0.000 | Human Score: 0.400 | Final: 0.670
+      -> Summary too short → lacks detail
+      Avg Len: 3.0 | Avg Cov: 1.000 | Confidence: 1.000
+      [Advanced] TRD_sem: 0.000 | KPIG_adv: 1.000 | Faithfulness: 1.000 | USD: 0.450
+      [ROUGE] R1: 1.000 | R2: 1.000 | RL: 1.000
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 512.99it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:01,  5.56it/s, est. speed input: 1862.21 toks/s, output: 11.12 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00,  5.56it/s, est. speed input: 11747.66 toks/s, output: 118.14 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00, 33.73it/s, est. speed input: 11747.66 toks/s, output: 118.14 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 715.77it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:01,  6.20it/s, est. speed input: 2189.61 toks/s, output: 12.40 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00,  6.20it/s, est. speed input: 15188.34 toks/s, output: 84.84 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00, 42.37it/s, est. speed input: 15188.34 toks/s, output: 84.84 toks/s]
+[Robust] PRI: 0.863 | ORI: 0.663 | IFI: 1.000 | Diagnostic_PRI: 0.710 | Consistency: 0.795 | Correctness (CS): 0.933 | Faithfulness: 0.875 | HS(diag): 0.229 | Human Score: 0.275 | Final: 0.628
+      Avg Len: 15.6 | Avg Cov: 1.000 | Confidence: 0.868
+      [Advanced] TRD_sem: 0.064 | KPIG_adv: 0.300 | Faithfulness: 0.875 | USD: 0.588
+      [ROUGE] R1: 0.678 | R2: 0.644 | RL: 0.678
+Using 4 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 606.00it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:00,  8.71it/s, est. speed input: 3623.00 toks/s, output: 17.42 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  8.71it/s, est. speed input: 9685.71 toks/s, output: 82.18 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00, 23.46it/s, est. speed input: 9685.71 toks/s, output: 82.18 toks/s]
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 738.17it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00, 43.28it/s, est. speed input: 18294.37 toks/s, output: 86.59 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00, 43.20it/s, est. speed input: 18294.37 toks/s, output: 86.59 toks/s]
+[Robust] PRI: 0.733 | ORI: 0.685 | IFI: 1.000 | Diagnostic_PRI: 0.723 | Consistency: 0.784 | Correctness (CS): 0.943 | Faithfulness: 0.875 | HS(diag): 0.312 | Human Score: 0.450 | Final: 0.620
+      -> Summary too short → lacks detail
+      Avg Len: 11.0 | Avg Cov: 1.000 | Confidence: 0.867
+      [Advanced] TRD_sem: 0.061 | KPIG_adv: 0.300 | Faithfulness: 0.875 | USD: 0.283
+      [ROUGE] R1: 0.805 | R2: 0.786 | RL: 0.805
+Using 1 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1093.12it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 17.01it/s, est. speed input: 2077.00 toks/s, output: 34.04 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 16.97it/s, est. speed input: 2077.00 toks/s, output: 34.04 toks/s]
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1368.90it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 12.19it/s, est. speed input: 1610.35 toks/s, output: 24.39 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 12.17it/s, est. speed input: 1610.35 toks/s, output: 24.39 toks/s]
+[Robust] PRI: 0.744 | ORI: 1.000 | IFI: 1.000 | Diagnostic_PRI: 1.000 | Consistency: 1.000 | Correctness (CS): 1.000 | Faithfulness: 0.500 | HS(diag): 0.000 | Human Score: 0.400 | Final: 0.606
+      -> Summary too short → lacks detail
+      Avg Len: 4.0 | Avg Cov: 1.000 | Confidence: 0.833
+      [Advanced] TRD_sem: 0.000 | KPIG_adv: 1.000 | Faithfulness: 0.500 | USD: 0.344
+      [ROUGE] R1: 1.000 | R2: 1.000 | RL: 1.000
+Using 1 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 579.48it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  4.41it/s, est. speed input: 1151.79 toks/s, output: 17.65 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  4.41it/s, est. speed input: 1151.79 toks/s, output: 17.65 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  4.40it/s, est. speed input: 1151.79 toks/s, output: 17.65 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 917.79it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  6.00it/s, est. speed input: 1627.03 toks/s, output: 12.01 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  6.00it/s, est. speed input: 1627.03 toks/s, output: 12.01 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.99it/s, est. speed input: 1627.03 toks/s, output: 12.01 toks/s]
+[Robust] PRI: 0.942 | ORI: 0.722 | IFI: 1.000 | Diagnostic_PRI: 0.384 | Consistency: 1.000 | Correctness (CS): 0.834 | Faithfulness: 1.000 | HS(diag): 0.915 | Human Score: 1.000 | Final: 0.965
+      -> High hallucination detected → reliability reduced
+      Avg Len: 140.0 | Avg Cov: 1.000 | Confidence: 0.945
+      [Advanced] TRD_sem: 0.000 | KPIG_adv: 0.813 | Faithfulness: 1.000 | USD: 0.058
+      [ROUGE] R1: 0.098 | R2: 0.012 | RL: 0.074
+Using 2 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/2 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 2/2 [00:00<00:00, 746.32it/s]
+Processed prompts:   0%|          | 0/2 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  50%|█████     | 1/2 [00:00<00:00,  3.13it/s, est. speed input: 626.58 toks/s, output: 12.53 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  3.13it/s, est. speed input: 1371.46 toks/s, output: 23.10 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  5.77it/s, est. speed input: 1371.46 toks/s, output: 23.10 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/2 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 2/2 [00:00<00:00, 999.95it/s]
+Processed prompts:   0%|          | 0/2 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  50%|█████     | 1/2 [00:00<00:00,  4.14it/s, est. speed input: 870.38 toks/s, output: 8.29 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  4.14it/s, est. speed input: 1843.23 toks/s, output: 14.89 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  7.44it/s, est. speed input: 1843.23 toks/s, output: 14.89 toks/s]
+[Robust] PRI: 0.730 | ORI: 0.643 | IFI: 1.000 | Diagnostic_PRI: 0.655 | Consistency: 0.737 | Correctness (CS): 0.528 | Faithfulness: 1.000 | HS(diag): 0.838 | Human Score: 1.000 | Final: 0.838
+      -> High hallucination detected → reliability reduced
+      Avg Len: 118.5 | Avg Cov: 0.250 | Confidence: 0.755
+      [Advanced] TRD_sem: 0.054 | KPIG_adv: 0.234 | Faithfulness: 1.000 | USD: 0.270
+      [ROUGE] R1: 0.254 | R2: 0.044 | RL: 0.139
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 638.12it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:07,  1.12s/it, est. speed input: 279.40 toks/s, output: 3.58 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.12s/it, est. speed input: 2203.52 toks/s, output: 27.95 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.99it/s, est. speed input: 2203.52 toks/s, output: 27.95 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 935.26it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:07,  1.08s/it, est. speed input: 298.71 toks/s, output: 1.86 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.08s/it, est. speed input: 2354.88 toks/s, output: 14.47 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.24it/s, est. speed input: 2354.88 toks/s, output: 14.47 toks/s]
+[Moderate] PRI: 0.632 | ORI: 0.690 | IFI: 1.000 | Diagnostic_PRI: 0.669 | Consistency: 0.780 | Correctness (CS): 0.200 | Faithfulness: 1.000 | HS(diag): 0.872 | Human Score: 1.000 | Final: 0.779
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 147.8 | Avg Cov: 0.000 | Confidence: 0.660
+      [Advanced] TRD_sem: 0.069 | KPIG_adv: 0.228 | Faithfulness: 1.000 | USD: 0.368
+      [ROUGE] R1: 0.104 | R2: 0.014 | RL: 0.065
+Using 6 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 836.85it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:03,  1.53it/s, est. speed input: 395.39 toks/s, output: 3.05 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.53it/s, est. speed input: 2065.72 toks/s, output: 30.94 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  8.43it/s, est. speed input: 2065.72 toks/s, output: 30.94 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 1150.28it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:03,  1.49it/s, est. speed input: 362.20 toks/s, output: 2.98 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.49it/s, est. speed input: 2188.66 toks/s, output: 17.18 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  8.59it/s, est. speed input: 2188.66 toks/s, output: 17.18 toks/s]
+[Moderate] PRI: 0.681 | ORI: 0.749 | IFI: 1.000 | Diagnostic_PRI: 0.686 | Consistency: 0.870 | Correctness (CS): 0.298 | Faithfulness: 0.917 | HS(diag): 0.903 | Human Score: 1.000 | Final: 0.809
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 126.2 | Avg Cov: 0.056 | Confidence: 0.695
+      [Advanced] TRD_sem: 0.039 | KPIG_adv: 0.227 | Faithfulness: 0.917 | USD: 0.319
+      [ROUGE] R1: 0.300 | R2: 0.027 | RL: 0.166
+Using 6 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 1015.04it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:03,  1.64it/s, est. speed input: 326.07 toks/s, output: 3.28 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.64it/s, est. speed input: 1929.33 toks/s, output: 23.09 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  8.65it/s, est. speed input: 1929.33 toks/s, output: 23.09 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 1258.86it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:03,  1.61it/s, est. speed input: 336.68 toks/s, output: 3.22 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.61it/s, est. speed input: 2155.18 toks/s, output: 18.51 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  9.25it/s, est. speed input: 2155.18 toks/s, output: 18.51 toks/s]
+[Unreliable] PRI: 0.489 | ORI: 0.724 | IFI: 1.000 | Diagnostic_PRI: 0.682 | Consistency: 0.799 | Correctness (CS): 0.245 | Faithfulness: 0.333 | HS(diag): 0.810 | Human Score: 0.733 | Final: 0.587
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 112.5 | Avg Cov: 0.095 | Confidence: 0.459
+      [Advanced] TRD_sem: 0.061 | KPIG_adv: 0.231 | Faithfulness: 0.333 | USD: 0.245
+      [ROUGE] R1: 0.264 | R2: 0.029 | RL: 0.159
+Using 4 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 409.35it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  2.98it/s, est. speed input: 1959.89 toks/s, output: 5.96 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  2.98it/s, est. speed input: 6269.18 toks/s, output: 23.91 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  9.56it/s, est. speed input: 6269.18 toks/s, output: 23.91 toks/s]
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 322.60it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  2.95it/s, est. speed input: 3332.53 toks/s, output: 5.90 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  2.95it/s, est. speed input: 12324.47 toks/s, output: 21.86 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00, 10.93it/s, est. speed input: 12324.47 toks/s, output: 21.86 toks/s]
+[Robust] PRI: 0.810 | ORI: 0.740 | IFI: 1.000 | Diagnostic_PRI: 0.716 | Consistency: 0.929 | Correctness (CS): 0.807 | Faithfulness: 0.625 | HS(diag): 0.054 | Human Score: 0.800 | Final: 0.806
+      Avg Len: 94.8 | Avg Cov: 0.700 | Confidence: 0.787
+      [Advanced] TRD_sem: 0.019 | KPIG_adv: 0.263 | Faithfulness: 0.625 | USD: 0.010
+      [ROUGE] R1: 0.435 | R2: 0.195 | RL: 0.273
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 473.59it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.16s/it, est. speed input: 597.10 toks/s, output: 3.44 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.16s/it, est. speed input: 4602.92 toks/s, output: 26.87 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.72it/s, est. speed input: 4602.92 toks/s, output: 26.87 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 540.64it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:07,  1.11s/it, est. speed input: 658.39 toks/s, output: 1.80 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.11s/it, est. speed input: 5080.68 toks/s, output: 14.05 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.02it/s, est. speed input: 5080.68 toks/s, output: 14.05 toks/s]
+[Robust] PRI: 0.881 | ORI: 0.755 | IFI: 1.000 | Diagnostic_PRI: 0.726 | Consistency: 0.904 | Correctness (CS): 0.770 | Faithfulness: 1.000 | HS(diag): 0.412 | Human Score: 0.975 | Final: 0.919
+      -> High hallucination detected → reliability reduced
+      Avg Len: 152.2 | Avg Cov: 0.768 | Confidence: 0.891
+      [Advanced] TRD_sem: 0.030 | KPIG_adv: 0.267 | Faithfulness: 1.000 | USD: 0.094
+      [ROUGE] R1: 0.277 | R2: 0.071 | RL: 0.184
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 502.51it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.15s/it, est. speed input: 606.56 toks/s, output: 1.74 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.15s/it, est. speed input: 4528.37 toks/s, output: 22.72 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.49it/s, est. speed input: 4528.37 toks/s, output: 22.72 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 397.18it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:06,  1.14it/s, est. speed input: 1267.98 toks/s, output: 2.28 toks/s]Processed prompts:  25%|██▌       | 2/8 [00:01<00:03,  1.83it/s, est. speed input: 1865.25 toks/s, output: 3.36 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.83it/s, est. speed input: 7293.22 toks/s, output: 13.13 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.57it/s, est. speed input: 7293.22 toks/s, output: 13.13 toks/s]
+[Robust] PRI: 0.836 | ORI: 0.767 | IFI: 1.000 | Diagnostic_PRI: 0.723 | Consistency: 0.923 | Correctness (CS): 0.707 | Faithfulness: 0.875 | HS(diag): 0.264 | Human Score: 1.000 | Final: 0.901
+      Avg Len: 159.1 | Avg Cov: 0.577 | Confidence: 0.835
+      [Advanced] TRD_sem: 0.024 | KPIG_adv: 0.260 | Faithfulness: 0.875 | USD: 0.164
+      [ROUGE] R1: 0.298 | R2: 0.102 | RL: 0.185
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 455.67it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:06,  1.01it/s, est. speed input: 721.23 toks/s, output: 2.01 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.01it/s, est. speed input: 5319.63 toks/s, output: 22.29 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.43it/s, est. speed input: 5319.63 toks/s, output: 22.29 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 366.14it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:05,  1.18it/s, est. speed input: 1346.96 toks/s, output: 2.37 toks/s]Processed prompts:  25%|██▌       | 2/8 [00:01<00:02,  2.10it/s, est. speed input: 2139.90 toks/s, output: 3.76 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  2.10it/s, est. speed input: 8340.82 toks/s, output: 14.67 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  7.34it/s, est. speed input: 8340.82 toks/s, output: 14.67 toks/s]
+[Robust] PRI: 0.766 | ORI: 0.751 | IFI: 1.000 | Diagnostic_PRI: 0.710 | Consistency: 0.907 | Correctness (CS): 0.617 | Faithfulness: 0.750 | HS(diag): 0.255 | Human Score: 0.800 | Final: 0.780
+      Avg Len: 152.6 | Avg Cov: 0.445 | Confidence: 0.758
+      [Advanced] TRD_sem: 0.029 | KPIG_adv: 0.250 | Faithfulness: 0.750 | USD: 0.034
+      [ROUGE] R1: 0.214 | R2: 0.068 | RL: 0.103
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 339.31it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.20s/it, est. speed input: 606.51 toks/s, output: 1.67 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.20s/it, est. speed input: 4632.87 toks/s, output: 20.71 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.37it/s, est. speed input: 4632.87 toks/s, output: 20.71 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 352.42it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:06,  1.13it/s, est. speed input: 1310.57 toks/s, output: 2.25 toks/s]Processed prompts:  25%|██▌       | 2/8 [00:01<00:03,  1.83it/s, est. speed input: 1943.63 toks/s, output: 3.34 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.83it/s, est. speed input: 7601.01 toks/s, output: 13.06 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.53it/s, est. speed input: 7601.01 toks/s, output: 13.06 toks/s]
+[Robust] PRI: 0.728 | ORI: 0.707 | IFI: 1.000 | Diagnostic_PRI: 0.698 | Consistency: 0.814 | Correctness (CS): 0.570 | Faithfulness: 0.812 | HS(diag): 0.404 | Human Score: 0.950 | Final: 0.817
+      -> High hallucination detected → reliability reduced
+      Avg Len: 153.4 | Avg Cov: 0.446 | Confidence: 0.732
+      [Advanced] TRD_sem: 0.058 | KPIG_adv: 0.253 | Faithfulness: 0.812 | USD: 0.222
+      [ROUGE] R1: 0.203 | R2: 0.044 | RL: 0.127
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 687.79it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.27s/it, est. speed input: 282.35 toks/s, output: 3.15 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.27s/it, est. speed input: 2209.20 toks/s, output: 24.68 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.17it/s, est. speed input: 2209.20 toks/s, output: 24.68 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 910.22it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.23s/it, est. speed input: 299.82 toks/s, output: 1.63 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.23s/it, est. speed input: 2346.33 toks/s, output: 12.75 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.38it/s, est. speed input: 2346.33 toks/s, output: 12.75 toks/s]
+[Moderate] PRI: 0.652 | ORI: 0.750 | IFI: 1.000 | Diagnostic_PRI: 0.673 | Consistency: 0.895 | Correctness (CS): 0.304 | Faithfulness: 0.750 | HS(diag): 0.587 | Human Score: 0.875 | Final: 0.741
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 157.2 | Avg Cov: 0.133 | Confidence: 0.650
+      [Advanced] TRD_sem: 0.033 | KPIG_adv: 0.215 | Faithfulness: 0.750 | USD: 0.223
+      [ROUGE] R1: 0.198 | R2: 0.059 | RL: 0.109
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 459.24it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.22s/it, est. speed input: 276.98 toks/s, output: 3.29 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.22s/it, est. speed input: 2171.01 toks/s, output: 25.70 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.42it/s, est. speed input: 2171.01 toks/s, output: 25.70 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 808.19it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.19s/it, est. speed input: 291.41 toks/s, output: 1.68 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.19s/it, est. speed input: 2285.06 toks/s, output: 13.14 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.57it/s, est. speed input: 2285.06 toks/s, output: 13.14 toks/s]
+[Robust] PRI: 0.803 | ORI: 0.752 | IFI: 1.000 | Diagnostic_PRI: 0.687 | Consistency: 0.878 | Correctness (CS): 0.576 | Faithfulness: 1.000 | HS(diag): 0.705 | Human Score: 0.975 | Final: 0.872
+      -> High hallucination detected → reliability reduced
+      Avg Len: 160.8 | Avg Cov: 0.309 | Confidence: 0.818
+      [Advanced] TRD_sem: 0.038 | KPIG_adv: 0.227 | Faithfulness: 1.000 | USD: 0.172
+      [ROUGE] R1: 0.359 | R2: 0.091 | RL: 0.185
+Using 7 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/7 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 7/7 [00:00<00:00, 525.09it/s]
+Processed prompts:   0%|          | 0/7 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  14%|█▍        | 1/7 [00:01<00:06,  1.09s/it, est. speed input: 330.84 toks/s, output: 3.69 toks/s]Processed prompts: 100%|██████████| 7/7 [00:01<00:00,  1.09s/it, est. speed input: 2256.69 toks/s, output: 25.14 toks/s]Processed prompts: 100%|██████████| 7/7 [00:01<00:00,  6.28it/s, est. speed input: 2256.69 toks/s, output: 25.14 toks/s]
+Rendering prompts:   0%|          | 0/7 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 7/7 [00:00<00:00, 715.52it/s]
+Processed prompts:   0%|          | 0/7 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  14%|█▍        | 1/7 [00:01<00:06,  1.05s/it, est. speed input: 350.80 toks/s, output: 1.90 toks/s]Processed prompts: 100%|██████████| 7/7 [00:01<00:00,  1.05s/it, est. speed input: 2394.06 toks/s, output: 12.98 toks/s]Processed prompts: 100%|██████████| 7/7 [00:01<00:00,  6.49it/s, est. speed input: 2394.06 toks/s, output: 12.98 toks/s]
+[Robust] PRI: 0.829 | ORI: 0.760 | IFI: 1.000 | Diagnostic_PRI: 0.684 | Consistency: 0.943 | Correctness (CS): 0.577 | Faithfulness: 1.000 | HS(diag): 0.498 | Human Score: 1.000 | Final: 0.898
+      -> High hallucination detected → reliability reduced
+      Avg Len: 164.7 | Avg Cov: 0.283 | Confidence: 0.840
+      [Advanced] TRD_sem: 0.017 | KPIG_adv: 0.222 | Faithfulness: 1.000 | USD: 0.171
+      [ROUGE] R1: 0.272 | R2: 0.092 | RL: 0.138
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 637.40it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.22s/it, est. speed input: 285.31 toks/s, output: 3.29 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.22s/it, est. speed input: 2235.81 toks/s, output: 25.71 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.43it/s, est. speed input: 2235.81 toks/s, output: 25.71 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 901.35it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.21s/it, est. speed input: 294.99 toks/s, output: 1.65 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.21s/it, est. speed input: 2314.55 toks/s, output: 12.93 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.47it/s, est. speed input: 2314.55 toks/s, output: 12.93 toks/s]
+[Robust] PRI: 0.717 | ORI: 0.768 | IFI: 1.000 | Diagnostic_PRI: 0.675 | Consistency: 0.922 | Correctness (CS): 0.281 | Faithfulness: 1.000 | HS(diag): 0.552 | Human Score: 1.000 | Final: 0.830
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 151.0 | Avg Cov: 0.125 | Confidence: 0.734
+      [Advanced] TRD_sem: 0.024 | KPIG_adv: 0.213 | Faithfulness: 1.000 | USD: 0.283
+      [ROUGE] R1: 0.131 | R2: 0.047 | RL: 0.081
+Using 4 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 633.60it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:02,  1.50it/s, est. speed input: 520.93 toks/s, output: 5.99 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  1.50it/s, est. speed input: 1998.90 toks/s, output: 22.99 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  5.75it/s, est. speed input: 1998.90 toks/s, output: 22.99 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 923.40it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:01,  1.57it/s, est. speed input: 561.74 toks/s, output: 3.14 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  1.57it/s, est. speed input: 2152.72 toks/s, output: 12.03 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  6.02it/s, est. speed input: 2152.72 toks/s, output: 12.03 toks/s]
+[Moderate] PRI: 0.617 | ORI: 0.738 | IFI: 1.000 | Diagnostic_PRI: 0.664 | Consistency: 0.846 | Correctness (CS): 0.262 | Faithfulness: 0.750 | HS(diag): 0.634 | Human Score: 0.900 | Final: 0.730
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 144.2 | Avg Cov: 0.137 | Confidence: 0.619
+      [Advanced] TRD_sem: 0.043 | KPIG_adv: 0.210 | Faithfulness: 0.750 | USD: 0.283
+      [ROUGE] R1: 0.173 | R2: 0.045 | RL: 0.082
+Using 1 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 162.32it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.91it/s, est. speed input: 1052.06 toks/s, output: 35.65 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.91it/s, est. speed input: 1052.06 toks/s, output: 35.65 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.88it/s, est. speed input: 1052.06 toks/s, output: 35.65 toks/s]
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 564.81it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 17.03it/s, est. speed input: 2181.86 toks/s, output: 34.08 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00, 16.96it/s, est. speed input: 2181.86 toks/s, output: 34.08 toks/s]
+[Robust] PRI: 0.850 | ORI: 1.000 | IFI: 1.000 | Diagnostic_PRI: 1.000 | Consistency: 1.000 | Correctness (CS): 1.000 | Faithfulness: 1.000 | HS(diag): 0.000 | Human Score: 0.400 | Final: 0.670
+      -> Summary too short → lacks detail
+      Avg Len: 3.0 | Avg Cov: 1.000 | Confidence: 1.000
+      [Advanced] TRD_sem: 0.000 | KPIG_adv: 1.000 | Faithfulness: 1.000 | USD: 0.450
+      [ROUGE] R1: 1.000 | R2: 1.000 | RL: 1.000
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 375.63it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:01,  4.36it/s, est. speed input: 1664.65 toks/s, output: 8.71 toks/s]Processed prompts:  25%|██▌       | 2/8 [00:00<00:01,  5.90it/s, est. speed input: 2025.97 toks/s, output: 11.21 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00,  5.90it/s, est. speed input: 7407.11 toks/s, output: 48.49 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00, 19.38it/s, est. speed input: 7407.11 toks/s, output: 48.49 toks/s]
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 621.67it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:00<00:02,  2.72it/s, est. speed input: 1065.58 toks/s, output: 5.44 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00,  2.72it/s, est. speed input: 7933.81 toks/s, output: 40.49 toks/s]Processed prompts: 100%|██████████| 8/8 [00:00<00:00, 20.24it/s, est. speed input: 7933.81 toks/s, output: 40.49 toks/s]
+[Robust] PRI: 0.742 | ORI: 0.517 | IFI: 1.000 | Diagnostic_PRI: 0.512 | Consistency: 0.693 | Correctness (CS): 0.882 | Faithfulness: 0.625 | HS(diag): 0.339 | Human Score: 0.525 | Final: 0.655
+      Avg Len: 44.8 | Avg Cov: 1.000 | Confidence: 0.733
+      [Advanced] TRD_sem: 0.098 | KPIG_adv: 0.300 | Faithfulness: 0.625 | USD: 0.217
+      [ROUGE] R1: 0.466 | R2: 0.445 | RL: 0.466
+Using 4 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 614.57it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:00,  4.80it/s, est. speed input: 1958.78 toks/s, output: 19.20 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  4.80it/s, est. speed input: 7385.57 toks/s, output: 67.75 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00, 16.93it/s, est. speed input: 7385.57 toks/s, output: 67.75 toks/s]
+Rendering prompts:   0%|          | 0/4 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 4/4 [00:00<00:00, 772.15it/s]
+Processed prompts:   0%|          | 0/4 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  25%|██▌       | 1/4 [00:00<00:00,  6.53it/s, est. speed input: 2730.85 toks/s, output: 13.06 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00,  6.53it/s, est. speed input: 9889.00 toks/s, output: 44.34 toks/s]Processed prompts: 100%|██████████| 4/4 [00:00<00:00, 22.14it/s, est. speed input: 9889.00 toks/s, output: 44.34 toks/s]
+[Robust] PRI: 0.905 | ORI: 0.588 | IFI: 1.000 | Diagnostic_PRI: 0.598 | Consistency: 0.834 | Correctness (CS): 0.918 | Faithfulness: 1.000 | HS(diag): 0.336 | Human Score: 0.250 | Final: 0.643
+      Avg Len: 30.8 | Avg Cov: 1.000 | Confidence: 0.917
+      [Advanced] TRD_sem: 0.046 | KPIG_adv: 0.300 | Faithfulness: 1.000 | USD: 0.655
+      [ROUGE] R1: 0.475 | R2: 0.452 | RL: 0.475
+Using 1 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1000.31it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.68it/s, est. speed input: 1103.03 toks/s, output: 22.74 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.68it/s, est. speed input: 1103.03 toks/s, output: 22.74 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.68it/s, est. speed input: 1103.03 toks/s, output: 22.74 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 1124.48it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.92it/s, est. speed input: 1820.01 toks/s, output: 17.84 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.92it/s, est. speed input: 1820.01 toks/s, output: 17.84 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  8.90it/s, est. speed input: 1820.01 toks/s, output: 17.84 toks/s]
+[Robust] PRI: 0.958 | ORI: 0.779 | IFI: 1.000 | Diagnostic_PRI: 0.508 | Consistency: 1.000 | Correctness (CS): 0.879 | Faithfulness: 1.000 | HS(diag): 0.826 | Human Score: 1.000 | Final: 0.975
+      -> High hallucination detected → reliability reduced
+      Avg Len: 66.0 | Avg Cov: 1.000 | Confidence: 0.960
+      [Advanced] TRD_sem: 0.000 | KPIG_adv: 1.000 | Faithfulness: 1.000 | USD: 0.042
+      [ROUGE] R1: 0.114 | R2: 0.088 | RL: 0.114
+Using 1 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 577.17it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  3.96it/s, est. speed input: 1161.89 toks/s, output: 15.86 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  3.96it/s, est. speed input: 1161.89 toks/s, output: 15.86 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  3.96it/s, est. speed input: 1161.89 toks/s, output: 15.86 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/1 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 1/1 [00:00<00:00, 993.91it/s]
+Processed prompts:   0%|          | 0/1 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.03it/s, est. speed input: 1523.98 toks/s, output: 10.06 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.03it/s, est. speed input: 1523.98 toks/s, output: 10.06 toks/s]Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  5.02it/s, est. speed input: 1523.98 toks/s, output: 10.06 toks/s]
+[Robust] PRI: 0.943 | ORI: 0.727 | IFI: 1.000 | Diagnostic_PRI: 0.429 | Consistency: 1.000 | Correctness (CS): 0.838 | Faithfulness: 1.000 | HS(diag): 0.920 | Human Score: 1.000 | Final: 0.966
+      -> High hallucination detected → reliability reduced
+      Avg Len: 160.0 | Avg Cov: 1.000 | Confidence: 0.946
+      [Advanced] TRD_sem: 0.000 | KPIG_adv: 0.820 | Faithfulness: 1.000 | USD: 0.057
+      [ROUGE] R1: 0.098 | R2: 0.011 | RL: 0.087
+Using 2 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/2 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 2/2 [00:00<00:00, 497.63it/s]
+Processed prompts:   0%|          | 0/2 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  50%|█████     | 1/2 [00:00<00:00,  2.54it/s, est. speed input: 739.44 toks/s, output: 10.16 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  2.54it/s, est. speed input: 1384.00 toks/s, output: 19.02 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  4.75it/s, est. speed input: 1384.00 toks/s, output: 19.02 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/2 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 2/2 [00:00<00:00, 807.68it/s]
+Processed prompts:   0%|          | 0/2 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  50%|█████     | 1/2 [00:00<00:00,  2.92it/s, est. speed input: 880.49 toks/s, output: 5.85 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  2.92it/s, est. speed input: 1634.23 toks/s, output: 10.86 toks/s]Processed prompts: 100%|██████████| 2/2 [00:00<00:00,  5.43it/s, est. speed input: 1634.23 toks/s, output: 10.86 toks/s]
+[Robust] PRI: 0.810 | ORI: 0.763 | IFI: 1.000 | Diagnostic_PRI: 0.697 | Consistency: 0.929 | Correctness (CS): 0.539 | Faithfulness: 1.000 | HS(diag): 0.910 | Human Score: 1.000 | Final: 0.886
+      -> High hallucination detected → reliability reduced
+      Avg Len: 156.0 | Avg Cov: 0.250 | Confidence: 0.823
+      [Advanced] TRD_sem: 0.014 | KPIG_adv: 0.234 | Faithfulness: 1.000 | USD: 0.190
+      [ROUGE] R1: 0.237 | R2: 0.054 | RL: 0.134
+Using 8 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 320.21it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.20s/it, est. speed input: 283.33 toks/s, output: 3.34 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.20s/it, est. speed input: 2169.32 toks/s, output: 25.55 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.39it/s, est. speed input: 2169.32 toks/s, output: 25.55 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/8 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 8/8 [00:00<00:00, 557.09it/s]
+Processed prompts:   0%|          | 0/8 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  12%|█▎        | 1/8 [00:01<00:08,  1.18s/it, est. speed input: 295.35 toks/s, output: 1.69 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  1.18s/it, est. speed input: 2314.38 toks/s, output: 13.24 toks/s]Processed prompts: 100%|██████████| 8/8 [00:01<00:00,  6.62it/s, est. speed input: 2314.38 toks/s, output: 13.24 toks/s]
+[Moderate] PRI: 0.674 | ORI: 0.732 | IFI: 1.000 | Diagnostic_PRI: 0.689 | Consistency: 0.876 | Correctness (CS): 0.210 | Faithfulness: 1.000 | HS(diag): 0.856 | Human Score: 1.000 | Final: 0.804
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 158.2 | Avg Cov: 0.000 | Confidence: 0.695
+      [Advanced] TRD_sem: 0.039 | KPIG_adv: 0.234 | Faithfulness: 1.000 | USD: 0.326
+      [ROUGE] R1: 0.095 | R2: 0.009 | RL: 0.060
+Using 6 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 823.95it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:04,  1.20it/s, est. speed input: 336.69 toks/s, output: 4.79 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.20it/s, est. speed input: 1917.98 toks/s, output: 27.81 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  6.95it/s, est. speed input: 1917.98 toks/s, output: 27.81 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 1002.18it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:03,  1.26it/s, est. speed input: 366.39 toks/s, output: 2.52 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.26it/s, est. speed input: 2086.89 toks/s, output: 14.60 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  7.30it/s, est. speed input: 2086.89 toks/s, output: 14.60 toks/s]
+[Moderate] PRI: 0.683 | ORI: 0.730 | IFI: 1.000 | Diagnostic_PRI: 0.678 | Consistency: 0.873 | Correctness (CS): 0.240 | Faithfulness: 1.000 | HS(diag): 0.898 | Human Score: 1.000 | Final: 0.810
+      -> Very low coverage → incomplete summary
+      -> High hallucination detected → reliability reduced
+      Avg Len: 148.7 | Avg Cov: 0.000 | Confidence: 0.704
+      [Advanced] TRD_sem: 0.038 | KPIG_adv: 0.225 | Faithfulness: 1.000 | USD: 0.317
+      [ROUGE] R1: 0.301 | R2: 0.021 | RL: 0.146
+Using 6 GenSens paraphrase variants
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 705.38it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:04,  1.08it/s, est. speed input: 319.82 toks/s, output: 4.31 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.08it/s, est. speed input: 1862.25 toks/s, output: 25.08 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  6.27it/s, est. speed input: 1862.25 toks/s, output: 25.08 toks/s]
+/root/prompt_sensitivity/prompt_robustness/src/evaluator.py:233: UserWarning: Hallucination Score is extremely high (>0.5) - marking as hallucinated.
+  warnings.warn("Hallucination Score is extremely high (>0.5) - marking as hallucinated.")
+Rendering prompts:   0%|          | 0/6 [00:00<?, ?it/s]Rendering prompts: 100%|██████████| 6/6 [00:00<00:00, 1005.51it/s]
+Processed prompts:   0%|          | 0/6 [00:00<?, ?it/s, est. speed input: 0.00 toks/s, output: 0.00 toks/s]Processed prompts:  17%|█▋        | 1/6 [00:00<00:04,  1.10it/s, est. speed input: 337.87 toks/s, output: 2.20 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  1.10it/s, est. speed input: 1968.38 toks/s, output: 12.82 toks/s]Processed prompts: 100%|██████████| 6/6 [00:00<00:00,  6.41it/s, est. speed input: 1968.38 toks/s, output: 12.82 toks/s]
+[Robust] PRI: 0.750 | ORI: 0.747 | IFI: 1.000 | Diagnostic_PRI: 0.694 | Consistency: 0.891 | Correctness (CS): 0.409 | Faithfulness: 1.000 | HS(diag): 0.864 | Human Score: 1.000 | Final: 0.850
+      -> High hallucination detected → reliability reduced
+      Avg Len: 166.3 | Avg Cov: 0.214 | Confidence: 0.767
+      [Advanced] TRD_sem: 0.033 | KPIG_adv: 0.235 | Faithfulness: 1.000 | USD: 0.250
+      [ROUGE] R1: 0.305 | R2: 0.034 | RL: 0.160
+💾 scored_samples.csv updated → /root/prompt_sensitivity/prompt_robustness/results/scored_samples.csv
+✅ Wrote results/scored_samples.csv
+   Run `python reaggregate.py` for composite PRI/ORI/Final tables (no GPU).
+(EngineCore pid=3804) INFO 05-29 14:34:43 [core.py:1266] Shutdown initiated (timeout=0)
+(EngineCore pid=3804) INFO 05-29 14:34:43 [core.py:1289] Shutdown complete
+[14:34:51] ✓ Phase 2 done — results in /root/prompt_sensitivity/prompt_robustness/results/
+
+══════════════════════════════════════════════════════
+  Phase 3 │ LL-PIRC Experiment
+══════════════════════════════════════════════════════
+2026-05-29 14:34:53 [INFO] experiment_pirc: Loaded config from config.yaml
+2026-05-29 14:34:53 [WARNING] experiment_pirc: No baseline results found at results/baseline.json. Run experiment_baseline.py first.
+2026-05-29 14:34:53 [ERROR] experiment_pirc: Cannot run PIRC experiment without baseline results. Run experiment_baseline.py first.

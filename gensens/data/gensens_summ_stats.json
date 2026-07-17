@@ -1,0 +1,160 @@
+{
+  "total_seeds": 50,
+  "n_pool_a": 35,
+  "n_pool_b": 15,
+  "pool_a": {
+    "count": 35,
+    "mean_n": 4.91,
+    "min_n": 4,
+    "max_n": 5,
+    "mean_sim": 0.8647,
+    "min_sim": 0.8296,
+    "max_sim": 0.9028
+  },
+  "pool_b": {
+    "count": 15,
+    "mean_n": 4.67,
+    "min_n": 2,
+    "max_n": 5,
+    "mean_sim": 0.8635,
+    "min_sim": 0.841,
+    "max_sim": 0.8921
+  },
+  "per_dimension": {
+    "Direct Command": {
+      "count": 4,
+      "mean_n": 4.75,
+      "min_n": 4,
+      "max_n": 5,
+      "mean_sim": 0.8595,
+      "min_sim": 0.8327,
+      "max_sim": 0.8783
+    },
+    "Question Form": {
+      "count": 4,
+      "mean_n": 5.0,
+      "min_n": 5,
+      "max_n": 5,
+      "mean_sim": 0.8784,
+      "min_sim": 0.8646,
+      "max_sim": 0.9028
+    },
+    "Role Based": {
+      "count": 4,
+      "mean_n": 5.0,
+      "min_n": 5,
+      "max_n": 5,
+      "mean_sim": 0.8662,
+      "min_sim": 0.8381,
+      "max_sim": 0.8879
+    },
+    "Constraint Based": {
+      "count": 3,
+      "mean_n": 4.67,
+      "min_n": 4,
+      "max_n": 5,
+      "mean_sim": 0.8618,
+      "min_sim": 0.8413,
+      "max_sim": 0.8928
+    },
+    "Analytical Framing": {
+      "count": 4,
+      "mean_n": 4.75,
+      "min_n": 4,
+      "max_n": 5,
+      "mean_sim": 0.8717,
+      "min_sim": 0.8296,
+      "max_sim": 0.897
+    },
+    "Output Format": {
+      "count": 3,
+      "mean_n": 5.0,
+      "min_n": 5,
+      "max_n": 5,
+      "mean_sim": 0.8624,
+      "min_sim": 0.8522,
+      "max_sim": 0.8706
+    },
+    "Audience Perspective": {
+      "count": 3,
+      "mean_n": 5.0,
+      "min_n": 5,
+      "max_n": 5,
+      "mean_sim": 0.8748,
+      "min_sim": 0.857,
+      "max_sim": 0.8887
+    },
+    "Emphasis Focus": {
+      "count": 3,
+      "mean_n": 5.0,
+      "min_n": 5,
+      "max_n": 5,
+      "mean_sim": 0.8649,
+      "min_sim": 0.8546,
+      "max_sim": 0.8771
+    },
+    "Tone Register": {
+      "count": 4,
+      "mean_n": 5.0,
+      "min_n": 5,
+      "max_n": 5,
+      "mean_sim": 0.8579,
+      "min_sim": 0.8429,
+      "max_sim": 0.8688
+    },
+    "Completeness Framing": {
+      "count": 3,
+      "mean_n": 5.0,
+      "min_n": 5,
+      "max_n": 5,
+      "mean_sim": 0.8461,
+      "min_sim": 0.836,
+      "max_sim": 0.8607
+    },
+    "Lexical Filter": {
+      "count": 3,
+      "mean_n": 5.0,
+      "min_n": 5,
+      "max_n": 5,
+      "mean_sim": 0.8645,
+      "min_sim": 0.8476,
+      "max_sim": 0.88
+    },
+    "Theme Isolation": {
+      "count": 5,
+      "mean_n": 4.2,
+      "min_n": 2,
+      "max_n": 5,
+      "mean_sim": 0.8665,
+      "min_sim": 0.8558,
+      "max_sim": 0.8825
+    },
+    "Persona / Tone": {
+      "count": 6,
+      "mean_n": 4.83,
+      "min_n": 4,
+      "max_n": 5,
+      "mean_sim": 0.8624,
+      "min_sim": 0.841,
+      "max_sim": 0.8921
+    },
+    "Meta-reflection": {
+      "count": 1,
+      "mean_n": 5.0,
+      "min_n": 5,
+      "max_n": 5,
+      "mean_sim": 0.8526,
+      "min_sim": 0.8526,
+      "max_sim": 0.8526
+    }
+  },
+  "flagged_seeds": [
+    "A03",
+    "A15",
+    "A18",
+    "B05",
+    "B07",
+    "B11"
+  ],
+  "n_flagged": 6
+}

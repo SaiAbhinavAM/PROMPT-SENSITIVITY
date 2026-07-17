@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+"""
+dimension_analysis.py — rigorous analysis of the dimension effect on prompt
+sensitivity, plus a quality-residualized "pure sensitivity" measure.
+
+Motivated by the 30-article result (method.md 2026-07-14): the instruction
+DIMENSION explains ~10x more sensitivity variance than the Pool A/B split
+(eta^2 0.18 vs 0.019), and Sensitivity is mildly entangled with quality
+(r(Sensitivity, CS_mean) = -0.235). This script:
+
+  1. RESIDUALIZED SENSITIVITY — regress Sensitivity on the quality covariates
+     (CS_mean, faith_mean) via OLS and keep the residual as a quality-adjusted
+     "pure spread" measure. Reports how much the dimension/seed ranking changes
+     (Spearman raw-vs-residual): if it barely moves, the dimension finding is
+     not a quality artifact.
+
+  2. MIXED-EFFECTS MODEL — Sensitivity ~ C(dimension) with CROSSED random
+     intercepts for seed and article: the proper test that the dimension effect
+     is real beyond individual-seed idiosyncrasy and article effects. Reports
+     variance components and a likelihood-ratio test vs an intercept-only model.
+
+Pure CPU (statsmodels); no GPU. Reads cell_metrics_scored.jsonl.
+"""
+
+import argparse
+import json
+import logging
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import common  # noqa: E402
+
+logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(levelname)s %(message)s", datefmt="%H:%M:%S")
+log = logging.getLogger("dimension_analysis")
+
+
+def residualize(df: pd.DataFrame) -> pd.DataFrame:
+    """Add 'sensitivity_resid' = Sensitivity with quality (CS_mean, faith_mean)
+    regressed out via OLS. The residual is orthogonal to the quality covariates
+    by construction, so it is a spread signal not confounded by 'unstable
+    prompts are also slightly worse'."""
+    import statsmodels.formula.api as smf
+    ols = smf.ols("sensitivity ~ cs_mean + faith_mean", data=df).fit()
+    df = df.copy()
+    df["sensitivity_resid"] = df["sensitivity"] - ols.predict(df)
+    return df, ols
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--results_dir", default=None)
+    args = ap.parse_args()
+    results_dir = Path(args.results_dir) if args.results_dir else common.RESULTS_DIR_DEFAULT
+
+    cells = common.read_jsonl(results_dir / "cell_metrics_scored.jsonl")
+    if not cells:
+        raise FileNotFoundError(f"No scored cells in {results_dir}. Run aggregate_scores.py first.")
+    df = pd.DataFrame(cells)
+    log.info(f"Loaded {len(df)} cells, {df['seed_id'].nunique()} seeds, {df['article_id'].nunique()} articles.")
+
+    from scipy.stats import spearmanr
+    out = {"n_cells": int(len(df)), "n_seeds": int(df["seed_id"].nunique()),
+           "n_articles": int(df["article_id"].nunique())}
+
+    # ── 1. Residualized (quality-adjusted) sensitivity ───────────────────
+    df, ols = residualize(df)
+    raw_dim = df.groupby("dimension")["sensitivity"].mean()
+    res_dim = df.groupby("dimension")["sensitivity_resid"].mean()
+    raw_seed = df.groupby("seed_id")["sensitivity"].mean()
+    res_seed = df.groupby("seed_id")["sensitivity_resid"].mean()
+    out["residualized"] = {
+        "quality_r2": float(ols.rsquared),
+        "note": "sensitivity_resid = Sensitivity with CS_mean + faith_mean regressed out",
+        "spearman_dim_ranking_raw_vs_resid": float(spearmanr(raw_dim, res_dim).statistic),
+        "spearman_seed_ranking_raw_vs_resid": float(spearmanr(raw_seed, res_seed).statistic),
+        "dimension_ranking_residualized": [
+            {"dimension": d, "sensitivity_resid_mean": float(v)}
+            for d, v in res_dim.sort_values(ascending=False).items()
+        ],
+    }
+    log.info("Residualized: dimension ranking raw-vs-resid Spearman = %.3f "
+             "(high => dimension effect is not a quality artifact)"
+             % out["residualized"]["spearman_dim_ranking_raw_vs_resid"])
+
+    # ── 2. Mixed-effects model: Sensitivity ~ dimension + (1|seed)+(1|article)
+    out["mixed_model"] = _fit_mixed(df)
+
+    out_path = results_dir / "dimension_analysis.json"
+    out_path.write_text(json.dumps(out, indent=2))
+    log.info(f"Wrote {out_path}")
+    print(json.dumps({k: v for k, v in out.items() if k != "residualized"}, indent=2))
+    print("\nResidualized dimension ranking (quality-adjusted, top/bottom 3):")
+    rr = out["residualized"]["dimension_ranking_residualized"]
+    for r in rr[:3] + [{"dimension": "...", "sensitivity_resid_mean": 0.0}] + rr[-3:]:
+        print("  %-22s %+.3f" % (r["dimension"], r["sensitivity_resid_mean"]))
+
+
+def _fit_mixed(df: pd.DataFrame) -> dict:
+    """Sensitivity ~ C(dimension) with crossed random intercepts for seed and
+    article (statsmodels variance-components MixedLM). LRT vs intercept-only for
+    an omnibus dimension test. Wrapped in try/except: if it fails to converge,
+    we fall back to the seed-aggregated Kruskal-Wallis in significance.py."""
+    try:
+        import statsmodels.formula.api as smf
+        from scipy.stats import chi2
+        d = df.copy()
+        d["grp"] = 1  # single top-level group; seed & article enter as variance comps
+        vc = {"seed": "0 + C(seed_id)", "article": "0 + C(article_id)"}
+
+        # ML (not REML) so the fixed-effect LRT is valid.
+        full = smf.mixedlm("sensitivity ~ C(dimension)", d, groups="grp", vc_formula=vc).fit(reml=False)
+        reduced = smf.mixedlm("sensitivity ~ 1", d, groups="grp", vc_formula=vc).fit(reml=False)
+        lr = 2.0 * (full.llf - reduced.llf)
+        ddf = int(d["dimension"].nunique() - 1)
+        p_lrt = float(chi2.sf(lr, ddf))
+
+        # statsmodels stores vcomp as an array in the order of the vc_formula keys.
+        names = list(vc.keys())
+        vcomp = np.asarray(full.vcomp).ravel()
+        vc_named = {names[i]: float(vcomp[i]) for i in range(min(len(names), len(vcomp)))}
+        return {
+            "converged": True,
+            "lrt_dimension_chi2": float(lr),
+            "lrt_dimension_df": ddf,
+            "lrt_dimension_p": p_lrt,
+            "var_seed": vc_named.get("seed"),
+            "var_article": vc_named.get("article"),
+            "var_residual": float(full.scale),
+            "interpretation": ("dimension fixed effect is significant controlling for crossed "
+                               "seed+article random intercepts" if p_lrt < 0.05 else
+                               "dimension effect NOT significant once seed/article variance is modeled"),
+            "note": ("Random-intercept variances: seed captures per-prompt idiosyncrasy WITHIN a "
+                     "dimension; article captures content effects. A significant LRT means dimension "
+                     "explains sensitivity beyond those."),
+        }
+    except Exception as e:
+        log.warning(f"Mixed model did not fit ({type(e).__name__}: {str(e)[:100]}); "
+                    f"rely on seed-aggregated Kruskal-Wallis in significance.json.")
+        return {"converged": False, "error": f"{type(e).__name__}: {str(e)[:150]}"}
+
+
+if __name__ == "__main__":
+    main()

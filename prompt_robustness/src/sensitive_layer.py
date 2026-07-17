@@ -10,6 +10,7 @@ identifies the sensitive layer ℓ* via:
 Reference: method_analysis_prompt_sensitivity.md, Steps 3-4 (lines 486-493)
 """
 
+import math
 import torch
 import logging
 from typing import Dict, List, Tuple, Optional
@@ -109,17 +110,46 @@ class SensitiveLayerDetector:
                 if ell in all_mean_ppl:
                     all_mean_ppl[ell].append(val)
 
-        # Compute S(ℓ) = Var_k[mean_PPL_k at layer ℓ]
+        # Compute S(ℓ) = Var_k[mean_PPL_k at layer ℓ].
+        #
+        # Robustness: even with the fp32 Logit Lens fix in place, individual
+        # mean-PPL values can still be huge for very early layers (where the
+        # unembedding head produces near-uniform distributions). We aggregate
+        # in LOG space here: S(ℓ) = Var_k[ log(mean_PPL_k) ]. This:
+        #   (a) is finite whenever mean_PPL is finite and > 0,
+        #   (b) is scale-invariant (a 10× shift in PPL becomes an additive
+        #       offset, which has zero contribution to variance),
+        #   (c) ensures the inflection-of-S curve reflects RELATIVE changes
+        #       across paraphrases, which is what the LL-PIRC story claims.
         S: Dict[int, float] = {}
+        n_nonfinite_layers = 0
         for ell in range(self.scan_start, self.scan_end):
-            if len(all_mean_ppl[ell]) == K:
-                vals = torch.tensor(all_mean_ppl[ell])
-                S[ell] = vals.var().item()
-            else:
+            if len(all_mean_ppl[ell]) != K:
                 logger.warning(
                     f"Layer {ell}: expected {K} PPL values, got "
                     f"{len(all_mean_ppl[ell])}. Skipping."
                 )
+                continue
+
+            vals = torch.tensor(all_mean_ppl[ell], dtype=torch.float64)
+            # Take log of strictly-positive PPL values; non-finite or non-
+            # positive entries are dropped from the variance computation so
+            # one bad paraphrase does not destroy the whole curve.
+            finite_pos = vals[(vals > 0) & torch.isfinite(vals)]
+            if finite_pos.numel() < 2:
+                # Cannot compute variance with <2 finite values; mark NaN so
+                # the inflection detector can route around this layer.
+                S[ell] = float("nan")
+                n_nonfinite_layers += 1
+                continue
+            log_vals = torch.log(finite_pos)
+            S[ell] = float(log_vals.var(unbiased=True).item())
+
+        if n_nonfinite_layers:
+            logger.warning(
+                f"S(ℓ) has {n_nonfinite_layers}/{len(S)} non-finite layers — "
+                "these will be skipped during ℓ* detection."
+            )
 
         return S
 
@@ -132,6 +162,12 @@ class SensitiveLayerDetector:
 
         ℓ* = argmax_ℓ [S(ℓ) - S(ℓ-1)]
 
+        NaN handling: ΔS values involving non-finite S(ℓ) are skipped
+        entirely. If no finite ΔS remains (entire curve unusable), we fall
+        through to the z-score fallback rather than silently picking the
+        first scan layer — which was the pre-fix behaviour and the root
+        cause of "ℓ* = scan_start+1 for every article" in the pilot results.
+
         Args:
             S: Sensitivity curve dict from compute_sensitivity_curve.
 
@@ -143,18 +179,30 @@ class SensitiveLayerDetector:
             logger.warning("Not enough layers to compute inflection. Returning last layer.")
             return layers[-1] if layers else self.scan_end - 1
 
-        # Compute finite differences ΔS(ℓ) = S(ℓ) - S(ℓ-1)
+        # Compute finite differences ΔS(ℓ) = S(ℓ) - S(ℓ-1), skipping any
+        # delta that depends on a non-finite endpoint.
         deltas = []
         for i in range(1, len(layers)):
-            delta = S[layers[i]] - S[layers[i - 1]]
-            deltas.append((layers[i], delta))
+            s_prev = S[layers[i - 1]]
+            s_curr = S[layers[i]]
+            if math.isfinite(s_prev) and math.isfinite(s_curr):
+                deltas.append((layers[i], s_curr - s_prev))
 
-        # Find the layer with the largest upward jump
+        if not deltas:
+            # Whole curve unusable — defer to z-score fallback, which itself
+            # falls back to argmax(S) and ultimately to the last layer.
+            logger.warning(
+                "[inflection] All ΔS values were non-finite. Falling back to "
+                "z-score detection."
+            )
+            return self.find_sensitive_layer_zscore(S)
+
+        # Find the layer with the largest upward jump.
         ell_star, max_delta = max(deltas, key=lambda x: x[1])
 
         logger.info(
             f"Inflection method: ℓ* = {ell_star} "
-            f"(ΔS = {max_delta:.6f})"
+            f"(ΔS = {max_delta:.6f}, {len(deltas)}/{len(layers)-1} finite deltas)"
         )
         return ell_star
 
@@ -165,7 +213,9 @@ class SensitiveLayerDetector:
         """
         Find ℓ* as the first layer where S(ℓ) exceeds mean + z*std.
 
-        Fallback method when inflection detection is noisy.
+        Fallback method when inflection detection is noisy. Non-finite S(ℓ)
+        values are excluded from both the threshold computation and the
+        layer-scan candidates.
 
         Args:
             S: Sensitivity curve dict from compute_sensitivity_curve.
@@ -174,7 +224,17 @@ class SensitiveLayerDetector:
             ell_star: The sensitive layer index.
         """
         layers = sorted(S.keys())
-        vals = torch.tensor([S[ell] for ell in layers])
+        finite_pairs = [(ell, S[ell]) for ell in layers if math.isfinite(S[ell])]
+
+        if len(finite_pairs) < 2:
+            logger.warning(
+                f"[zscore] Only {len(finite_pairs)} finite S(ℓ) values — "
+                "falling back to last layer."
+            )
+            return layers[-1] if layers else self.scan_end - 1
+
+        finite_layers = [p[0] for p in finite_pairs]
+        vals = torch.tensor([p[1] for p in finite_pairs], dtype=torch.float64)
 
         mean_s = vals.mean().item()
         std_s = vals.std().item()
@@ -185,16 +245,16 @@ class SensitiveLayerDetector:
             f"threshold = {threshold:.6f}"
         )
 
-        for ell in layers:
-            if S[ell] > threshold:
-                logger.info(f"Z-score method: ℓ* = {ell} (S = {S[ell]:.6f})")
+        for ell, sv in finite_pairs:
+            if sv > threshold:
+                logger.info(f"Z-score method: ℓ* = {ell} (S = {sv:.6f})")
                 return ell
 
-        # If no layer exceeds threshold, fall back to max S
-        ell_star = max(S, key=S.get)
+        # If no layer exceeds threshold, fall back to argmax over finite vals.
+        ell_star, _ = max(finite_pairs, key=lambda p: p[1])
         logger.warning(
             f"No layer exceeded z-score threshold. "
-            f"Falling back to argmax: ℓ* = {ell_star}"
+            f"Falling back to argmax(S): ℓ* = {ell_star}"
         )
         return ell_star
 

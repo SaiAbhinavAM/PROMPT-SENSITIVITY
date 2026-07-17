@@ -1,0 +1,5 @@
+[14:22:13] INFO Loaded 250 cells.
+[14:22:13] INFO Sensitivity composite uses: ['sms_drift', 'cs_var', 'faith_var', 'ppl_var', 'pc_stab_var']
+[14:22:23] INFO Wrote 50 rows to scores_by_seed.csv
+[14:22:23] INFO Wrote 2 rows to scores_by_pool.csv
+[14:22:26] INFO Wrote 14 rows to scores_by_dimension.csv

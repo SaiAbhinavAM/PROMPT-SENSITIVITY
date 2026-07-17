@@ -1,0 +1,15 @@
+[14:22:27] INFO Quality (CS_mean) median: 0.5617 | Sensitivity median: 0.1415
+[14:22:27] INFO Wrote 250 rows to diagnosis.csv
+[14:22:27] INFO All 4 diagnosis cells are populated.
+
+=== Diagnosis 4-cell distribution (overall) ===
+  True Robustness     : 64
+  Fragile             : 61
+  Consistently Poor   : 61
+  Unreliable          : 64
+
+=== Diagnosis distribution by pool ===
+diagnosis  Consistently Poor  Fragile  True Robustness  Unreliable
+pool                                                              
+A                         44       46               52          33
+B                         17       15               12          31

@@ -27,8 +27,10 @@ set -euo pipefail
 
 # ─────────────────────────────────────────────────────────────
 # Defaults — override via environment variables or --flags
+# Note: MODEL_ID / GENERATOR_QUANTIZATION are resolved AFTER sourcing .env
+# so the values in .env (GENERATOR_MODEL=..., GENERATOR_QUANTIZATION=...)
+# take precedence over the hardcoded fallback.
 # ─────────────────────────────────────────────────────────────
-MODEL_ID="${MODEL_ID:-Qwen/Qwen2.5-7B-Instruct}"
 N_INSTANCES="${N_INSTANCES:-200}"
 N_VARIANTS="${N_VARIANTS:-8}"
 N_PER_LEVEL="${N_PER_LEVEL:-25}"         # 25 × 4 levels = 100 instructions
@@ -41,10 +43,11 @@ PHASES="${PHASES:-0,1,2,3,4}"           # comma-separated list of phases to run
 # ─────────────────────────────────────────────────────────────
 # Parse CLI args
 # ─────────────────────────────────────────────────────────────
+CLI_MODEL_ID=""    # set if --model-id passed; wins over env / fallback
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --phases)     PHASES="$2";       shift 2 ;;
-        --model-id)   MODEL_ID="$2";     shift 2 ;;
+        --model-id)   CLI_MODEL_ID="$2"; shift 2 ;;
         --n-instances) N_INSTANCES="$2"; shift 2 ;;
         --n-variants) N_VARIANTS="$2";   shift 2 ;;
         --tasks)      TASKS="$2";        shift 2 ;;
@@ -75,9 +78,104 @@ section() { echo; echo "══════════════════�
             echo "  $*"; echo "══════════════════════════════════════════════════════"; }
 die()     { echo "FATAL: $*" >&2; exit 1; }
 
+# ─────────────────────────────────────────────────────────────
+# Load .env so HF_TOKEN, MODEL_NAME, JUDGE_MODEL, EMBEDDER_MODEL, etc.
+# propagate to every Python subprocess (vLLM / HF / huggingface-cli use
+# HF_TOKEN to download gated weights — without this, Phase 1 fails with
+# "401 Unauthorized" on the Llama-3.1 download).
+# Skip when CI=1 (CI provides its own env).
+# ─────────────────────────────────────────────────────────────
+ENV_FILE="$ROOT/.env"
+if [[ "${CI:-}" != "1" && -f "$ENV_FILE" ]]; then
+    set -a
+    # shellcheck disable=SC1090
+    source "$ENV_FILE"
+    set +a
+    log "Sourced $ENV_FILE (HF_TOKEN $( [[ -n "${HF_TOKEN:-}" ]] && echo set || echo MISSING ))"
+elif [[ "${CI:-}" != "1" ]]; then
+    log "WARNING: $ENV_FILE not found — gated model downloads (Llama-3.1) will fail. Create .env from .env.example."
+fi
+
+# Force vLLM workers to use `spawn` instead of `fork`. Even with the
+# vLLM-before-SBERT ordering in gensens/scripts/paraphrase_generator.py,
+# fork can still inherit CUDA state from any other library (e.g. transformers
+# import path) and crash workers with "Cannot re-initialize CUDA in forked
+# subprocess". `spawn` is the safe default; vLLM 0.8+ supports it.
+export VLLM_WORKER_MULTIPROC_METHOD="${VLLM_WORKER_MULTIPROC_METHOD:-spawn}"
+# Mirror HF_TOKEN to HUGGING_FACE_HUB_TOKEN so older huggingface_hub releases
+# (used transitively by some vllm builds) pick it up too.
+if [[ -n "${HF_TOKEN:-}" && -z "${HUGGING_FACE_HUB_TOKEN:-}" ]]; then
+    export HUGGING_FACE_HUB_TOKEN="$HF_TOKEN"
+fi
+
+# ─────────────────────────────────────────────────────────────
+# Phase 0 / Phase 1 generator selection (resolved after .env load)
+#   precedence: --model-id CLI > $MODEL_ID env > $GENERATOR_MODEL (.env)
+#               > Qwen 7B fallback
+#   GENERATOR_QUANTIZATION (.env) drives --quantization for AWQ generator.
+# ─────────────────────────────────────────────────────────────
+if [[ -n "$CLI_MODEL_ID" ]]; then
+    MODEL_ID="$CLI_MODEL_ID"
+else
+    MODEL_ID="${MODEL_ID:-${GENERATOR_MODEL:-Qwen/Qwen2.5-7B-Instruct}}"
+fi
+QUANT_ARG=""
+if [[ -n "${GENERATOR_QUANTIZATION:-}" ]]; then
+    QUANT_ARG="--quantization ${GENERATOR_QUANTIZATION}"
+fi
+log "Generator: $MODEL_ID  ${QUANT_ARG:+($GENERATOR_QUANTIZATION)}"
+
 phase_enabled() {
     # Returns 0 (true) if phase $1 is in the PHASES list
     [[ ",$PHASES," == *",$1,"* ]]
+}
+
+# ─────────────────────────────────────────────────────────────
+# Dependency check — reinstall if core packages missing (survives pause/resume)
+# ─────────────────────────────────────────────────────────────
+ensure_torch() {
+    # Verify torch is installed AND can actually run a kernel on the GPU.
+    # PyTorch 2.11.0+cu130 (the current pip default) needs driver >= 570.124;
+    # older A100 instances ship 570.86 and crash with "NVIDIA driver too old".
+    # If a real CUDA op fails, force-install 2.6.0+cu124 (broad driver support).
+    if python -c "import torch; assert torch.cuda.is_available(); x = torch.zeros(1).cuda(); _ = (x + 1).cpu()" 2>/dev/null; then
+        return 0
+    fi
+    log "torch missing or incompatible with installed NVIDIA driver — installing torch 2.6.0+cu124..."
+    pip install --force-reinstall 'torch==2.6.0+cu124' 'torchvision==0.21.0+cu124' 'torchaudio==2.6.0' \
+        --index-url https://download.pytorch.org/whl/cu124 \
+        >> /tmp/pip_ensure.log 2>&1 \
+        || die "torch install failed — check /tmp/pip_ensure.log"
+    # Sanity-check the new install before declaring success.
+    python -c "import torch; assert torch.cuda.is_available(); x = torch.zeros(1).cuda(); _ = (x + 1).cpu()" 2>/dev/null \
+        || die "torch installed but CUDA still unavailable — driver may be < 525 (cu124 minimum). Check nvidia-smi."
+    log "  torch 2.6.0+cu124 verified on GPU."
+}
+
+ensure_deps() {
+    ensure_torch
+    if python -c "import sentence_transformers, vllm, datasets, awq" 2>/dev/null; then
+        log "Dependencies OK."
+        return 0
+    fi
+    # Pick a vLLM version that matches the *installed* torch.
+    #   torch 2.6.x (cu124) → vllm 0.8.x  (vllm 0.21+ pins torch==2.11)
+    #   torch 2.11.x (cu130) → vllm >=0.21 (default; matches torch pin)
+    # Wrong combo triggers a transitive torch downgrade → broken install.
+    local torch_major torch_minor vllm_spec
+    torch_major=$(python -c "import torch,sys; v=torch.__version__.split('+')[0]; print(v.split('.')[0])" 2>/dev/null || echo 0)
+    torch_minor=$(python -c "import torch,sys; v=torch.__version__.split('+')[0]; print(v.split('.')[1])" 2>/dev/null || echo 0)
+    if [[ "$torch_major" == "2" && "$torch_minor" -lt 10 ]]; then
+        vllm_spec="vllm>=0.8.0,<0.9.0"
+    else
+        vllm_spec="vllm>=0.21.0"
+    fi
+    log "Core packages missing — installing ($vllm_spec to match torch ${torch_major}.${torch_minor})..."
+    pip install sentence-transformers "$vllm_spec" accelerate datasets autoawq \
+        rouge-score scipy nltk scikit-learn python-dotenv tqdm pyyaml tabulate \
+        >> /tmp/pip_ensure.log 2>&1 \
+        && log "  Packages installed." \
+        || die "pip install failed — check /tmp/pip_ensure.log"
 }
 
 # ─────────────────────────────────────────────────────────────
@@ -129,6 +227,7 @@ run_phase0() {
         --n-per-level "$N_PER_LEVEL" \
         --gpu-memory-utilization "$GPU_MEM_FRAC" \
         --max-model-len "$MAX_MODEL_LEN" \
+        $QUANT_ARG \
         --output "$POOL_FILE"
 
     log "✓ Phase 0 done — $(wc -l < "$POOL_FILE") instructions saved to $POOL_FILE"
@@ -171,7 +270,8 @@ run_phase1() {
         --model vllm \
         --model-id "$MODEL_ID" \
         --gpu-memory-utilization "$GPU_MEM_FRAC" \
-        --max-model-len "$MAX_MODEL_LEN"
+        --max-model-len "$MAX_MODEL_LEN" \
+        $QUANT_ARG
 
     log "✓ Phase 1 done — datasets in $GENSENS/data/"
 }
@@ -190,14 +290,42 @@ run_phase2() {
 
     cd "$ROBUSTNESS"
 
+    # ── Merge all 4 task JONSLs into a single combined dataset ──────────────
+    # Phase 1 writes one file per task; Phase 2 needs all tasks in one file so
+    # every task is benchmarked in a single run. If any task file is missing we
+    # fall back to whatever is available (then to sample_dataset.json).
+    COMBINED="$GENSENS/data/gensens_all_${N_INSTANCES}inst_${N_VARIANTS}var.jsonl"
+    declare -a TASK_JSONLS=()
+    for task in summarization creative dialogue qa; do
+        f="$GENSENS/data/gensens_${task}_${N_INSTANCES}inst_${N_VARIANTS}var.jsonl"
+        [[ -f "$f" ]] && TASK_JSONLS+=("$f")
+    done
+
+    if [[ ${#TASK_JSONLS[@]} -gt 0 ]]; then
+        cat "${TASK_JSONLS[@]}" > "$COMBINED"
+        N_COMBINED=$(wc -l < "$COMBINED")
+        log "Combined ${#TASK_JSONLS[@]} task datasets → $COMBINED  ($N_COMBINED instances)"
+        DATASET_FLAG="--dataset $COMBINED"
+    else
+        # Fall back: any summarization JSONL present?
+        FALLBACK=$(ls -t "$GENSENS/data"/gensens_summarization_*var.jsonl 2>/dev/null | head -1 || true)
+        if [[ -n "$FALLBACK" && -f "$FALLBACK" ]]; then
+            log "WARNING: Only summarization dataset found — using $FALLBACK"
+            DATASET_FLAG="--dataset $FALLBACK"
+        else
+            log "WARNING: No GenSens dataset found — falling back to sample_dataset.json"
+            DATASET_FLAG=""
+        fi
+    fi
+
     # Step 2a: generate responses for every subject model (one model at a time,
     # GPU freed between loads) — no judge/NLI loaded here.
     log "Step 2a: Generating responses for all subject models..."
-    MODEL_NAME="$SUBJECT_MODELS" python main.py --generate-only
+    MODEL_NAME="$SUBJECT_MODELS" python main.py --generate-only $DATASET_FLAG
 
     # Step 2b: score from the persisted responses.csv — no subject model loaded.
     log "Step 2b: Scoring from responses.csv (judge + NLI, no subject model)..."
-    MODEL_NAME="$SUBJECT_MODELS" python main.py --responses-csv results/responses.csv
+    MODEL_NAME="$SUBJECT_MODELS" python main.py --responses-csv results/responses.csv $DATASET_FLAG
 
     cd "$ROOT"
     log "✓ Phase 2 done — results in $ROBUSTNESS/results/"
@@ -241,6 +369,7 @@ main() {
     log "Variants/inst : $N_VARIANTS"
     log "Seed          : $SEED"
 
+    ensure_deps
     detect_gpu
 
     T_START=$(date +%s)

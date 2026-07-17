@@ -1,0 +1,201 @@
+{
+  "config": {
+    "model": "meta-llama/Llama-3.1-8B-Instruct",
+    "K": 8,
+    "num_articles": 5,
+    "similarity_threshold": 0.85,
+    "paraphrase_method": "back_translation"
+  },
+  "results": [
+    {
+      "article_idx": 0,
+      "article_id": "f001ec5c4704938247d27a44948eebb37ae98d01",
+      "paraphrase_instructions": [
+        "Summarize the following article concisely.",
+        "Briefly summarize the following article.",
+        "Summarize the following article in a concise manner.",
+        "Briefly summarize the following article.",
+        "Summarize the following article in a concise way.",
+        "Summarize briefly the following article.",
+        "Summarize the following article.",
+        "Summarize the following article."
+      ],
+      "outputs": [
+        "Here is a concise summary of the article:\n\nThe Palestinian Authority has officially become the 123rd member of the International Criminal Court (ICC), giving the court jurisdiction over alleged crimes in Palestinian territories. This move was opposed by Israel and the US, but welcomed by the ICC and human rights group Human Rights Watch. The Palestinian Foreign Minister said it marks a step towards greater justice and an end to impunity, while the ICC's vice president emphasized that membership comes with responsibilities.",
+        "Here is a brief summary of the article:\n\nThe Palestinian Authority has officially become the 123rd member of the International Criminal Court (ICC), giving the court jurisdiction over alleged crimes in Palestinian territories. This move was opposed by Israel and the US, but welcomed by the ICC and human rights group Human Rights Watch. The Palestinian Foreign Minister said it marks a step towards greater justice and an end to impunity, while the ICC's vice president emphasized that membership comes with responsibilities and commitments.",
+        "Here is a concise summary of the article:\n\nThe Palestinian Authority has officially become the 123rd member of the International Criminal Court (ICC), giving the court jurisdiction over alleged crimes in Palestinian territories. This move was opposed by Israel and the US, but welcomed by the ICC and human rights group Human Rights Watch. The Palestinian Foreign Minister said it marks a step towards greater justice and an end to impunity, while the ICC's vice president emphasized that membership comes with responsibilities.",
+        "Here is a brief summary of the article:\n\nThe Palestinian Authority has officially become the 123rd member of the International Criminal Court (ICC), giving the court jurisdiction over alleged crimes in Palestinian territories. This move was opposed by Israel and the US, but welcomed by the ICC and human rights group Human Rights Watch. The Palestinian Foreign Minister said it marks a step towards greater justice and an end to impunity, while the ICC's vice president emphasized that membership comes with responsibilities and commitments.",
+        "Here is a concise summary of the article:\n\nThe Palestinian Authority has officially become the 123rd member of the International Criminal Court (ICC), giving the court jurisdiction over alleged crimes in Palestinian territories. This move allows the ICC to investigate possible war crimes committed in the Palestinian territories since 2014, and also subjects Palestinians to potential counter-charges. Israel and the US, which are not ICC members, opposed the move. Palestinian officials hailed the development as a step towards greater justice and an end to impunity, while rights group Human Rights Watch welcomed the membership.",
+        "Here is a brief summary of the article:\n\nThe Palestinian Authority has officially become the 123rd member of the International Criminal Court (ICC), giving the court jurisdiction over alleged crimes in Palestinian territories. This move was opposed by Israel and the US, but welcomed by the ICC and human rights group Human Rights Watch. The Palestinian Foreign Minister said it brings the world closer to ending impunity and injustice, while an ICC judge noted that membership comes with both rights and responsibilities.",
+        "Here is a summary of the article:\n\nThe Palestinian Authority has officially become the 123rd member of the International Criminal Court (ICC), giving the court jurisdiction over alleged crimes committed in Palestinian territories. The move was marked by a ceremony at The Hague, where the ICC is based. This development allows the ICC to investigate alleged war crimes committed in Palestinian territories, including East Jerusalem, since 2014. Israel and the US, which are not ICC members, opposed the Palestinian bid to join the court. However, Palestinian officials see this as a step towards greater justice and an end to impunity. The ICC's vice president, Judge Kuniko Ozaki, noted that membership comes with both rights and responsibilities. Human Rights Watch welcomed the development, calling on governments to end pressure on Palestine and support the ICC's universal acceptance.",
+        "Here is a summary of the article:\n\nThe Palestinian Authority has officially become the 123rd member of the International Criminal Court (ICC), giving the court jurisdiction over alleged crimes committed in Palestinian territories. The move was marked by a ceremony at The Hague, where the ICC is based. This development allows the ICC to investigate alleged war crimes committed in Palestinian territories, including East Jerusalem, since 2014. Israel and the US, which are not ICC members, opposed the Palestinian bid to join the court. However, Palestinian officials see this as a step towards greater justice and an end to impunity. The ICC's vice president, Judge Kuniko Ozaki, noted that membership comes with both rights and responsibilities. Human Rights Watch welcomed the development, calling on governments to end pressure on Palestine and support the ICC's universal acceptance."
+      ],
+      "rouge_scores": [
+        0.2564102564102564,
+        0.25210084033613445,
+        0.2564102564102564,
+        0.25210084033613445,
+        0.29457364341085274,
+        0.25862068965517243,
+        0.20930232558139533,
+        0.20930232558139533
+      ],
+      "rouge_var": 0.0006811395574373702,
+      "rouge_mean": 0.2486026472151997,
+      "gold_summary": "Membership gives the ICC jurisdiction over alleged crimes committed in Palestinian territories since last June .\nIsrael and the United States opposed the move, which could open the door to war crimes investigations against Israelis ."
+    },
+    {
+      "article_idx": 1,
+      "article_id": "230c522854991d053fe98a718b1defa077a8efef",
+      "paraphrase_instructions": [
+        "Summarize the following article concisely.",
+        "Briefly summarize the following article.",
+        "Summarize the following article in a concise manner.",
+        "Briefly summarize the following article.",
+        "Summarize the following article in a concise way.",
+        "Summarize briefly the following article.",
+        "Summarize the following article.",
+        "Summarize the following article."
+      ],
+      "outputs": [
+        "Here is a concise summary of the article:\n\nA stray dog in Washington State, named Theia, has survived a series of incredible ordeals, including being hit by a car, beaten with a hammer, and buried in a field. Miraculously, she was found alive four days later and is now receiving treatment at a veterinary hospital. Theia has suffered serious injuries, including a dislocated jaw and caved-in sinus cavity, and requires surgery to breathe. A fundraising campaign has been set up to help cover her medical costs, which have already surpassed $10,000.",
+        "A stray dog in Washington State, named Theia, has survived a series of incredible ordeals, including being hit by a car, being hit on the head with a hammer, and being buried in a field. Miraculously, she was found alive four days later, emaciated and injured, and is now receiving treatment at a veterinary hospital. Theia has a dislocated jaw, leg injuries, and a caved-in sinus cavity, and requires surgery to breathe. A fundraising campaign has been set up to help cover the cost of her medical care, and has already surpassed its $10,000 goal.",
+        "Here is a concise summary of the article:\n\nA stray dog in Washington State, named Theia, has survived a series of traumatic events, including being hit by a car, struck on the head with a hammer, and buried in a field. Miraculously, she was found four days later, emaciated and injured, and is now receiving treatment at a veterinary hospital. Theia has a dislocated jaw, leg injuries, and a caved-in sinus cavity, and requires surgery to breathe. A fundraising campaign has been set up to help cover her medical costs, which have already exceeded $10,000. The dog's foster caregiver is dedicated to ensuring she receives the care she needs and finds a loving home where she will be safe.",
+        "A stray dog in Washington State, named Theia, has survived a series of incredible ordeals, including being hit by a car, being hit on the head with a hammer, and being buried in a field. Miraculously, she was found alive four days later, emaciated and injured, and is now receiving treatment at a veterinary hospital. Theia has a dislocated jaw, leg injuries, and a caved-in sinus cavity, and requires surgery to breathe. A fundraising campaign has been set up to help cover the cost of her medical care, and has already surpassed its $10,000 goal.",
+        "Here is a concise summary of the article:\n\nA stray dog in Washington State, named Theia, has survived a series of incredible ordeals, including being hit by a car, beaten with a hammer, and buried in a field. Miraculously, she managed to escape and was found four days later, emaciated and injured. Theia is now receiving treatment at a veterinary hospital, where she is undergoing surgery to repair her dislocated jaw, leg injuries, and caved-in sinus cavity. A fundraising campaign has been set up to help cover the cost of her care, and has already surpassed its $10,000 goal. The dog's rescuer, Sara Mellado, is dedicated to finding Theia a loving home where she will be safe and receive the care she needs.",
+        "A stray dog in Washington State, named Theia, has survived a series of incredible ordeals, including being hit by a car, being hit on the head with a hammer, and being buried in a field. Miraculously, she was found alive four days later, emaciated and injured, and is now receiving treatment at a veterinary hospital. Despite suffering a dislocated jaw, leg injuries, and a caved-in sinus cavity, Theia is described as \"incredibly gentle and loving\". A fundraising campaign has been set up to help cover the cost of her extensive medical care, and has already surpassed its $10,000 target.",
+        "A stray dog in Washington State, named Theia, has survived a series of incredible ordeals, including being hit by a car, being struck on the head with a hammer, and being buried in a field. Despite being left for dead, Theia managed to dig herself out and was found four days later by a farm worker, who took her to a vet for help. The dog, a one-year-old bully breed mix, is now receiving treatment at Washington State University's Veterinary Teaching Hospital, where she is being cared for by a foster family. Theia has suffered significant injuries, including a dislocated jaw, leg injuries, and a caved-in sinus cavity, and requires surgery to help her breathe. A fundraising page has been set up to help cover the cost of her medical care, which has already surpassed its $10,000 target. The foster family is dedicated to ensuring Theia receives the medical attention she needs and finds a loving home where she will be safe. Any additional",
+        "A stray dog in Washington State, named Theia, has survived a series of incredible ordeals, including being hit by a car, being struck on the head with a hammer, and being buried in a field. Despite being left for dead, Theia managed to dig herself out and was found four days later by a farm worker, who took her to a vet for help. The dog, a one-year-old bully breed mix, is now receiving treatment at Washington State University's Veterinary Teaching Hospital, where she is being cared for by a foster family. Theia has suffered significant injuries, including a dislocated jaw, leg injuries, and a caved-in sinus cavity, and requires surgery to help her breathe. A fundraising page has been set up to help cover the cost of her medical care, which has already surpassed its $10,000 target. The foster family is dedicated to ensuring Theia receives the medical attention she needs and finds a loving home where she will be safe. Any additional"
+      ],
+      "rouge_scores": [
+        0.27941176470588236,
+        0.27142857142857146,
+        0.2545454545454545,
+        0.27142857142857146,
+        0.27218934911242604,
+        0.2777777777777778,
+        0.19811320754716982,
+        0.19811320754716982
+      ],
+      "rouge_var": 0.001048295070640552,
+      "rouge_mean": 0.2528759880116279,
+      "gold_summary": "Theia, a bully breed mix, was apparently hit by a car, whacked with a hammer and buried in a field .\n\"She's a true miracle dog and she deserves a good life,\" says Sara Mellado, who is looking for a home for Theia ."
+    },
+    {
+      "article_idx": 2,
+      "article_id": "4495ba8f3a340d97a9df1476f8a35502bcce1f69",
+      "paraphrase_instructions": [
+        "Summarize the following article concisely.",
+        "Briefly summarize the following article.",
+        "Summarize the following article in a concise manner.",
+        "Briefly summarize the following article.",
+        "Summarize the following article in a concise way.",
+        "Summarize briefly the following article.",
+        "Summarize the following article.",
+        "Summarize the following article."
+      ],
+      "outputs": [
+        "Here is a concise summary of the article:\n\nIranian Foreign Minister Mohammad Javad Zarif is known for his diplomatic efforts to secure a nuclear deal with the US, but there are lesser-known facts about him. He has a Twitter exchange with US politician Christine Pelosi, where he denies Iran's Holocaust denial, citing the departure of former President Mahmoud Ahmadinejad. Zarif also has a personal history of studying in the US, where he was during the Iranian Revolution.",
+        "Here is a brief summary of the article:\n\nIranian Foreign Minister Mohammad Javad Zarif is known for his efforts to secure a nuclear deal with the US and his jovial personality. However, there are lesser-known facts about him, including:\n\n* He tweeted a Happy Rosh Hashanah message to Jews in 2013, which was responded to by Christine Pelosi, who criticized Iran's Holocaust denial.\n* Zarif replied that Iran never denied the Holocaust, and that the previous president, Mahmoud Ahmadinejad, was the one who made anti-Semitic comments.\n* Zarif was educated in the US, where he was outside the country during the Iranian Revolution in 1977-1979.",
+        "Here is a concise summary of the article:\n\nIranian Foreign Minister Mohammad Javad Zarif is known for his diplomatic efforts to secure a nuclear deal with the US, but there are lesser-known facts about him. He has a Twitter exchange with Christine Pelosi, daughter of House Minority Leader Nancy Pelosi, where he denies Iran's Holocaust denial, citing the departure of former President Mahmoud Ahmadinejad. Zarif also has a history of studying in the US, where he was during the Iranian Revolution that overthrew the Shah in 1979.",
+        "Here is a brief summary of the article:\n\nIranian Foreign Minister Mohammad Javad Zarif is known for his efforts to secure a nuclear deal with the US and his jovial personality. However, there are lesser-known facts about him, including:\n\n* He tweeted a Happy Rosh Hashanah message to Jews in 2013, which was responded to by Christine Pelosi, who criticized Iran's Holocaust denial.\n* Zarif replied that Iran never denied the Holocaust, and that the previous president, Mahmoud Ahmadinejad, was the one who made anti-Semitic comments.\n* Zarif was educated in the US, where he was outside the country during the Iranian Revolution in 1977-1979.",
+        "Here is a concise summary of the article:\n\nIranian Foreign Minister Mohammad Javad Zarif is known for his diplomatic efforts to secure a nuclear deal with the US, but there are lesser-known facts about him. He has a Twitter exchange with US politician Christine Pelosi, where he denies Iran's Holocaust denial, citing the departure of former President Mahmoud Ahmadinejad. Zarif also has a personal history of studying in the US, where he was during the Iranian Revolution that overthrew the Shah in 1979.",
+        "Here is a brief summary of the article:\n\nIranian Foreign Minister Mohammad Javad Zarif is known for his efforts to secure a nuclear deal with the US and his jovial personality. However, there are lesser-known facts about him, including:\n\n* He tweeted a Happy Rosh Hashanah message to Jews in 2013, which was responded to by Christine Pelosi, who criticized Iran's Holocaust denial.\n* Zarif replied that Iran never denied the Holocaust, and that the previous president, Mahmoud Ahmadinejad, was the one who made anti-Semitic comments.\n* Zarif was educated in the US, where he was outside the country during the Iranian Revolution in 1977-1979.",
+        "The article highlights six lesser-known facts about Mohammad Javad Zarif, the Iranian foreign minister. Here are the six points:\n\n1. Zarif is known for being \"polished\" and \"jovial\", but his Twitter exchange with Christine Pelosi, daughter of House Minority Leader Nancy Pelosi, shows a more nuanced side. In 2013, Zarif tweeted a Happy Rosh Hashanah message, which Pelosi responded to by asking him to end Iran's Holocaust denial. Zarif replied that Iran never denied the Holocaust, and that the previous president, Mahmoud Ahmadinejad, was the one who made anti-Semitic comments.\n\n2. Zarif was educated in the United States, where he earned a master's degree in international relations from the University of Denver. His foreign ministry notes that he was outside the country during the Iranian Revolution, which suggests that he may have been in the US at the time.\n\n3. Zarif's background is not as well-known as his diplomatic efforts, but he",
+        "The article highlights six lesser-known facts about Mohammad Javad Zarif, the Iranian foreign minister. Here are the six points:\n\n1. Zarif is known for being \"polished\" and \"jovial\", but his Twitter exchange with Christine Pelosi, daughter of House Minority Leader Nancy Pelosi, shows a more nuanced side. In 2013, Zarif tweeted a Happy Rosh Hashanah message, which Pelosi responded to by asking him to end Iran's Holocaust denial. Zarif replied that Iran never denied the Holocaust, and that the previous president, Mahmoud Ahmadinejad, was the one who made anti-Semitic comments.\n\n2. Zarif was educated in the United States, where he earned a master's degree in international relations from the University of Denver. His foreign ministry notes that he was outside the country during the Iranian Revolution, which suggests that he may have been in the US at the time.\n\n3. Zarif's background is not as well-known as his diplomatic efforts, but he"
+      ],
+      "rouge_scores": [
+        0.1929824561403509,
+        0.15602836879432627,
+        0.1935483870967742,
+        0.15602836879432627,
+        0.19999999999999998,
+        0.15602836879432627,
+        0.12435233160621761,
+        0.12435233160621761
+      ],
+      "rouge_var": 0.0007917736755140391,
+      "rouge_mean": 0.1629150766040674,
+      "gold_summary": "Mohammad Javad Zarif has spent more time with John Kerry than any other foreign minister .\nHe once participated in a takeover of the Iranian Consulate in San Francisco .\nThe Iranian foreign minister tweets in English ."
+    },
+    {
+      "article_idx": 3,
+      "article_id": "a38e72fed88684ec8d60dd5856282e999dc8c0ca",
+      "paraphrase_instructions": [
+        "Summarize the following article concisely.",
+        "Briefly summarize the following article.",
+        "Summarize the following article in a concise manner.",
+        "Briefly summarize the following article.",
+        "Summarize the following article in a concise way.",
+        "Summarize briefly the following article.",
+        "Summarize the following article.",
+        "Summarize the following article."
+      ],
+      "outputs": [
+        "Here is a concise summary of the article:\n\nFive American clinicians who were exposed to Ebola in Sierra Leone in March have been released from a Nebraska hospital after a 3-week monitoring period. One of the five had a heart issue and remains in the area, while the others have returned home. They were being monitored as a precaution after coming into contact with a colleague who contracted the disease.",
+        "Five American clinicians who were exposed to Ebola in Sierra Leone in March have been released from a Nebraska hospital after being monitored for three weeks. One of the five had a heart issue and is still in the area, while the others have returned home. They were being monitored as a precaution after coming into contact with a colleague who contracted the disease, but none of them developed Ebola.",
+        "Here is a concise summary of the article:\n\nFive American clinicians who were exposed to Ebola in Sierra Leone in March have been released from a Nebraska hospital after a 3-week monitoring period. One of the five had a heart issue and remains in the area, while the others have returned home. They were being monitored as a precaution after coming into contact with a colleague who contracted the disease. The CDC expects to release the last of 17 monitored patients by Thursday, marking a significant milestone in the fight against the West African Ebola epidemic, which has claimed over 10,000 lives since 2013.",
+        "Five American clinicians who were exposed to Ebola in Sierra Leone in March have been released from a Nebraska hospital after being monitored for three weeks. One of the five had a heart issue and is still in the area, while the others have returned home. They were being monitored as a precaution after coming into contact with a colleague who contracted the disease, but none of them developed Ebola.",
+        "Here is a concise summary of the article:\n\nFive American aid workers who were exposed to Ebola in Sierra Leone in March have been released from a Nebraska hospital after a 3-week monitoring period. One of the five had a heart issue and remains in the area, while the others have returned home. They were being monitored as a precaution after coming into contact with a colleague who contracted the disease, but none of them developed Ebola.",
+        "Here is a brief summary of the article:\n\nFive American aid workers who were exposed to Ebola in Sierra Leone in March have been released from a Nebraska hospital after being monitored for three weeks. None of them developed the disease. One of the five had a heart issue and was discharged but remains in the area, while the others have returned home. The group, who work for Partners in Health, had contact with a colleague who was diagnosed with Ebola and is being treated in Maryland.",
+        "Five American clinicians who were exposed to Ebola in Sierra Leone in March and were being monitored at a Nebraska hospital for three weeks have been released. One of the five had a heart issue and was discharged but remains in the area, while the others have returned home. They were exposed to Ebola while working for a Boston-based aid group and had contact with a colleague who was diagnosed with the disease. The colleague is currently in fair condition at a hospital in Maryland. The Centers for Disease Control and Prevention expects to release the last of 17 patients being monitored by Thursday.",
+        "Five American clinicians who were exposed to Ebola in Sierra Leone in March and were being monitored at a Nebraska hospital for three weeks have been released. One of the five had a heart issue and was discharged but remains in the area, while the others have returned home. They were exposed to Ebola while working for a Boston-based aid group and had contact with a colleague who was diagnosed with the disease. The colleague is currently in fair condition at a hospital in Maryland. The Centers for Disease Control and Prevention expects to release the last of 17 patients being monitored by Thursday."
+      ],
+      "rouge_scores": [
+        0.2654867256637168,
+        0.30357142857142855,
+        0.22972972972972971,
+        0.30357142857142855,
+        0.26666666666666666,
+        0.26356589147286824,
+        0.28571428571428575,
+        0.28571428571428575
+      ],
+      "rouge_var": 0.0005250384306018991,
+      "rouge_mean": 0.27550255526305123,
+      "gold_summary": "17 Americans were exposed to the Ebola virus while in Sierra Leone in March .\nAnother person was diagnosed with the disease and taken to hospital in Maryland .\nNational Institutes of Health says the patient is in fair condition after weeks of treatment ."
+    },
+    {
+      "article_idx": 4,
+      "article_id": "c27cf1b136cc270023de959e7ab24638021bc43f",
+      "paraphrase_instructions": [
+        "Summarize the following article concisely.",
+        "Briefly summarize the following article.",
+        "Summarize the following article in a concise manner.",
+        "Briefly summarize the following article.",
+        "Summarize the following article in a concise way.",
+        "Summarize briefly the following article.",
+        "Summarize the following article.",
+        "Summarize the following article."
+      ],
+      "outputs": [
+        "Here is a concise summary of the article:\n\nA Duke University student has admitted to hanging a noose made of rope from a tree near a student union, sparking outrage and a campus-wide response. The student, who has not been named, is no longer on campus and will face a student conduct review. The incident is one of several recent racist events on college campuses, including a fraternity's charter being revoked at the University of Oklahoma and a noose being hung around a civil rights statue at the University of Mississippi. The Duke community rallied together in response, with hundreds of students and faculty members marching and holding a forum to condemn the incident.",
+        "A Duke University student has admitted to hanging a noose made of rope from a tree near a student union, sparking outrage and a campus-wide response. The student, who has not been named due to federal privacy laws, is no longer on campus and will face a student conduct review. The incident is one of several recent racist events on college campuses, including a fraternity's charter being revoked at the University of Oklahoma and a noose being hung around a civil rights statue at the University of Mississippi. The Duke community rallied together in response, with hundreds of students and faculty members marching and holding a forum to condemn the incident. University officials have launched a criminal investigation and are still trying to determine if others were involved.",
+        "Here is a concise summary of the article:\n\nA Duke University student has admitted to hanging a noose made of rope from a tree near a student union, sparking outrage and a campus-wide response. The student, who has not been named due to federal privacy laws, is no longer on campus and will face a student conduct review. The incident is one of several recent racist events on college campuses, including a fraternity's charter being revoked at the University of Oklahoma and a noose being hung around a civil rights statue at the University of Mississippi. The Duke community rallied together in response, with hundreds of students and faculty members marching and holding a forum to condemn the incident.",
+        "A Duke University student has admitted to hanging a noose made of rope from a tree near a student union, sparking outrage and a campus-wide response. The student, who has not been named due to federal privacy laws, is no longer on campus and will face a student conduct review. The incident is one of several recent racist events on college campuses, including a fraternity's charter being revoked at the University of Oklahoma and a noose being hung around a civil rights statue at the University of Mississippi. The Duke community rallied together in response, with hundreds of students and faculty members marching and holding a forum to condemn the incident. University officials have launched a criminal investigation and are still trying to determine if others were involved.",
+        "Here is a concise summary of the article:\n\nA Duke University student has admitted to hanging a noose made of rope from a tree near a student union, sparking outrage and a campus-wide response. The student, who has not been named, is no longer on campus and will face a student conduct review. The incident is one of several recent racist events on college campuses, including a fraternity's charter being revoked at the University of Oklahoma and a noose being hung around a civil rights statue at the University of Mississippi. The Duke community rallied together in response, with hundreds of students and faculty members marching and holding a forum to condemn the incident.",
+        "Here is a brief summary of the article:\n\nA Duke University student has admitted to hanging a noose made of rope from a tree near a student union, sparking outrage and a campus-wide response. The student, who has not been named, is no longer on campus and will face a student conduct review. The incident is one of several recent racist events on college campuses, including a fraternity's charter being revoked at the University of Oklahoma and a noose being hung around a civil rights statue at the University of Mississippi. The Duke community rallied together in response, with hundreds of students and faculty members marching and holding a forum to condemn the incident.",
+        "A Duke University student has admitted to hanging a noose made of rope from a tree near a student union on campus. The student, who has not been named due to federal privacy laws, is no longer on campus and will face a student conduct review. The incident, which was discovered on Wednesday morning, sparked a large student and faculty protest, with hundreds gathering on the steps of Duke Chapel to condemn the act. University officials have launched a criminal investigation and are trying to determine if others were involved. The incident is one of several recent racist events on college campuses, including a fraternity at the University of Oklahoma having its charter removed and a noose being hung around a statue at the University of Mississippi. The university's president and vice president for student affairs have condemned the act, calling it a \"cowardly\" and \"hateful\" act that will have the opposite effect of creating fear.",
+        "A Duke University student has admitted to hanging a noose made of rope from a tree near a student union on campus. The student, who has not been named due to federal privacy laws, is no longer on campus and will face a student conduct review. The incident, which was discovered on Wednesday morning, sparked a large student and faculty protest, with hundreds gathering on the steps of Duke Chapel to condemn the act. University officials have launched a criminal investigation and are trying to determine if others were involved. The incident is one of several recent racist events on college campuses, including a fraternity at the University of Oklahoma having its charter removed and a noose being hung around a statue at the University of Mississippi. The university's president and vice president for student affairs have condemned the act, calling it a \"cowardly\" and \"hateful\" act that will have the opposite effect of creating fear."
+      ],
+      "rouge_scores": [
+        0.20253164556962022,
+        0.18604651162790697,
+        0.19631901840490798,
+        0.18604651162790697,
+        0.20253164556962022,
+        0.20253164556962022,
+        0.19095477386934673,
+        0.19095477386934673
+      ],
+      "rouge_var": 4.5553984191761125e-05,
+      "rouge_mean": 0.19473956576353452,
+      "gold_summary": "Student is no longer on Duke University campus and will face disciplinary review .\nSchool officials identified student during investigation and the person admitted to hanging the noose, Duke says .\nThe noose, made of rope, was discovered on campus about 2 a.m."
+    }
+  ],
+  "summary": {
+    "mean_rouge_var": 0.0006183601436771243,
+    "mean_rouge_mean": 0.22692716657149617,
+    "total_time_seconds": 151.9642903804779
+  }
+}

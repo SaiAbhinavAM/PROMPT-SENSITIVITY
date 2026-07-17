@@ -1,0 +1,16 @@
+[14:00:02] INFO RELATIVE thresholds — Quality (CS_mean) median: 0.6458 | Sensitivity median: 0.4972
+[14:00:02] INFO Wrote 1500 rows to diagnosis.csv
+
+=== Diagnosis 4-cell distribution (RELATIVE to this model's medians) ===
+  quadrant                 n        abs CS_mean (mean [min,max])  abs Sensitivity mean
+  True Robustness        443                 0.749 [0.646,0.917]                 0.334
+  Fragile                307                 0.737 [0.646,0.892]                 0.643
+  Consistently Poor      307                 0.548 [0.170,0.646]                 0.335
+  Unreliable             443                 0.531 [0.163,0.646]                 0.681
+  NOTE: 'high quality' = CS_mean >= 0.646 (this model's median), an abs-mediocre bar; read the absolute CS_mean column, not the label, for real quality.
+
+=== Diagnosis distribution by pool ===
+diagnosis  Consistently Poor  Fragile  True Robustness  Unreliable
+pool                                                              
+A                        203      230              361         256
+B                        104       77               82         187

@@ -42,6 +42,11 @@ smoke_venv/
 hf_cache/
 models/
 
+# Crossed-design raw generation dumps (~53MB each, regenerable from a run) —
+# the small CSV/json/md summaries and cell_metrics are kept in git.
+**/responses_crossed.jsonl
+gensens/crossed/results_run30_live/
+
 # Editor
 .vscode/
 .idea/

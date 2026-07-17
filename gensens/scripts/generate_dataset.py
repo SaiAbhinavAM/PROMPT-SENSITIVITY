@@ -420,7 +420,63 @@ def main():
     parser.add_argument("--max-token-overlap", type=float, default=0.85,
                         help="reject candidates above this lexical (Jaccard) overlap")
     parser.add_argument("--max-per-strategy", type=int, default=2,
-                        help="cap variants contributed by any single strategy")
+                        help="cap variants contributed by any single strategy "
+                             "(legacy — superseded by --max-per-family from §6.6)")
+
+    # ── vLLM multi-GPU / tensor parallelism ────────────────────────────────
+    # PUBLICATION_SPEC §8 — required for 70B AWQ on A30 × 2 (single A30
+    # has only 24GB, 70B AWQ needs ~35GB → must shard across 2 cards).
+    parser.add_argument("--tensor-parallel-size", type=int, default=1,
+                        help="vLLM tensor_parallel_size; set 2 for 70B AWQ on dual 24GB cards (A30 × 2)")
+
+    # ── PUBLICATION_SPEC §6.1 / §7.1 — NLI gate + multi-NLI ensemble ───────
+    parser.add_argument("--disable-nli-gate", dest="enable_nli_gate",
+                        action="store_false", default=True,
+                        help="DISABLE bidirectional NLI gate (legacy reproductions only)")
+    parser.add_argument("--nli-entail-threshold", type=float, default=0.50,
+                        help="Bidirectional entailment threshold τ_NLI (default 0.50)")
+    parser.add_argument("--nli-model-name", type=str,
+                        default="cross-encoder/nli-deberta-v3-small",
+                        help="Primary NLI checkpoint (single-model mode)")
+    parser.add_argument("--enable-nli-ensemble", action="store_true",
+                        help="Enable 2-of-3 majority NLI ensemble (§7.1; "
+                             "RECOMMENDED for publication-grade runs)")
+    parser.add_argument("--nli-ensemble-models", nargs="+", default=None,
+                        help="Override ensemble member checkpoints (default: "
+                             "deberta-v3-small + deberta-v3-base + roberta-base)")
+    parser.add_argument("--nli-ensemble-majority", type=int, default=2,
+                        help="Majority threshold for ensemble vote (default 2 of 3)")
+
+    # ── PUBLICATION_SPEC §6.2 — length-ratio filter ────────────────────────
+    parser.add_argument("--length-ratio-min", type=float, default=0.70,
+                        help="Minimum |candidate| / |base| word-count ratio")
+    parser.add_argument("--length-ratio-max", type=float, default=1.50,
+                        help="Maximum |candidate| / |base| word-count ratio")
+
+    # ── PUBLICATION_SPEC §6.3 — SBERT semantic dedup ───────────────────────
+    parser.add_argument("--semantic-dedup-threshold", type=float, default=0.95,
+                        help="Reject candidate if SBERT cos > X to any accepted variant")
+
+    # ── PUBLICATION_SPEC §6.5 — best-of-N per strategy ─────────────────────
+    parser.add_argument("--best-of-n", type=int, default=3,
+                        help="Number of vLLM candidates per (instance, strategy); "
+                             "set 1 to recover pre-§6.5 single-shot behaviour")
+    parser.add_argument("--best-of-n-temperature", type=float, default=0.95)
+    parser.add_argument("--best-of-n-top-p", type=float, default=0.92)
+
+    # ── PUBLICATION_SPEC §6.6 — per-family caps (4 families + back_translation) ─
+    parser.add_argument("--max-per-family-lexical",   type=int, default=2)
+    parser.add_argument("--max-per-family-syntactic", type=int, default=2)
+    parser.add_argument("--max-per-family-pragmatic", type=int, default=1)
+    parser.add_argument("--max-per-family-length",    type=int, default=1)
+
+    # ── PUBLICATION_SPEC §6.3 — per-task SBERT threshold overrides ─────────
+    # Use JSON: '{"dialogue": 0.78, "qa": 0.85}'. Defaults to the
+    # built-in DEFAULT_TASK_THRESHOLDS (currently just dialogue: 0.78).
+    parser.add_argument("--task-thresholds-json", type=str, default=None,
+                        help='JSON mapping {task: lower SBERT threshold}; '
+                             'e.g. \'{"dialogue": 0.78}\'')
+
     args = parser.parse_args()
 
     # Paths
@@ -449,8 +505,38 @@ def main():
     else:
         tasks = [args.task]
 
+    # Parse JSON task thresholds if provided.
+    task_thresholds_override = None
+    if args.task_thresholds_json:
+        import json as _json
+        try:
+            task_thresholds_override = {
+                str(k): float(v) for k, v in _json.loads(args.task_thresholds_json).items()
+            }
+            logger.info(f"  Task SBERT threshold overrides: {task_thresholds_override}")
+        except Exception as e:
+            logger.error(f"  invalid --task-thresholds-json: {e}; ignoring")
+            task_thresholds_override = None
+
+    # Compose per-family caps dict (PUBLICATION_SPEC §6.6). The
+    # `back_translation` family is populated by a separate augmentation pass
+    # (back_translation_family.py), so its cap is registered in
+    # paraphrase_generator.MAX_PER_FAMILY but not exposed as a CLI knob here.
+    max_per_family = {
+        "lexical":   args.max_per_family_lexical,
+        "syntactic": args.max_per_family_syntactic,
+        "pragmatic": args.max_per_family_pragmatic,
+        "length":    args.max_per_family_length,
+    }
+
     # Load paraphrase generator ONCE (shared across all tasks)
     logger.info(f"Initializing ParaphraseGenerator (backend={args.model})...")
+    logger.info(
+        f"  Tier-2 ensemble: {'ON' if args.enable_nli_ensemble else 'OFF'} | "
+        f"best_of_n={args.best_of_n} | "
+        f"tensor_parallel_size={args.tensor_parallel_size} | "
+        f"NLI gate={'ON' if args.enable_nli_gate else 'OFF'}"
+    )
     t_init    = time.time()
     generator = ParaphraseGenerator(
         model_backend=args.model,
@@ -462,6 +548,23 @@ def main():
         quantization=args.quantization,
         gpu_memory_utilization=args.gpu_memory_utilization,
         max_model_len=args.max_model_len,
+        # Task 1 — multi-GPU sharding for 70B AWQ on A30 × 2.
+        tensor_parallel_size=args.tensor_parallel_size,
+        # Task 2 — PUBLICATION_SPEC Tier-1 / Tier-2 methodology knobs.
+        enable_nli_gate=args.enable_nli_gate,
+        nli_entail_threshold=args.nli_entail_threshold,
+        nli_model_name=args.nli_model_name,
+        enable_nli_ensemble=args.enable_nli_ensemble,
+        nli_ensemble_models=args.nli_ensemble_models,
+        nli_ensemble_majority=args.nli_ensemble_majority,
+        length_ratio_min=args.length_ratio_min,
+        length_ratio_max=args.length_ratio_max,
+        semantic_dedup_threshold=args.semantic_dedup_threshold,
+        best_of_n=args.best_of_n,
+        best_of_n_temperature=args.best_of_n_temperature,
+        best_of_n_top_p=args.best_of_n_top_p,
+        max_per_family=max_per_family,
+        task_thresholds=task_thresholds_override,
     )
     logger.info(f"ParaphraseGenerator initialized in {time.time() - t_init:.1f}s")
 

@@ -1,0 +1,151 @@
+prompt_id,pool,dimension,complexity,base_text,base_prompt
+A01,A,Direct Command,2,"Summarize the following news article in 3-4 sentences, capturing the main events and key details.","Summarize the following news article in 3-4 sentences, capturing the main events and key details.
+
+Article: {{article}}"
+A02,A,Direct Command,1,Extract the most newsworthy information from the following news article.,"Extract the most newsworthy information from the following news article.
+
+Article: {{article}}"
+A03,A,Direct Command,1,Condense the following news article into its most essential points.,"Condense the following news article into its most essential points.
+
+Article: {{article}}"
+A04,A,Direct Command,2,Restate the main developments in the following news article in your own words.,"Restate the main developments in the following news article in your own words.
+
+Article: {{article}}"
+A05,A,Question Form,2,What is the main story being reported in the following news article?,"What is the main story being reported in the following news article?
+
+Article: {{article}}"
+A06,A,Question Form,2,What events or decisions led to the situation described in the following news article?,"What events or decisions led to the situation described in the following news article?
+
+Article: {{article}}"
+A07,A,Question Form,2,What is the most significant development described in the following news article?,"What is the most significant development described in the following news article?
+
+Article: {{article}}"
+A08,A,Question Form,2,What does the following news article want the reader to understand?,"What does the following news article want the reader to understand?
+
+Article: {{article}}"
+A09,A,Role Based,2,"As a news editor, write a short front-page summary of the following article.","As a news editor, write a short front-page summary of the following article.
+
+Article: {{article}}"
+A10,A,Role Based,2,"Acting as a research assistant, extract the key findings from the following news article.","Acting as a research assistant, extract the key findings from the following news article.
+
+Article: {{article}}"
+A11,A,Role Based,2,Imagine you are a news anchor introducing this story on television. Write a brief introduction based on the following article.,"Imagine you are a news anchor introducing this story on television. Write a brief introduction based on the following article.
+
+Article: {{article}}"
+A12,A,Role Based,2,"As a librarian creating a catalog entry, write a short description of what the following news article covers.","As a librarian creating a catalog entry, write a short description of what the following news article covers.
+
+Article: {{article}}"
+A13,A,Constraint Based,2,Write a one-sentence summary of the following news article.,"Write a one-sentence summary of the following news article.
+
+Article: {{article}}"
+A14,A,Constraint Based,2,"Give a three-part summary of the following news article: context, main event, and outcome.","Give a three-part summary of the following news article: context, main event, and outcome.
+
+Article: {{article}}"
+A15,A,Constraint Based,2,"Summarize the following news article using only plain, everyday words — avoid jargon or technical language.","Summarize the following news article using only plain, everyday words — avoid jargon or technical language.
+
+Article: {{article}}"
+A16,A,Analytical Framing,2,"For the following news article, identify the who, what, when, where, and why.","For the following news article, identify the who, what, when, where, and why.
+
+Article: {{article}}"
+A17,A,Analytical Framing,2,Analyse the following news article and explain the cause-and-effect relationship it describes.,"Analyse the following news article and explain the cause-and-effect relationship it describes.
+
+Article: {{article}}"
+A18,A,Analytical Framing,2,Break down the following news article into its main claim and the key facts that support it.,"Break down the following news article into its main claim and the key facts that support it.
+
+Article: {{article}}"
+A19,A,Analytical Framing,2,"What is the underlying conflict described in the following news article, and how is it being addressed?","What is the underlying conflict described in the following news article, and how is it being addressed?
+
+Article: {{article}}"
+A20,A,Output Format,2,Write 3 bullet points summarizing the most important information from the following news article.,"Write 3 bullet points summarizing the most important information from the following news article.
+
+Article: {{article}}"
+A21,A,Output Format,2,Create a short headline and a two-sentence summary for the following news article.,"Create a short headline and a two-sentence summary for the following news article.
+
+Article: {{article}}"
+A22,A,Output Format,2,Write a numbered list of the 3 most important takeaways from the following news article.,"Write a numbered list of the 3 most important takeaways from the following news article.
+
+Article: {{article}}"
+A23,A,Audience Perspective,2,Explain the following news article to someone who has no background knowledge on the topic.,"Explain the following news article to someone who has no background knowledge on the topic.
+
+Article: {{article}}"
+A24,A,Audience Perspective,2,Summarize the following news article for a busy executive who only has 30 seconds to read it.,"Summarize the following news article for a busy executive who only has 30 seconds to read it.
+
+Article: {{article}}"
+A25,A,Audience Perspective,2,Write a summary of the following news article that would be easy for a high school student to understand.,"Write a summary of the following news article that would be easy for a high school student to understand.
+
+Article: {{article}}"
+A26,A,Emphasis Focus,2,Summarize the following news article focusing specifically on the people involved and their roles.,"Summarize the following news article focusing specifically on the people involved and their roles.
+
+Article: {{article}}"
+A27,A,Emphasis Focus,2,Describe the timeline of events in the following news article in chronological order.,"Describe the timeline of events in the following news article in chronological order.
+
+Article: {{article}}"
+A28,A,Emphasis Focus,2,Summarize the following news article by highlighting its potential impact or consequences.,"Summarize the following news article by highlighting its potential impact or consequences.
+
+Article: {{article}}"
+A29,A,Tone Register,1,"Write a formal, objective summary of the following news article.","Write a formal, objective summary of the following news article.
+
+Article: {{article}}"
+A30,A,Tone Register,2,"Give a casual, conversational overview of what the following news article is about.","Give a casual, conversational overview of what the following news article is about.
+
+Article: {{article}}"
+A31,A,Tone Register,2,"Write a vivid, journalistic account of the events described in the following news article.","Write a vivid, journalistic account of the events described in the following news article.
+
+Article: {{article}}"
+A32,A,Tone Register,2,"Write an engaging, reader-friendly summary of the following news article that makes someone want to read the full story.","Write an engaging, reader-friendly summary of the following news article that makes someone want to read the full story.
+
+Article: {{article}}"
+A33,A,Completeness Framing,2,What is the single most important takeaway from the following news article?,"What is the single most important takeaway from the following news article?
+
+Article: {{article}}"
+A34,A,Completeness Framing,2,"Summarize the following news article from start to finish, preserving the logical flow of events.","Summarize the following news article from start to finish, preserving the logical flow of events.
+
+Article: {{article}}"
+A35,A,Completeness Framing,2,Summarize the following news article capturing both the factual content and why the story matters.,"Summarize the following news article capturing both the factual content and why the story matters.
+
+Article: {{article}}"
+B01,B,Lexical Filter,3,"Summarize the events of the following news article comprehensively without using any proper nouns — no names of specific people, cities, countries, or organizations.","Summarize the events of the following news article comprehensively without using any proper nouns — no names of specific people, cities, countries, or organizations.
+
+Article: {{article}}"
+B02,B,Lexical Filter,3,"Summarize the following news article without using the words 'said', 'reported', 'police', 'government', or 'stated'.","Summarize the following news article without using the words 'said', 'reported', 'police', 'government', or 'stated'.
+
+Article: {{article}}"
+B03,B,Lexical Filter,3,"Write a summary of the following news article that seamlessly integrates the words 'catalyst', 'unprecedented', and 'ramifications' into your response.","Write a summary of the following news article that seamlessly integrates the words 'catalyst', 'unprecedented', and 'ramifications' into your response.
+
+Article: {{article}}"
+B04,B,Theme Isolation,3,"Extract and summarize only the data points, events, and implications related to financial impact, economic policy, or market reactions in the following news article. Ignore all other narratives.","Extract and summarize only the data points, events, and implications related to financial impact, economic policy, or market reactions in the following news article. Ignore all other narratives.
+
+Article: {{article}}"
+B05,B,Theme Isolation,3,Rewrite the core narrative of the following news article entirely from the perspective of the individual or organization that suffered the most negative impact.,"Rewrite the core narrative of the following news article entirely from the perspective of the individual or organization that suffered the most negative impact.
+
+Article: {{article}}"
+B06,B,Theme Isolation,3,"Summarize the primary argument driving the conflict in the following news article, followed by a summary of the opposing viewpoint.","Summarize the primary argument driving the conflict in the following news article, followed by a summary of the opposing viewpoint.
+
+Article: {{article}}"
+B07,B,Theme Isolation,3,Identify the underlying sentiment or framing of the journalist in the following news article. Summarize the facts in a way that actively strips away that specific bias.,"Identify the underlying sentiment or framing of the journalist in the following news article. Summarize the facts in a way that actively strips away that specific bias.
+
+Article: {{article}}"
+B08,B,Theme Isolation,3,"Ignore the background context in the following news article. Summarize only the direct, immediate aftermath and the stated future consequences of the events.","Ignore the background context in the following news article. Summarize only the direct, immediate aftermath and the stated future consequences of the events.
+
+Article: {{article}}"
+B09,B,Persona / Tone,3,"Provide a high-level executive brief of the following news article suitable for a CEO, focusing solely on strategic impact, final outcomes, and actionable risks.","Provide a high-level executive brief of the following news article suitable for a CEO, focusing solely on strategic impact, final outcomes, and actionable risks.
+
+Article: {{article}}"
+B10,B,Persona / Tone,3,"Explain the main events of the following news article using simple, conversational language suitable for a middle school student, stripping away all journalistic jargon.","Explain the main events of the following news article using simple, conversational language suitable for a middle school student, stripping away all journalistic jargon.
+
+Article: {{article}}"
+B11,B,Persona / Tone,3,"Summarize the following news article in a strictly clinical, neutral tone. Strip away all emotional adjectives, quotes, and narrative flair.","Summarize the following news article in a strictly clinical, neutral tone. Strip away all emotional adjectives, quotes, and narrative flair.
+
+Article: {{article}}"
+B12,B,Persona / Tone,3,"Rewrite the core facts of the following news article into a punchy, sensationalized introductory paragraph designed to hook readers for a morning email newsletter.","Rewrite the core facts of the following news article into a punchy, sensationalized introductory paragraph designed to hook readers for a morning email newsletter.
+
+Article: {{article}}"
+B13,B,Persona / Tone,3,"Summarize the following news article in the style of an academic research paper abstract, focusing on methodology (how the event happened) and findings (the result).","Summarize the following news article in the style of an academic research paper abstract, focusing on methodology (how the event happened) and findings (the result).
+
+Article: {{article}}"
+B14,B,Persona / Tone,3,"Summarize the claims made in the following news article in a highly skeptical tone, highlighting what evidence is missing or glossed over by the author.","Summarize the claims made in the following news article in a highly skeptical tone, highlighting what evidence is missing or glossed over by the author.
+
+Article: {{article}}"
+B15,B,Meta-reflection,3,"First, provide a standard 50-word summary of the following news article. Then, write a second paragraph critiquing your own summary, pointing out what nuance you failed to capture.","First, provide a standard 50-word summary of the following news article. Then, write a second paragraph critiquing your own summary, pointing out what nuance you failed to capture.
+
+Article: {{article}}"

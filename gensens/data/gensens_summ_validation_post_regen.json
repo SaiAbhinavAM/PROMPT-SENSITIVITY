@@ -1,0 +1,485 @@
+{
+  "summary": {
+    "total_seeds": 50,
+    "flagged_seeds": 9,
+    "pool_b_fail_rate": 0.1351,
+    "llm_judge_triggered": false,
+    "n_llm_judged": 0
+  },
+  "per_seed": {
+    "A01": {
+      "prompt_id": "A01",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A02": {
+      "prompt_id": "A02",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A03": {
+      "prompt_id": "A03",
+      "pool": "A",
+      "n_variants": 4,
+      "sbert_pass_count": 4,
+      "constraint_pass_count": null,
+      "flagged": true,
+      "flag_reasons": [
+        "only_4_variants(expected_5)"
+      ]
+    },
+    "A04": {
+      "prompt_id": "A04",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A05": {
+      "prompt_id": "A05",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A06": {
+      "prompt_id": "A06",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A07": {
+      "prompt_id": "A07",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A08": {
+      "prompt_id": "A08",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A09": {
+      "prompt_id": "A09",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A10": {
+      "prompt_id": "A10",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A11": {
+      "prompt_id": "A11",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A12": {
+      "prompt_id": "A12",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A13": {
+      "prompt_id": "A13",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A14": {
+      "prompt_id": "A14",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A15": {
+      "prompt_id": "A15",
+      "pool": "A",
+      "n_variants": 3,
+      "sbert_pass_count": 3,
+      "constraint_pass_count": null,
+      "flagged": true,
+      "flag_reasons": [
+        "only_3_variants(expected_5)"
+      ]
+    },
+    "A16": {
+      "prompt_id": "A16",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A17": {
+      "prompt_id": "A17",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A18": {
+      "prompt_id": "A18",
+      "pool": "A",
+      "n_variants": 4,
+      "sbert_pass_count": 4,
+      "constraint_pass_count": null,
+      "flagged": true,
+      "flag_reasons": [
+        "only_4_variants(expected_5)"
+      ]
+    },
+    "A19": {
+      "prompt_id": "A19",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A20": {
+      "prompt_id": "A20",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A21": {
+      "prompt_id": "A21",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A22": {
+      "prompt_id": "A22",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A23": {
+      "prompt_id": "A23",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A24": {
+      "prompt_id": "A24",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A25": {
+      "prompt_id": "A25",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A26": {
+      "prompt_id": "A26",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A27": {
+      "prompt_id": "A27",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A28": {
+      "prompt_id": "A28",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A29": {
+      "prompt_id": "A29",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A30": {
+      "prompt_id": "A30",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A31": {
+      "prompt_id": "A31",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A32": {
+      "prompt_id": "A32",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A33": {
+      "prompt_id": "A33",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A34": {
+      "prompt_id": "A34",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "A35": {
+      "prompt_id": "A35",
+      "pool": "A",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": null,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "B01": {
+      "prompt_id": "B01",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 5,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "B02": {
+      "prompt_id": "B02",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 1,
+      "flagged": true,
+      "flag_reasons": [
+        "v1:constraint_keyword_missing",
+        "v2:constraint_keyword_missing",
+        "v3:constraint_keyword_missing",
+        "v4:constraint_keyword_missing"
+      ]
+    },
+    "B03": {
+      "prompt_id": "B03",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 5,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "B04": {
+      "prompt_id": "B04",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 5,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "B05": {
+      "prompt_id": "B05",
+      "pool": "B",
+      "n_variants": 4,
+      "sbert_pass_count": 4,
+      "constraint_pass_count": 4,
+      "flagged": true,
+      "flag_reasons": [
+        "only_4_variants(expected_5)"
+      ]
+    },
+    "B06": {
+      "prompt_id": "B06",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 4,
+      "flagged": true,
+      "flag_reasons": [
+        "v1:constraint_keyword_missing"
+      ]
+    },
+    "B07": {
+      "prompt_id": "B07",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 5,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "B08": {
+      "prompt_id": "B08",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 4,
+      "flagged": true,
+      "flag_reasons": [
+        "v3:constraint_keyword_missing"
+      ]
+    },
+    "B09": {
+      "prompt_id": "B09",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 5,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "B10": {
+      "prompt_id": "B10",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 5,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "B11": {
+      "prompt_id": "B11",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 5,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "B12": {
+      "prompt_id": "B12",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 2,
+      "flagged": true,
+      "flag_reasons": [
+        "v0:constraint_keyword_missing",
+        "v2:constraint_keyword_missing",
+        "v4:constraint_keyword_missing"
+      ]
+    },
+    "B13": {
+      "prompt_id": "B13",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 5,
+      "flagged": false,
+      "flag_reasons": []
+    },
+    "B14": {
+      "prompt_id": "B14",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 4,
+      "flagged": true,
+      "flag_reasons": [
+        "v2:constraint_keyword_missing"
+      ]
+    },
+    "B15": {
+      "prompt_id": "B15",
+      "pool": "B",
+      "n_variants": 5,
+      "sbert_pass_count": 5,
+      "constraint_pass_count": 5,
+      "flagged": false,
+      "flag_reasons": []
+    }
+  },
+  "llm_judge_results": {}
+}

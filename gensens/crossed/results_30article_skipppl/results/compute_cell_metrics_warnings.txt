@@ -1,0 +1,3 @@
+Instruction-echo preamble stripped from 4469/8970 outputs before SMS/CS/ROUGE/BERTScore/faithfulness; PPL/BF use raw generation.
+416 NLI pairs had an output too long for the premise to fit any context; scored as neutral (0.5).
+PPL_var/PC_stab_var not computed (--skip_ppl_entropy).

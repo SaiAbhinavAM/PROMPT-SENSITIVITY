@@ -1,0 +1,26 @@
+[13:59:46] INFO Loaded 1500 cells.
+[13:59:47] WARNING ppl_var: not computed for any cell — excluded from Sensitivity, weight renormalized.
+[13:59:47] WARNING pc_stab_var: not computed for any cell — excluded from Sensitivity, weight renormalized.
+[13:59:47] INFO Sensitivity normalization: rank; active weights: sms_drift=0.429, cs_var=0.286, faith_var=0.286
+[13:59:47] INFO Composite transparency — Spearman(normalized component, Sensitivity):
+[13:59:47] INFO     sms_drift    rho=0.833
+[13:59:47] INFO     cs_var       rho=0.710
+[13:59:47] INFO     faith_var    rho=0.456
+[13:59:47] INFO   Sensitivity ranking vs sms_drift-alone: Spearman rho=0.833 (composite adds signal beyond sms_drift)
+[13:59:47] INFO Sensitivity composite uses: ['sms_drift', 'cs_var', 'faith_var']
+[13:59:58] INFO Wrote 50 rows to scores_by_seed.csv
+[13:59:58] INFO Wrote 2 rows to scores_by_pool.csv
+[14:00:02] INFO Wrote 14 rows to scores_by_dimension.csv
+[15:19:51] INFO Loaded 1500 cells.
+[15:19:51] INFO Sensitivity normalization: rank; active weights: sms_drift=0.300, cs_var=0.200, faith_var=0.200, ppl_var=0.150, pc_stab_var=0.150
+[15:19:52] INFO Composite transparency — Spearman(normalized component, Sensitivity):
+[15:19:52] INFO     sms_drift    rho=0.755
+[15:19:52] INFO     cs_var       rho=0.623
+[15:19:52] INFO     faith_var    rho=0.368
+[15:19:52] INFO     ppl_var      rho=0.670
+[15:19:52] INFO     pc_stab_var  rho=0.705
+[15:19:52] INFO   Sensitivity ranking vs sms_drift-alone: Spearman rho=0.755 (composite adds signal beyond sms_drift)
+[15:19:52] INFO Sensitivity composite uses: ['sms_drift', 'cs_var', 'faith_var', 'ppl_var', 'pc_stab_var']
+[15:20:02] INFO Wrote 50 rows to scores_by_seed.csv
+[15:20:03] INFO Wrote 2 rows to scores_by_pool.csv
+[15:20:06] INFO Wrote 14 rows to scores_by_dimension.csv

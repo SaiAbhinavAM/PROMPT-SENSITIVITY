@@ -1,21 +1,10 @@
 import re
 from typing import List, Dict
 import numpy as np
-from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import logging
 
 logger = logging.getLogger(__name__)
-
-# Global model instance for lazy loading
-_model = None
-
-def get_model():
-    """Lazily load the sentence-transformer model to save memory/time."""
-    global _model
-    if _model is None:
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
-    return _model
 
 def extract_constraints(prompt: str) -> dict:
     """
@@ -82,27 +71,30 @@ def check_constraints(response: str, constraints: dict) -> float:
     # Average the scores for all detected constraints
     return sum(scores) / len(scores)
 
-def compute_kpig_metric(prompts: List[str], responses: List[str], alpha: float = 0.7) -> float:
+def compute_kpig_metric(prompts: List[str], responses: List[str], alpha: float = 0.7, embedder=None) -> float:
     """
     Key Point Information Gain (KPIG) - Constraint-Aware Semantic Version.
-    
-    Combines semantic consistency (average pairwise cosine similarity) with
-    constraint compliance consistency.
-    
+
+    NOTE: the canonical pipeline uses compute_kpig_advanced from metrics_advanced.py.
+    This function is retained as a lightweight fallback.
+
     Args:
         prompts: List of input prompts.
         responses: List of generated responses.
         alpha: Weight for semantic consistency vs constraint compliance (default: 0.7).
-        
+        embedder: Shared EmbeddingHelper instance. Created lazily if None.
+
     Returns:
         float: KPIG score between 0.0 and 1.0.
     """
     if not responses or all(not r.strip() for r in responses):
         return 0.0
-        
+
     # --- 1. Compute Semantic Consistency ---
-    model = get_model()
-    embeddings = model.encode(responses)
+    if embedder is None:
+        from .embeddings import EmbeddingHelper
+        embedder = EmbeddingHelper()
+    embeddings = embedder.encode(responses)
     
     if len(responses) > 1:
         sim_matrix = cosine_similarity(embeddings)

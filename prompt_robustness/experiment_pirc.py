@@ -318,10 +318,16 @@ def setup_pirc_pipeline(model, tokenizer, config: dict):
     )
 
     # Anchor Token Identifier
+    # PUBLICATION_SPEC §10 — anchor-percentile is the third LL-PIRC ablation
+    # knob (alongside ℓ* and α). We read `anchor_tokens.anchor_percentile`
+    # from config when set, defaulting to the AnchorTokenIdentifier's own
+    # default (30.0) for backwards compatibility.
+    anchor_percentile = config['anchor_tokens'].get('anchor_percentile', 30.0)
     anchor_identifier = AnchorTokenIdentifier(
         logit_lens,
+        anchor_percentile=float(anchor_percentile),
         tau=config['anchor_tokens']['tau'],
-        tau_var=config['anchor_tokens']['tau_var']
+        tau_var=config['anchor_tokens']['tau_var'],
     )
 
     # PIRC Generator
@@ -616,6 +622,11 @@ def main():
         "--ell-star", type=int, default=None,
         help="Force a specific ℓ* (e.g. 6, 9, 12, 18, 24, 28) bypassing detection"
     )
+    # PUBLICATION_SPEC §10 — third ablation knob: anchor token percentile.
+    parser.add_argument(
+        "--anchor-percentile", type=float, default=None,
+        help="Override anchor token percentile (e.g. 10, 20, 30, 50, 70)"
+    )
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -625,6 +636,9 @@ def main():
     if args.ell_star is not None:
         config.setdefault('sensitive_layer', {})['force_ell_star'] = int(args.ell_star)
         logger.info(f"[ablation] ℓ* forced via CLI: {args.ell_star}")
+    if args.anchor_percentile is not None:
+        config.setdefault('anchor_tokens', {})['anchor_percentile'] = float(args.anchor_percentile)
+        logger.info(f"[ablation] anchor percentile overridden via CLI: {args.anchor_percentile}")
     # Flaw §4.2 — deterministic seeding for reproducibility.
     try:
         from src.utils import set_global_seed

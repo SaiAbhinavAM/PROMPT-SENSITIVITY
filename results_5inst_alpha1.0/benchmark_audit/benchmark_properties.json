@@ -1,0 +1,550 @@
+{
+  "source_csv": "results_5inst_alpha1.0/scored_samples.csv",
+  "sample_composition": {
+    "n_scored_rows": 76,
+    "n_models": 4,
+    "n_tasks": 4,
+    "models": [
+      "Qwen/Qwen2.5-7B-Instruct",
+      "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
+      "meta-llama/Llama-3.1-8B-Instruct",
+      "mistralai/Mistral-7B-Instruct-v0.3"
+    ],
+    "tasks": [
+      "creative",
+      "dialogue",
+      "qa",
+      "summarization"
+    ],
+    "rows_per_model": {
+      "Qwen/Qwen2.5-7B-Instruct": 19,
+      "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4": 19,
+      "meta-llama/Llama-3.1-8B-Instruct": 19,
+      "mistralai/Mistral-7B-Instruct-v0.3": 19
+    },
+    "rows_per_task": {
+      "creative": 20,
+      "dialogue": 16,
+      "qa": 20,
+      "summarization": 20
+    },
+    "rows_per_model_task": {
+      "Qwen/Qwen2.5-7B-Instruct | creative": 5,
+      "Qwen/Qwen2.5-7B-Instruct | dialogue": 4,
+      "Qwen/Qwen2.5-7B-Instruct | qa": 5,
+      "Qwen/Qwen2.5-7B-Instruct | summarization": 5,
+      "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4 | creative": 5,
+      "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4 | dialogue": 4,
+      "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4 | qa": 5,
+      "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4 | summarization": 5,
+      "meta-llama/Llama-3.1-8B-Instruct | creative": 5,
+      "meta-llama/Llama-3.1-8B-Instruct | dialogue": 4,
+      "meta-llama/Llama-3.1-8B-Instruct | qa": 5,
+      "meta-llama/Llama-3.1-8B-Instruct | summarization": 5,
+      "mistralai/Mistral-7B-Instruct-v0.3 | creative": 5,
+      "mistralai/Mistral-7B-Instruct-v0.3 | dialogue": 4,
+      "mistralai/Mistral-7B-Instruct-v0.3 | qa": 5,
+      "mistralai/Mistral-7B-Instruct-v0.3 | summarization": 5
+    },
+    "variants_per_instance": {
+      "mean": 5.684210526315789,
+      "median": 7,
+      "min": 1,
+      "max": 8,
+      "fraction_below_4": 0.21052631578947367
+    }
+  },
+  "per_model_ranking": {
+    "ranking": [
+      {
+        "model": "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
+        "pri_mean": 0.7871397539410577,
+        "pri_std": 0.09679327718809562,
+        "n_samples": 19,
+        "rank": 1
+      },
+      {
+        "model": "meta-llama/Llama-3.1-8B-Instruct",
+        "pri_mean": 0.7840948174867212,
+        "pri_std": 0.11151274523741544,
+        "n_samples": 19,
+        "rank": 2
+      },
+      {
+        "model": "Qwen/Qwen2.5-7B-Instruct",
+        "pri_mean": 0.7752259378534476,
+        "pri_std": 0.0801547318837897,
+        "n_samples": 19,
+        "rank": 3
+      },
+      {
+        "model": "mistralai/Mistral-7B-Instruct-v0.3",
+        "pri_mean": 0.7568797709952105,
+        "pri_std": 0.1058098071287423,
+        "n_samples": 19,
+        "rank": 4
+      }
+    ],
+    "pri_spread_max_minus_min": 0.030259982945847197,
+    "mean_pairwise_gap": 0.010086660981949066
+  },
+  "per_task_breakdown": {
+    "per_model_per_task_pri": {
+      "Qwen/Qwen2.5-7B-Instruct": {
+        "creative": 0.734308959760573,
+        "dialogue": 0.8238452095445246,
+        "qa": 0.7428760896573465,
+        "summarization": 0.8095973467895619
+      },
+      "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4": {
+        "creative": 0.7237897495013714,
+        "dialogue": 0.8637495370581747,
+        "qa": 0.7720659690797329,
+        "summarization": 0.8042757167483752
+      },
+      "meta-llama/Llama-3.1-8B-Instruct": {
+        "creative": 0.7283377572121023,
+        "dialogue": 0.9048741928301752,
+        "qa": 0.7197640531551507,
+        "summarization": 0.8075591418181475
+      },
+      "mistralai/Mistral-7B-Instruct-v0.3": {
+        "creative": 0.7229359486559843,
+        "dialogue": 0.7975162816606461,
+        "qa": 0.6946996444033251,
+        "summarization": 0.8204945113939734
+      }
+    },
+    "per_task_discriminability": {
+      "creative": {
+        "mean_pri": 0.7273431037825078,
+        "pri_spread": 0.01137301110458866,
+        "pri_std": 0.005214141920733867,
+        "n_models": 4
+      },
+      "dialogue": {
+        "mean_pri": 0.8474963052733802,
+        "pri_spread": 0.10735791116952909,
+        "pri_std": 0.0469530496469094,
+        "n_models": 4
+      },
+      "qa": {
+        "mean_pri": 0.7323514390738888,
+        "pri_spread": 0.0773663246764078,
+        "pri_std": 0.032985411369626745,
+        "n_models": 4
+      },
+      "summarization": {
+        "mean_pri": 0.8104816791875145,
+        "pri_spread": 0.016218794645598278,
+        "pri_std": 0.007026000452038252,
+        "n_models": 4
+      }
+    }
+  },
+  "inter_task_correlation": {
+    "pairwise": [
+      {
+        "task_a": "creative",
+        "task_b": "dialogue",
+        "spearman_rho": 0.39999999999999997,
+        "p_value": 0.6,
+        "n_models": 4
+      },
+      {
+        "task_a": "creative",
+        "task_b": "qa",
+        "spearman_rho": 0.39999999999999997,
+        "p_value": 0.6,
+        "n_models": 4
+      },
+      {
+        "task_a": "creative",
+        "task_b": "summarization",
+        "spearman_rho": -0.19999999999999998,
+        "p_value": 0.8,
+        "n_models": 4
+      },
+      {
+        "task_a": "dialogue",
+        "task_b": "qa",
+        "spearman_rho": 0.39999999999999997,
+        "p_value": 0.6,
+        "n_models": 4
+      },
+      {
+        "task_a": "dialogue",
+        "task_b": "summarization",
+        "spearman_rho": -0.7999999999999999,
+        "p_value": 0.2000000000000001,
+        "n_models": 4
+      },
+      {
+        "task_a": "qa",
+        "task_b": "summarization",
+        "spearman_rho": -0.7999999999999999,
+        "p_value": 0.2000000000000001,
+        "n_models": 4
+      }
+    ],
+    "summary": {
+      "n_task_pairs": 6,
+      "n_finite_rhos": 6,
+      "mean_rho": -0.09999999999999999,
+      "min_rho": -0.7999999999999999,
+      "max_rho": 0.39999999999999997,
+      "verdict": "HEALTHY    \u2014 tasks measure related but non-redundant signals"
+    }
+  },
+  "variance_decomposition": {
+    "total_variance": 0.009602662264760637,
+    "components": {
+      "model": {
+        "eta_squared": 0.014660074045718424,
+        "f_statistic": 0.3570765456971509,
+        "p_value": 0.7841583716709007,
+        "n_groups": 4,
+        "interpretation": "small"
+      },
+      "topic_label": {
+        "eta_squared": 0.26523062941615033,
+        "f_statistic": 8.663310367618532,
+        "p_value": 5.543453649049176e-05,
+        "n_groups": 4,
+        "interpretation": "large"
+      },
+      "instance_id": {
+        "eta_squared": 0.7919516917094384,
+        "f_statistic": 12.05415725007518,
+        "p_value": 2.104577817046902e-13,
+        "n_groups": 19,
+        "interpretation": "large"
+      }
+    }
+  },
+  "per_metric_reliability": {
+    "sms": {
+      "per_model": [
+        {
+          "model": "Qwen/Qwen2.5-7B-Instruct",
+          "mean": 0.8969785900492417,
+          "std": 0.06308221134915697,
+          "cv": 0.07032744376395196,
+          "n": 19
+        },
+        {
+          "model": "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
+          "mean": 0.8978118700416464,
+          "std": 0.07226732434350289,
+          "cv": 0.08049272543049654,
+          "n": 19
+        },
+        {
+          "model": "meta-llama/Llama-3.1-8B-Instruct",
+          "mean": 0.892784494661579,
+          "std": 0.06143788743238961,
+          "cv": 0.06881603320819141,
+          "n": 19
+        },
+        {
+          "model": "mistralai/Mistral-7B-Instruct-v0.3",
+          "mean": 0.8804447174464402,
+          "std": 0.07598514513577428,
+          "cv": 0.08630314161706203,
+          "n": 19
+        }
+      ],
+      "mean_cv": 0.07648483600492548,
+      "max_cv": 0.08630314161706203
+    },
+    "auc_e": {
+      "per_model": [
+        {
+          "model": "Qwen/Qwen2.5-7B-Instruct",
+          "mean": 0.8477085990088761,
+          "std": 0.21135998719663476,
+          "cv": 0.24933094632253658,
+          "n": 19
+        },
+        {
+          "model": "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
+          "mean": 0.7407464657656159,
+          "std": 0.31356750546977663,
+          "cv": 0.42331286069071095,
+          "n": 19
+        },
+        {
+          "model": "meta-llama/Llama-3.1-8B-Instruct",
+          "mean": 0.7581288237250943,
+          "std": 0.29132025110533516,
+          "cv": 0.3842622018694953,
+          "n": 19
+        },
+        {
+          "model": "mistralai/Mistral-7B-Instruct-v0.3",
+          "mean": 0.8261508478126943,
+          "std": 0.20992169715584777,
+          "cv": 0.2540960863402048,
+          "n": 19
+        }
+      ],
+      "mean_cv": 0.3277505238057369,
+      "max_cv": 0.42331286069071095
+    },
+    "trd": {
+      "per_model": [
+        {
+          "model": "Qwen/Qwen2.5-7B-Instruct",
+          "mean": 0.030561159413896068,
+          "std": 0.0190767906667672,
+          "cv": 0.6242168501661308,
+          "n": 19
+        },
+        {
+          "model": "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
+          "mean": 0.030639775979675703,
+          "std": 0.022853601691757378,
+          "cv": 0.7458801822479665,
+          "n": 19
+        },
+        {
+          "model": "meta-llama/Llama-3.1-8B-Instruct",
+          "mean": 0.03170245836832017,
+          "std": 0.018323147370534885,
+          "cv": 0.5779724448386928,
+          "n": 19
+        },
+        {
+          "model": "mistralai/Mistral-7B-Instruct-v0.3",
+          "mean": 0.03482171383343241,
+          "std": 0.021090006475524208,
+          "cv": 0.6056567628005616,
+          "n": 19
+        }
+      ],
+      "mean_cv": 0.6384315600133379,
+      "max_cv": 0.7458801822479665
+    },
+    "kpig": {
+      "per_model": [
+        {
+          "model": "Qwen/Qwen2.5-7B-Instruct",
+          "mean": 0.35305456983041866,
+          "std": 0.26327160077540684,
+          "cv": 0.745696623901124,
+          "n": 19
+        },
+        {
+          "model": "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
+          "mean": 0.3541620548787554,
+          "std": 0.26420631378076415,
+          "cv": 0.7460040118391935,
+          "n": 19
+        },
+        {
+          "model": "meta-llama/Llama-3.1-8B-Instruct",
+          "mean": 0.35213254673911665,
+          "std": 0.2671511126102101,
+          "cv": 0.7586663461930245,
+          "n": 19
+        },
+        {
+          "model": "mistralai/Mistral-7B-Instruct-v0.3",
+          "mean": 0.3529937490869652,
+          "std": 0.2640318318601869,
+          "cv": 0.7479787745338765,
+          "n": 19
+        }
+      ],
+      "mean_cv": 0.7495864391168047,
+      "max_cv": 0.7586663461930245
+    },
+    "cs": {
+      "per_model": [
+        {
+          "model": "Qwen/Qwen2.5-7B-Instruct",
+          "mean": 0.5948604332308196,
+          "std": 0.26581299216105625,
+          "cv": 0.44684934030217244,
+          "n": 19
+        },
+        {
+          "model": "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
+          "mean": 0.5993097913629447,
+          "std": 0.25675033759381444,
+          "cv": 0.42841004985070447,
+          "n": 19
+        },
+        {
+          "model": "meta-llama/Llama-3.1-8B-Instruct",
+          "mean": 0.5792816099478248,
+          "std": 0.23899230910244232,
+          "cv": 0.4125667119382023,
+          "n": 19
+        },
+        {
+          "model": "mistralai/Mistral-7B-Instruct-v0.3",
+          "mean": 0.6094792133330085,
+          "std": 0.281521504934305,
+          "cv": 0.4619050146021743,
+          "n": 19
+        }
+      ],
+      "mean_cv": 0.43743277917331336,
+      "max_cv": 0.4619050146021743
+    },
+    "faithfulness": {
+      "per_model": [
+        {
+          "model": "Qwen/Qwen2.5-7B-Instruct",
+          "mean": 0.9232456140350878,
+          "std": 0.15529067098549965,
+          "cv": 0.1682008217800186,
+          "n": 19
+        },
+        {
+          "model": "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
+          "mean": 0.9046052631578947,
+          "std": 0.13877005149881028,
+          "cv": 0.15340398420232118,
+          "n": 19
+        },
+        {
+          "model": "meta-llama/Llama-3.1-8B-Instruct",
+          "mean": 0.8969298245614036,
+          "std": 0.15301019004827582,
+          "cv": 0.17059326812228304,
+          "n": 19
+        },
+        {
+          "model": "mistralai/Mistral-7B-Instruct-v0.3",
+          "mean": 0.8519736842105263,
+          "std": 0.20936028564958883,
+          "cv": 0.24573562485511585,
+          "n": 19
+        }
+      ],
+      "mean_cv": 0.18448342473993468,
+      "max_cv": 0.24573562485511585
+    },
+    "rougeL": {
+      "per_model": [
+        {
+          "model": "Qwen/Qwen2.5-7B-Instruct",
+          "mean": 0.2643983746347496,
+          "std": 0.3293934721155098,
+          "cv": 1.245822606022246,
+          "n": 19
+        },
+        {
+          "model": "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
+          "mean": 0.21632711335745744,
+          "std": 0.22249100927119705,
+          "cv": 1.0284934043545177,
+          "n": 19
+        },
+        {
+          "model": "meta-llama/Llama-3.1-8B-Instruct",
+          "mean": 0.14967804436219448,
+          "std": 0.06713449505419525,
+          "cv": 0.4485260035315641,
+          "n": 19
+        },
+        {
+          "model": "mistralai/Mistral-7B-Instruct-v0.3",
+          "mean": 0.2944419355236089,
+          "std": 0.31613924222184764,
+          "cv": 1.0736895940439128,
+          "n": 19
+        }
+      ],
+      "mean_cv": 0.9491329019880601,
+      "max_cv": 1.245822606022246
+    },
+    "human_score": {
+      "per_model": [
+        {
+          "model": "Qwen/Qwen2.5-7B-Instruct",
+          "mean": 0.8337719298245614,
+          "std": 0.19727060604103505,
+          "cv": 0.23660020082775376,
+          "n": 19
+        },
+        {
+          "model": "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
+          "mean": 0.8657894736842104,
+          "std": 0.2254949072958728,
+          "cv": 0.2604500449010081,
+          "n": 19
+        },
+        {
+          "model": "meta-llama/Llama-3.1-8B-Instruct",
+          "mean": 0.8699874686716792,
+          "std": 0.19914965476804525,
+          "cv": 0.2289109463520347,
+          "n": 19
+        },
+        {
+          "model": "mistralai/Mistral-7B-Instruct-v0.3",
+          "mean": 0.7908521303258146,
+          "std": 0.2369672528756533,
+          "cv": 0.2996353474802271,
+          "n": 19
+        }
+      ],
+      "mean_cv": 0.2563991348902559,
+      "max_cv": 0.2996353474802271
+    }
+  },
+  "power_analysis": {
+    "target_alpha": 0.01,
+    "wilcoxon_efficiency_factor": 0.955,
+    "sample_size_table": [
+      {
+        "effect_size_dz": 0.2,
+        "n_required_power_80": 263,
+        "n_required_power_90": 341
+      },
+      {
+        "effect_size_dz": 0.3,
+        "n_required_power_80": 117,
+        "n_required_power_90": 152
+      },
+      {
+        "effect_size_dz": 0.4,
+        "n_required_power_80": 66,
+        "n_required_power_90": 86
+      },
+      {
+        "effect_size_dz": 0.5,
+        "n_required_power_80": 43,
+        "n_required_power_90": 55
+      },
+      {
+        "effect_size_dz": 0.6,
+        "n_required_power_80": 30,
+        "n_required_power_90": 38
+      },
+      {
+        "effect_size_dz": 0.8,
+        "n_required_power_80": 17,
+        "n_required_power_90": 22
+      },
+      {
+        "effect_size_dz": 1.0,
+        "n_required_power_80": 11,
+        "n_required_power_90": 14
+      }
+    ],
+    "current_n_samples_per_model": 19,
+    "pri_spread_across_models": 0.030259982945847197,
+    "guidance": "For \u03b1=0.01 and dz\u22480.50 (medium effect), need n\u226545 paired articles for 80% power. The 5-instance pilot is at ~15% power \u2014 insufficient. Target n=200 instances per task (\u2192 600 across 3 tasks) gives ~99% power and margin for stratified subgroup analyses."
+  },
+  "recommendations": [
+    "DISCRIMINABILITY: PRI spread across models is small (<0.05). Consider adding a clearly-weaker baseline model (1-3B) and a clearly-stronger model (70B+ or GPT-4o-mini) to widen the spread.",
+    "INTER-TASK CORRELATION: HEALTHY    \u2014 tasks measure related but non-redundant signals",
+    "VARIANCE BY MODEL: \u03b7\u00b2=0.015 (small) \u2014 how much of PRI variance is explained by model choice.",
+    "VARIANCE BY TASK: \u03b7\u00b2=0.265 (large) \u2014 how much of PRI variance is explained by which task.",
+    "STATISTICAL POWER: current n=19 samples per model is below the n=45 floor for medium-effect detection at \u03b1=0.01, power=0.80. Scale to n=200 per task before reporting publication numbers."
+  ]
+}

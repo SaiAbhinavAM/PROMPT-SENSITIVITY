@@ -22,7 +22,7 @@ roles:
   judge:            "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4"  # independent of subjects
   judge_quant:      "awq_marlin"
   faithfulness:     "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4"  # LLM-as-NLI, reuses judge
-  embedder:         "Alibaba-NLP/gte-Qwen2-7B-instruct"                    # SMS/CS/TRD (7B)
+  embedder:         "BAAI/bge-large-en-v1.5"                                # SMS/CS/TRD (335M, MTEB ~64, BGE); set EMBEDDER_MODEL=Alibaba-NLP/gte-Qwen2-7B-instruct to use 7B
   pirc_target:      "meta-llama/Llama-3.1-8B-Instruct"                     # Phase 3 (HF hooks)
 
 # --- Target Model (Phase 3 PIRC; HF transformers, needs hidden-state hooks) ---

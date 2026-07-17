@@ -1,0 +1,1 @@
+89 NLI pairs had an output too long for the premise to fit any context; scored as neutral (0.5).

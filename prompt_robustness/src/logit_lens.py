@@ -64,6 +64,20 @@ class LogitLensExtractor:
 
         self.num_layers = len(self.layers)
 
+    # ── Safety constants ────────────────────────────────────────────────────
+    # Per-token log-probability is clamped to [-_LOG_PROB_MIN, 0] before the
+    # exp(-log_prob) → PPL conversion. Without this, an unlikely target token
+    # with log_prob ≈ -50 would give PPL ≈ e^50 ≈ 5e21 — still finite but huge,
+    # which then dominates the across-paraphrase variance computation and
+    # masquerades as 'sensitivity'. -50 keeps PPL ≤ 5e21 (well inside fp32)
+    # while preserving rank order.
+    _LOG_PROB_MIN_NEG = 50.0
+    # Logit clamp (post-matmul) keeps log_softmax numerically clean even if
+    # an intermediate-layer hidden state produces unusually large pre-softmax
+    # values. ±50 is far inside fp32 range and never affects the softmax
+    # ranking of plausible tokens.
+    _LOGIT_CLAMP = 50.0
+
     def compute_logits(self, hidden_state: torch.Tensor) -> torch.Tensor:
         """
         Apply the Logit Lens: final layer norm + lm_head projection.
@@ -78,10 +92,33 @@ class LogitLensExtractor:
         if self.cast_to_float32:
             hidden_state = hidden_state.float()
 
-        # Apply final layer norm
+        # Apply final layer norm in fp32 for numerical stability.
         h_normed = self.final_norm(hidden_state)
-        # Project through unembedding matrix
-        logits = self.lm_head(h_normed)
+
+        # Logit Lens NaN fix
+        # ------------------
+        # PREVIOUS BUG: we cast `h_normed` BACK to lm_head's native dtype
+        # (typically fp16/bf16) before the matmul. The unembedding projection
+        # was trained for the FINAL layer; intermediate-layer hidden states
+        # have larger magnitudes, so the fp16 matmul output routinely exceeds
+        # 65504 → +inf → log_softmax(inf) → NaN → S(ℓ) = NaN for every layer
+        # → ℓ* falls back to scan_start+1 with no real detection.
+        #
+        # FIX: when fp32 mode is on, run the projection in fp32 too. We do this
+        # by calling F.linear with the fp32-cast weight directly, avoiding any
+        # need to mutate the lm_head module itself. This costs one extra
+        # weight cast per call (no permanent memory hit).
+        if self.cast_to_float32:
+            weight = self.lm_head.weight.float()
+            bias = self.lm_head.bias.float() if self.lm_head.bias is not None else None
+            logits = F.linear(h_normed, weight, bias)
+        else:
+            logits = self.lm_head(h_normed.to(self.lm_head.weight.dtype))
+
+        # Safety clamp against any remaining numerical extremes. ±50 is far
+        # inside fp32 range and does not affect the softmax ranking of any
+        # plausible-probability token.
+        logits = torch.clamp(logits, min=-self._LOGIT_CLAMP, max=self._LOGIT_CLAMP)
         return logits
 
     def compute_per_token_ppl(
@@ -101,20 +138,27 @@ class LogitLensExtractor:
         Returns:
             ppl_per_token: Tensor of shape (seq_len - 1,). Per-token
                 perplexity values. ppl_per_token[i] is the perplexity of
-                predicting labels[i+1] from hidden_state[i].
+                predicting labels[i+1] from hidden_state[i]. All values are
+                finite — non-finite log-probs are clamped to a safe range
+                before the exp() conversion.
         """
         logits = self.compute_logits(hidden_state)
 
-        # Compute log-softmax over vocabulary dimension
-        # logits[:-1] predicts tokens labels[1:]
+        # Compute log-softmax over vocabulary dimension.
+        # logits[:-1] predicts tokens labels[1:].
         log_probs = F.log_softmax(logits[:-1], dim=-1)  # (seq_len-1, vocab)
 
-        # Gather the log-probability of the actual next token
+        # Gather the log-probability of the actual next token.
         token_log_probs = log_probs.gather(
             -1, labels[1:].unsqueeze(-1)
         ).squeeze(-1)  # (seq_len-1,)
 
-        # Perplexity = exp(-log_prob)
+        # Defensive clamp: even with the fp32 matmul + logit clamp upstream,
+        # a target token with extremely low probability could still drive
+        # log_prob to -inf in pathological cases. Clamp into a safe range
+        # so exp(-log_prob) never overflows.
+        token_log_probs = torch.clamp(token_log_probs, min=-self._LOG_PROB_MIN_NEG, max=0.0)
+
         ppl_per_token = torch.exp(-token_log_probs)
         return ppl_per_token
 

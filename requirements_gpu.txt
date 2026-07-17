@@ -7,14 +7,23 @@
 # PyTorch is NOT pinned here — Jarvis Labs images ship a pre-built
 # CUDA-matched torch; installing a second copy causes conflicts.
 # If starting from a plain Ubuntu image, install torch first:
-#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+#   pip install 'torch==2.6.0+cu124' --index-url https://download.pytorch.org/whl/cu124
+#
+# vLLM PIN: 0.8.x is the last branch compiled against torch 2.6/cu124.
+# vLLM 0.21+ pins torch==2.11.0+cu130 which fails on every A100 driver
+# < 570.124 (CUDA 12.8). DO NOT remove the upper bound.
 # ─────────────────────────────────────────────────────────────
 
 # ── Core model stack ─────────────────────────────────────────
+# vLLM version must match the installed torch:
+#   torch 2.6.x (cu124, older drivers)  →  pip install 'vllm>=0.8.0,<0.9.0'
+#   torch 2.11.x (cu130, driver >=570.124) →  pip install 'vllm>=0.21.0'
+# `run_on_gpu.sh::ensure_deps` picks the right one automatically.
 transformers>=4.44.0
 accelerate>=0.30.0
-vllm>=0.5.0
+vllm>=0.8.0
 tokenizers>=0.19.0
+autoawq>=0.2.0
 
 # ── Embeddings & similarity ───────────────────────────────────
 sentence-transformers>=3.0.0
@@ -36,3 +45,4 @@ pandas>=2.2.0
 pyyaml>=6.0
 python-dotenv>=1.0.0
 tqdm>=4.66.0
+tabulate>=0.9.0

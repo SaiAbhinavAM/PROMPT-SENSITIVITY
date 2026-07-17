@@ -1,0 +1,186 @@
+{
+  "A03": {
+    "action": "topped_up",
+    "old_variant_count": 4,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8327,
+    "new_mean_sim": 0.8318,
+    "unresolved": false
+  },
+  "A15": {
+    "action": "topped_up",
+    "old_variant_count": 3,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8446,
+    "new_mean_sim": 0.8411,
+    "unresolved": false
+  },
+  "A18": {
+    "action": "topped_up",
+    "old_variant_count": 4,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8296,
+    "new_mean_sim": 0.8301,
+    "unresolved": false
+  },
+  "B05": {
+    "action": "topped_up",
+    "old_variant_count": 4,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8679,
+    "new_mean_sim": 0.8666,
+    "unresolved": false
+  },
+  "B14": {
+    "action": "regenerated",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8797,
+    "new_mean_sim": 0.8497,
+    "unresolved": false
+  },
+  "B15": {
+    "action": "verified_kept",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8526,
+    "new_mean_sim": 0.8526,
+    "unresolved": false,
+    "note": "4/5 held both parts (>=4), not regenerated"
+  },
+  "A05": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8689,
+    "new_mean_sim": 0.8478,
+    "n_oversimilar_replaced": 1,
+    "unresolved": false
+  },
+  "A06": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.9028,
+    "new_mean_sim": 0.8884,
+    "n_oversimilar_replaced": 1,
+    "unresolved": false
+  },
+  "A11": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8879,
+    "new_mean_sim": 0.8737,
+    "n_oversimilar_replaced": 1,
+    "unresolved": false
+  },
+  "A14": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8928,
+    "new_mean_sim": 0.8819,
+    "n_oversimilar_replaced": 1,
+    "unresolved": false
+  },
+  "A17": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.897,
+    "new_mean_sim": 0.8517,
+    "n_oversimilar_replaced": 2,
+    "unresolved": false
+  },
+  "A19": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8959,
+    "new_mean_sim": 0.8671,
+    "n_oversimilar_replaced": 2,
+    "unresolved": false
+  },
+  "A25": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8887,
+    "new_mean_sim": 0.8756,
+    "n_oversimilar_replaced": 1,
+    "unresolved": false
+  },
+  "A29": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8569,
+    "new_mean_sim": 0.8359,
+    "n_oversimilar_replaced": 1,
+    "unresolved": false
+  },
+  "A30": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.863,
+    "new_mean_sim": 0.859,
+    "n_oversimilar_replaced": 1,
+    "unresolved": false
+  },
+  "A33": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8607,
+    "new_mean_sim": 0.8413,
+    "n_oversimilar_replaced": 1,
+    "unresolved": false
+  },
+  "B01": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.86,
+    "new_mean_sim": 0.8365,
+    "n_oversimilar_replaced": 1,
+    "unresolved": false
+  },
+  "B09": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8585,
+    "new_mean_sim": 0.8413,
+    "n_oversimilar_replaced": 1,
+    "unresolved": false
+  },
+  "B10": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8957,
+    "new_mean_sim": 0.867,
+    "n_oversimilar_replaced": 1,
+    "unresolved": false
+  },
+  "B11": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 5,
+    "old_mean_sim": 0.8605,
+    "new_mean_sim": 0.8442,
+    "n_oversimilar_replaced": 1,
+    "unresolved": false
+  },
+  "B12": {
+    "action": "oversim_replaced",
+    "old_variant_count": 5,
+    "new_variant_count": 4,
+    "old_mean_sim": 0.8877,
+    "new_mean_sim": 0.8718,
+    "n_oversimilar_replaced": 0,
+    "unresolved": true
+  }
+}

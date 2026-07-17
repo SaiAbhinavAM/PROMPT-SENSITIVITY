@@ -1,0 +1,60 @@
+{
+  "num_articles": 5,
+  "num_successful": 5,
+  "baseline_mean_rouge": 0.22692716657149617,
+  "pirc_mean_rouge": 0.011974395113929998,
+  "rouge_change": -0.21495277145756617,
+  "rouge_change_pct": -94.72324301455669,
+  "baseline_mean_var": 0.0006183601436771243,
+  "pirc_mean_var": 0.00032721310239256055,
+  "relative_var_reduction": 0.47083733365031644,
+  "wilcoxon_variance": {
+    "statistic": 13.0,
+    "p_value": 0.09375,
+    "significant": "False",
+    "significance_level": 0.01,
+    "n_pairs": 5
+  },
+  "wilcoxon_rouge": {
+    "statistic": 0.0,
+    "p_value": 0.0625,
+    "significant": "False",
+    "significance_level": 0.01,
+    "n_pairs": 5
+  },
+  "variance_reduction_ci": {
+    "mean": 0.0002911470412845638,
+    "low": -0.00011832543321896086,
+    "high": 0.0005901699671036149,
+    "confidence": 0.95,
+    "n": 5
+  },
+  "rouge_change_ci": {
+    "mean": -0.21495277145756617,
+    "low": -0.2556718240481714,
+    "high": -0.17343299243415627,
+    "confidence": 0.95,
+    "n": 5
+  },
+  "variance_effect_size_dz": 0.6174877111203909,
+  "rouge_effect_size_dz": -4.05042107612028,
+  "ell_star_stats": {
+    "mean": 9.0,
+    "std": 0.0,
+    "min": 9,
+    "max": 9,
+    "cv": 0.0,
+    "values": [
+      9,
+      9,
+      9,
+      9,
+      9
+    ]
+  },
+  "interpretation": {
+    "note": "PIRC variance is measured across K PIRC-stabilized outputs for the same K paraphrase variants used by the baseline. It is no longer set to zero by construction.",
+    "variance_eliminated": false,
+    "quality_preserved": true
+  }
+}

@@ -62,9 +62,9 @@ CANONICAL_INSTRUCTION = (
     "capturing the main events and key details."
 )
 
-SBERT_LOWER       = 0.82   # reject if similarity < this (meaning drift)
-SBERT_UPPER       = 0.98   # reject if similarity > this (trivial restatement)
-TOKEN_OVERLAP_MAX = 0.85   # reject if Jaccard word overlap > this
+SBERT_LOWER       = 0.50   # reject if similarity < this (meaning drift)
+SBERT_UPPER       = 0.99   # reject if similarity > this (trivial restatement)
+TOKEN_OVERLAP_MAX = 0.90   # reject if Jaccard word overlap > this
 MIN_WORDS         = 6      # reject candidates shorter than this
 
 # Level definitions: (level_id, label, generation_prompt_template)
@@ -128,17 +128,18 @@ def load_hf_model(model_id: str):
     return tokenizer, model
 
 
-def load_vllm_model(model_id: str, gpu_memory_utilization: float, max_model_len: int):
+def load_vllm_model(model_id: str, gpu_memory_utilization: float, max_model_len: int,
+                    quantization: str = None):
     try:
         from vllm import LLM, SamplingParams
     except ImportError as e:
         raise RuntimeError("vllm not installed. On H100: pip install vllm") from e
     from transformers import AutoTokenizer
-    logging.info(f"Loading {model_id} via vLLM...")
+    logging.info(f"Loading {model_id} via vLLM (quantization={quantization})...")
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    llm = LLM(
+    llm_kwargs = dict(
         model=model_id,
         tensor_parallel_size=1,
         gpu_memory_utilization=gpu_memory_utilization,
@@ -146,6 +147,9 @@ def load_vllm_model(model_id: str, gpu_memory_utilization: float, max_model_len:
         dtype="auto",
         trust_remote_code=True,
     )
+    if quantization:
+        llm_kwargs["quantization"] = quantization
+    llm = LLM(**llm_kwargs)
     logging.info("  vLLM engine ready.")
     return tokenizer, llm, SamplingParams
 
@@ -343,8 +347,12 @@ def main():
         help="vLLM max model length (default: 4096)",
     )
     parser.add_argument(
-        "--max-retries", type=int, default=4,
-        help="Per-level generation retries if filter yield is low (default: 4)",
+        "--max-retries", type=int, default=8,
+        help="Per-level generation retries if filter yield is low (default: 8)",
+    )
+    parser.add_argument(
+        "--quantization", type=str, default=None,
+        help="vLLM quantization spec (e.g. awq_marlin, gptq_marlin). Required for AWQ/GPTQ models like Llama-3.1-70B-AWQ-INT4.",
     )
     args = parser.parse_args()
 
@@ -382,7 +390,8 @@ def main():
         tokenizer, model_or_llm = load_hf_model(args.model_id)
     else:
         tokenizer, model_or_llm, SamplingParamsCls = load_vllm_model(
-            args.model_id, args.gpu_memory_utilization, args.max_model_len
+            args.model_id, args.gpu_memory_utilization, args.max_model_len,
+            quantization=args.quantization,
         )
 
     # Always include the canonical instruction (level 2, moderate)

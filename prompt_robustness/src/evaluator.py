@@ -156,17 +156,36 @@ def evaluate_sample(sample: Dict, config: Config, model_interface: ModelInterfac
     # into the result dict for downstream reviewers / plotting.
     auc_e_scalar, auc_e_curve = compute_auc_e_metric(reference, responses, return_curve=True)
 
+    # PPL variance & branching factor are INTRA-MODEL diagnostics (R6):
+    # they are model-internal and NOT comparable across architectures, so they
+    # feed IFI only and never the cross-model PRI ranking.
+    #
+    # FLAWS §2.2 fix: in score-from-CSV mode (model_interface is None) we
+    # ALSO accept these as precomputed values that were measured during the
+    # generate-only phase. Without that, IFI saturates at 1.0 for every row
+    # and the dual-pillar diagnosis matrix collapses to a single category.
+    precomputed_ppl_var = sample.get("precomputed_ppl_var")
+    precomputed_bf      = sample.get("precomputed_bf")
+    if precomputed_ppl_var is not None:
+        ppl_var_metric = float(precomputed_ppl_var)
+    elif model_interface is not None:
+        ppl_var_metric = compute_ppl_variance(prompts, responses, model_interface)
+    else:
+        ppl_var_metric = 0.0
+    if precomputed_bf is not None:
+        bf_metric = float(precomputed_bf)
+    elif model_interface is not None:
+        bf_metric = compute_branching_factor(responses, model_interface)
+    else:
+        bf_metric = 0.0
+
     metrics = {
         "sms": compute_sms_metric(embeddings),
         "auc_e": auc_e_scalar,
         "trd": trd_semantic,        # canonical TRD = semantic drift (R6)
         "kpig": kpig_coverage,      # canonical KPIG = reference coverage (R3)
-        # PPL variance & branching factor are INTRA-MODEL diagnostics (R6):
-        # they are model-internal and NOT comparable across architectures, so
-        # they feed IFI only and never the cross-model PRI ranking. Skipped in
-        # score-from-CSV mode (no generation model available).
-        "ppl_var": compute_ppl_variance(prompts, responses, model_interface) if model_interface else 0.0,
-        "bf": compute_branching_factor(responses, model_interface) if model_interface else 0.0,
+        "ppl_var": ppl_var_metric,
+        "bf": bf_metric,
     }
 
     advanced_metrics = {

@@ -1,0 +1,30 @@
+{
+  "dialogue": {
+    "n_instances": 5,
+    "total_variants": 14,
+    "avg_variants_per_instance": 2.8,
+    "sbert_similarity": {
+      "mean": 0.8926,
+      "std": 0.0251,
+      "min": 0.849,
+      "max": 0.9255,
+      "p25": 0.88,
+      "p75": 0.9102
+    },
+    "base_text_word_count": {
+      "mean": 7.8,
+      "std": 1.17
+    },
+    "variant_word_count": {
+      "mean": 9.0,
+      "std": 2.0
+    }
+  },
+  "_meta": {
+    "total_time_s": 48.42,
+    "n_instances_per_task": 5,
+    "n_variants": 8,
+    "seed": 42,
+    "generated_at": "2026-05-29T14:02:04.962900"
+  }
+}

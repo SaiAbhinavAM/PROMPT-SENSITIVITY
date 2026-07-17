@@ -161,21 +161,41 @@ class PIRCGenerator:
         # We'll create a full-length mask for the hidden state.
         num_anchor_positions = anchor_mask.shape[0]
 
+        # PIRC clamping is defined on PROMPT (anchor) positions. During
+        # autoregressive decoding `model.generate()` runs the prompt once
+        # (prefill, seq_len == prompt_len) and then calls the model once per
+        # new token with KV-cache (decode, seq_len == 1). If we apply the
+        # hook on every call, the decode step ends up overwriting the new
+        # token's hidden state with `mean_h[0]` (the prompt's first-anchor
+        # consensus), which collapses generation into a degenerate loop
+        # (e.g. "Here://://://..."). The hook MUST only fire on prefill.
+        clamp_state = {"prefilled": False}
+
         def clamp_hook(module, input, output):
-            # In transformers 5.x with output_capturing the GPT-2 block
-            # returns a plain Tensor during model.generate(), not a tuple.
-            # Handle both cases gracefully.
+            # transformers 5.x: blocks can return a plain Tensor OR a tuple
+            # whose [0] element is the hidden state. Support both.
             if isinstance(output, tuple):
                 h = output[0]   # (batch, seq_len, d_model)
                 rest = output[1:]
             else:
-                h = output      # output IS the hidden state tensor
+                h = output
                 rest = None
 
             seq_len = h.shape[1]
 
+            # Skip the per-token decode steps — only clamp the prefill pass
+            # (the one whose seq_len matches the prompt). seq_len == 1 is
+            # always a decode step; once we've already prefilled, any later
+            # call that isn't a full-prompt re-run is also decode and skipped.
+            if seq_len == 1 or clamp_state["prefilled"]:
+                if rest is not None:
+                    return (h,) + rest
+                return h
+
+            clamp_state["prefilled"] = True
+
             # Only clamp positions that are within both the anchor mask
-            # and the current sequence length
+            # and the current (prefill) sequence length.
             clamp_len = min(num_anchor_positions, seq_len, mean_h.shape[0])
 
             if clamp_len > 0:
