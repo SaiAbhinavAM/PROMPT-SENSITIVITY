@@ -5,6 +5,26 @@
 
 ---
 
+## [2026-08-09] — Robustness validation script + cross-checks on the 30-article run (all passed)
+
+**Files Added:** `gensens/crossed/scripts/validate_robustness.py`, `results_30article_bestscorers/VALIDATION.md`, `.../results/validation.json`
+
+**What Changed:**
+- New pure-CPU `validate_robustness.py` (operates on `cell_metrics_scored.jsonl` + the seed dataset; no GPU) running four post-hoc cross-checks and writing `validation.json`:
+  1. **Length confound** — corr(Sensitivity, mean_output_len) and dimension ranking before/after regressing out length.
+  2. **Split-half replication** — N random article half-splits; mean Spearman of the two independent dimension rankings.
+  3. **Permutation test** — assumption-free significance of the dimension effect at the SEED level (shuffle dimension labels; no normality assumption).
+  4. **Paraphrase equivalence** — dataset-wide SBERT similarity + bidirectional NLI entailment + `nli_passed` rate + token overlap.
+
+**Why:**
+- Stress-test the dimension finding against confounds (length), reliability (split-half), a stricter significance test (permutation, since the composite is rank-normalized ≈ uniform, violating the mixed model's normality assumption), and the foundational premise that the paraphrases are meaning-equivalent.
+
+**Impact:**
+- No change to any score. All four checks **PASSED** on the 30-article SOTA-scorer run: length ranking-Spearman **0.97** (not a length artifact), split-half **mean Spearman 0.87** (replicates within-study), permutation **p=0.022** (significant with no distributional assumption), paraphrase equivalence **NLI 0.98/0.97 fwd/bwd, 100% nli_passed, token overlap 0.36** (equivalent meaning, distinct wording).
+- **Reporting note:** the assumption-free permutation **p=0.022** is the most defensible significance value (the parametric mixed-model p=0.0036 assumes normality the rank-normalized composite doesn't have). Details in `VALIDATION.md`. The one un-checkable item remains **cross-model replication** (single model/task).
+
+---
+
 ## [2026-08-09] — Production 30-article run with SOTA scorers (result: dimension finding held & strengthened)
 
 **Files Modified:** `gensens/crossed/run_crossed_h100.sh`; **Added:** `gensens/crossed/results_30article_bestscorers/`
