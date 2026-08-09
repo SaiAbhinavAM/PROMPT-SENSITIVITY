@@ -1,0 +1,14 @@
+[16:07:20] INFO Loaded 1500 cells.
+[16:07:20] INFO Sensitivity composite=v2; normalization=rank; active weights: sms_drift=0.250, rougeL_var=0.200, cs_cv=0.150, faith_cv=0.150, ppl_var=0.125, pc_stab_cv=0.125
+[16:07:21] INFO Composite transparency — Spearman(normalized component, Sensitivity):
+[16:07:21] INFO     sms_drift    rho=0.720
+[16:07:21] INFO     rougeL_var   rho=0.531
+[16:07:21] INFO     cs_cv        rho=0.564
+[16:07:21] INFO     faith_cv     rho=0.358
+[16:07:21] INFO     ppl_var      rho=0.648
+[16:07:21] INFO     pc_stab_cv   rho=0.685
+[16:07:21] INFO   Sensitivity ranking vs sms_drift-alone: Spearman rho=0.720 (composite adds signal beyond sms_drift)
+[16:07:21] INFO Sensitivity composite (v2) uses: ['sms_drift', 'rougeL_var', 'cs_cv', 'faith_cv', 'ppl_var', 'pc_stab_cv']
+[16:07:32] INFO Wrote 50 rows to scores_by_seed.csv
+[16:07:33] INFO Wrote 2 rows to scores_by_pool.csv
+[16:07:36] INFO Wrote 14 rows to scores_by_dimension.csv

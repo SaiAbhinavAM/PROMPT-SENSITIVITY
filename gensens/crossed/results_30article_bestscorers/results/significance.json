@@ -1,0 +1,163 @@
+{
+  "n_articles": 30,
+  "warnings": [],
+  "pool_comparison": {
+    "unit": "per_seed",
+    "n_pool_a": 35,
+    "n_pool_b": 15,
+    "u_statistic": 329.0,
+    "p_value": 0.16234256399879665,
+    "rank_biserial_effect_size": -0.2533333333333334,
+    "pool_b_median": 0.529332888592395,
+    "pool_a_median": 0.47238269957749607,
+    "direction": "Pool B more sensitive",
+    "low_power_warning": "smaller group has 15 units; test is valid but underpowered."
+  },
+  "pool_comparison_percell_ref": {
+    "unit": "per_cell",
+    "n_pool_a": 1050,
+    "n_pool_b": 450,
+    "u_statistic": 273361.5,
+    "p_value": 1.3841397820598373e-06,
+    "rank_biserial_effect_size": -0.15708571428571427,
+    "pool_b_median": 0.534089392928619,
+    "pool_a_median": 0.4870413609072715,
+    "direction": "Pool B more sensitive",
+    "note": "PSEUDOREPLICATED \u2014 cells sharing a seed/article are correlated; p-value is anticonservative. Not for inference; use per_seed."
+  },
+  "pool_comparison_note": "Headline uses per-seed means (n_A=35 seeds, n_B=15 seeds). Per-cell test retained under pool_comparison_percell_ref for reference only.",
+  "dimension_effect": {
+    "eta2_dimension_cells": 0.1929562633606909,
+    "eta2_pool_cells": 0.01713190273959964,
+    "interpretation": "dimension explains ~11x more sensitivity variance than pool",
+    "kruskal_seedlevel_H": 23.460156862745094,
+    "kruskal_seedlevel_p": 0.03647453807375871,
+    "kruskal_note": "seed-aggregated (each of the 50 seeds = 1 value); valid non-pseudoreplicated dimension test"
+  },
+  "dimension_ranking": [
+    {
+      "dimension": "Meta-reflection",
+      "n_cells": 30,
+      "n_seeds": 1,
+      "sensitivity_mean": 0.6199305092283746,
+      "ci_low": 0.572100163998221,
+      "ci_high": 0.6662725567044696
+    },
+    {
+      "dimension": "Question Form",
+      "n_cells": 120,
+      "n_seeds": 4,
+      "sensitivity_mean": 0.6142974482988658,
+      "ci_low": 0.5825764294251723,
+      "ci_high": 0.64421270082833
+    },
+    {
+      "dimension": "Theme Isolation",
+      "n_cells": 150,
+      "n_seeds": 5,
+      "sensitivity_mean": 0.6111157438292194,
+      "ci_low": 0.5866490493662442,
+      "ci_high": 0.636421269735379
+    },
+    {
+      "dimension": "Analytical Framing",
+      "n_cells": 120,
+      "n_seeds": 4,
+      "sensitivity_mean": 0.5612062208138759,
+      "ci_low": 0.531251195241272,
+      "ci_high": 0.5909448417000221
+    },
+    {
+      "dimension": "Role Based",
+      "n_cells": 120,
+      "n_seeds": 4,
+      "sensitivity_mean": 0.5203737213698021,
+      "ci_low": 0.4941074118857016,
+      "ci_high": 0.546359034495219
+    },
+    {
+      "dimension": "Persona / Tone",
+      "n_cells": 180,
+      "n_seeds": 6,
+      "sensitivity_mean": 0.48998573122822625,
+      "ci_low": 0.4645532530946557,
+      "ci_high": 0.5157907679193537
+    },
+    {
+      "dimension": "Audience Perspective",
+      "n_cells": 90,
+      "n_seeds": 3,
+      "sensitivity_mean": 0.4871093692091024,
+      "ci_low": 0.45652101864205763,
+      "ci_high": 0.5175713345934326
+    },
+    {
+      "dimension": "Emphasis Focus",
+      "n_cells": 90,
+      "n_seeds": 3,
+      "sensitivity_mean": 0.4850487361945001,
+      "ci_low": 0.44518133385219777,
+      "ci_high": 0.5251743430805723
+    },
+    {
+      "dimension": "Completeness Framing",
+      "n_cells": 90,
+      "n_seeds": 3,
+      "sensitivity_mean": 0.48284800978430065,
+      "ci_low": 0.45281075809799126,
+      "ci_high": 0.5130478420799052
+    },
+    {
+      "dimension": "Tone Register",
+      "n_cells": 120,
+      "n_seeds": 4,
+      "sensitivity_mean": 0.47986741160773844,
+      "ci_low": 0.4587128641316433,
+      "ci_high": 0.5011346348954859
+    },
+    {
+      "dimension": "Lexical Filter",
+      "n_cells": 90,
+      "n_seeds": 3,
+      "sensitivity_mean": 0.46843099103105773,
+      "ci_low": 0.4428332592098437,
+      "ci_high": 0.49453286913497885
+    },
+    {
+      "dimension": "Direct Command",
+      "n_cells": 120,
+      "n_seeds": 4,
+      "sensitivity_mean": 0.4458707193684679,
+      "ci_low": 0.41673702259839895,
+      "ci_high": 0.4759326147987547
+    },
+    {
+      "dimension": "Output Format",
+      "n_cells": 90,
+      "n_seeds": 3,
+      "sensitivity_mean": 0.3577555407308576,
+      "ci_low": 0.33199510784967756,
+      "ci_high": 0.38367340727151433
+    },
+    {
+      "dimension": "Constraint Based",
+      "n_cells": 90,
+      "n_seeds": 3,
+      "sensitivity_mean": 0.35151211919057146,
+      "ci_low": 0.31879455285004815,
+      "ci_high": 0.38338621581054033
+    }
+  ],
+  "most_sensitive_dimension": "Meta-reflection",
+  "least_sensitive_dimension": "Constraint Based",
+  "most_vs_least_sensitive_seed": {
+    "most_sensitive_seed": "B04",
+    "most_sensitive_mean": 0.7606331999110518,
+    "least_sensitive_seed": "A13",
+    "least_sensitive_mean": 0.3027496108516789,
+    "n_paired_articles": 30,
+    "wilcoxon_statistic": 9.0,
+    "p_value": 6.146728992462158e-08,
+    "cohens_dz": 1.5665438739616155
+  }
+}

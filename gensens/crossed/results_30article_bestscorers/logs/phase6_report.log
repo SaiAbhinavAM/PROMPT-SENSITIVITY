@@ -1,0 +1,84 @@
+Seed B12: has 5 variants, expected 6 (known upstream gap — see fix_changelog.json). Cells for this seed will use n_variants=5 instead of 6.
+# GenSens Crossed-Design Summarization — Summary Report
+
+## 1. Run size
+- Total outputs generated: **8970** (articles=30, seeds=50, target variants/cell=6; expected 8970)
+- Complete cells scored: **1500** (expected 1500)
+
+## 2. SENSITIVITY by pool (headline result)
+*Sensitivity = rank-normalized composite (relative WITHIN this run — a value of 0.5 means 'median cell here', not an absolute level). `SBERT drift (abs)` is the raw 1−mean-pairwise-cosine anchor: run-independent and comparable across models/runs. `Resid` = Sensitivity with quality (cs/faith) regressed out (#8) — a mean-zero 'pure spread' with the quality confound removed.*
+| Pool | n_cells | Sensitivity mean | 95% CI | SBERT drift (abs) | Resid (quality-adj) |
+|---|---|---|---|---|---|
+| A | 1050 | 0.4851 | [0.4748, 0.4955] | 0.0882 | -0.0094 |
+| B | 450 | 0.5347 | [0.5189, 0.5500] | 0.1079 | +0.0219 |
+
+> ⚠️ **Pool-B caveat (#9):** Pool B prompts add a *constraint* (e.g. 'no proper nouns', 'isolate one theme'). Some cross-paraphrase output variation there reflects the *legitimate degrees of freedom in satisfying the constraint*, not model fragility — constrained tasks simply admit more valid answers. Read Pool-B sensitivity as an upper bound on fragility, not pure fragility.
+
+## 3. PRI (quality-gated robustness) by pool
+*Note: PRI is quality-gated robustness (good AND stable), not pure sensitivity. Section 2's Sensitivity composite is the headline sensitivity measure.*
+
+| Pool | n_cells | PRI mean | 95% CI |
+|---|---|---|---|
+| A | 1050 | 0.5790 | [0.5739, 0.5841] |
+| B | 450 | 0.5388 | [0.5308, 0.5473] |
+
+## 4. Top 5 MOST sensitive seeds
+| seed_id | pool | dimension | Sensitivity mean | 95% CI |
+|---|---|---|---|---|
+| B04 | B | Theme Isolation | 0.7606 | [0.7018, 0.8156] |
+| A07 | A | Question Form | 0.7214 | [0.6737, 0.7661] |
+| A19 | A | Analytical Framing | 0.6826 | [0.6290, 0.7347] |
+| B12 | B | Persona / Tone | 0.6800 | [0.6342, 0.7248] |
+| A05 | A | Question Form | 0.6408 | [0.5941, 0.6866] |
+
+## 5. Top 5 LEAST sensitive seeds
+| seed_id | pool | dimension | Sensitivity mean | 95% CI |
+|---|---|---|---|---|
+| A13 | A | Constraint Based | 0.3027 | [0.2295, 0.3773] |
+| A22 | A | Output Format | 0.3399 | [0.3045, 0.3759] |
+| A27 | A | Emphasis Focus | 0.3429 | [0.2826, 0.4036] |
+| B10 | B | Persona / Tone | 0.3449 | [0.3001, 0.3917] |
+| B11 | B | Persona / Tone | 0.3542 | [0.3111, 0.3974] |
+
+## 6. DIMENSION EFFECT — the primary finding
+- Instruction **dimension** explains **19.3%** of sensitivity variance vs **1.7%** for the Pool A/B split — i.e. dimension explains ~11x more sensitivity variance than pool.
+- **Mixed-effects test (headline, valid unit):** `sensitivity ~ dimension + (1|seed) + (1|article)` → LRT χ²=30.8, df=13, **p=0.003632** (significant). Variance: seed=0.0022, article=0.0063, residual=0.0159.
+  - _seed-aggregated Kruskal-Wallis (cruder, underpowered — 50 seeds / 14 dims):_ H=23.5, p=0.03647
+  - _robust to quality:_ dimension ranking is Spearman 0.94 between raw and quality-residualized Sensitivity (not a quality artifact).
+  - _robust to thin dimensions:_ dropping single-seed dimensions (Meta-reflection) leaves η²=0.187 (vs 0.193 with all), mixed-model p=0.00392 — dimension effect is ROBUST to dropping single-seed dimensions.
+
+### Per-dimension sensitivity ranking
+| Rank | Dimension | n_seeds | n_cells | Sensitivity mean | 95% CI |
+|---|---|---|---|---|---|
+| 1 | Meta-reflection | 1 | 30 | 0.6199 | [0.5721, 0.6663] |
+| 2 | Question Form | 4 | 120 | 0.6143 | [0.5826, 0.6442] |
+| 3 | Theme Isolation | 5 | 150 | 0.6111 | [0.5866, 0.6364] |
+| 4 | Analytical Framing | 4 | 120 | 0.5612 | [0.5313, 0.5909] |
+| 5 | Role Based | 4 | 120 | 0.5204 | [0.4941, 0.5464] |
+| 6 | Persona / Tone | 6 | 180 | 0.4900 | [0.4646, 0.5158] |
+| 7 | Audience Perspective | 3 | 90 | 0.4871 | [0.4565, 0.5176] |
+| 8 | Emphasis Focus | 3 | 90 | 0.4850 | [0.4452, 0.5252] |
+| 9 | Completeness Framing | 3 | 90 | 0.4828 | [0.4528, 0.5130] |
+| 10 | Tone Register | 4 | 120 | 0.4799 | [0.4587, 0.5011] |
+| 11 | Lexical Filter | 3 | 90 | 0.4684 | [0.4428, 0.4945] |
+| 12 | Direct Command | 4 | 120 | 0.4459 | [0.4167, 0.4759] |
+| 13 | Output Format | 3 | 90 | 0.3578 | [0.3320, 0.3837] |
+| 14 | Constraint Based | 3 | 90 | 0.3515 | [0.3188, 0.3834] |
+
+## 7. Diagnosis matrix (quality x sensitivity)
+- True Robustness: 413
+- Fragile: 337
+- Consistently Poor: 337
+- Unreliable: 413
+
+## 8. Pool A vs B (secondary — pool explains little variance)
+- Seed-level Mann-Whitney U: n_A=35 seeds, n_B=15 seeds, U=329.0, p=0.1623, rank-biserial r=-0.2533 (Pool B more sensitive). Pool is NOT the primary axis — see §6; it explains ~10x less variance than dimension.
+  - _per-cell (pseudoreplicated, reference only — anticonservative, not for inference):_ p=1.384e-06
+- **Most (B04) vs least (A13) sensitive seed (Wilcoxon):** W=9.0, p=6.147e-08, dz=1.5665, n_paired=30
+
+## 9. Warnings
+- Instruction-echo preamble stripped from 4469/8970 outputs before SMS/CS/ROUGE/BERTScore/faithfulness; PPL/BF use raw generation.
+- Faithfulness: MiniCheck[deberta-v3-large], whole-summary.
+
+
+[summary_report.py] Wrote /root/PROMPT-SENSITIVITY/gensens/crossed/results/summary_report.md

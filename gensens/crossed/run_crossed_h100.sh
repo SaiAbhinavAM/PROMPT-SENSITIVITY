@@ -49,6 +49,10 @@ SKIP_PPL_ENTROPY="${SKIP_PPL_ENTROPY:-0}"
 FAITHFULNESS_BACKEND="${FAITHFULNESS_BACKEND:-minicheck}"
 FAITHFULNESS_MODEL="${FAITHFULNESS_MODEL:-deberta-v3-large}"
 BERTSCORE_MODEL="${BERTSCORE_MODEL:-roberta-large}"
+# MiniCheck per-sentence scoring is ~4x slower (each summary -> many doc/claim
+# pairs). FAITH_WHOLE_SUMMARY=1 scores each summary as ONE claim: same SOTA
+# MiniCheck model, ~4x faster, minimal granularity loss on short summaries.
+FAITH_WHOLE_SUMMARY="${FAITH_WHOLE_SUMMARY:-0}"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -98,6 +102,9 @@ if has_phase 2; then
     EXTRA_ARGS=()
     if [[ "$SKIP_PPL_ENTROPY" == "1" ]]; then
         EXTRA_ARGS+=(--skip_ppl_entropy)
+    fi
+    if [[ "$FAITH_WHOLE_SUMMARY" == "1" ]]; then
+        EXTRA_ARGS+=(--faith_whole_summary)
     fi
     python3 "$SCRIPTS/compute_cell_metrics.py" --model "$MODEL_ID" --results_dir "$RESULTS" \
         --faithfulness_backend "$FAITHFULNESS_BACKEND" --faithfulness_model "$FAITHFULNESS_MODEL" \

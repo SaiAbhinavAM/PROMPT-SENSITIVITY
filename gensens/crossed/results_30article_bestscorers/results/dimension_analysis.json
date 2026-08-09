@@ -1,0 +1,93 @@
+{
+  "n_cells": 1500,
+  "n_seeds": 50,
+  "n_articles": 30,
+  "residualized": {
+    "quality_r2": 0.04444853936499604,
+    "note": "sensitivity_resid = Sensitivity with CS_mean + faith_mean regressed out",
+    "spearman_dim_ranking_raw_vs_resid": 0.9384615384615385,
+    "spearman_seed_ranking_raw_vs_resid": 0.9813685474189676,
+    "dimension_ranking_residualized": [
+      {
+        "dimension": "Meta-reflection",
+        "sensitivity_resid_mean": 0.11354493245910716
+      },
+      {
+        "dimension": "Question Form",
+        "sensitivity_resid_mean": 0.10306670626180536
+      },
+      {
+        "dimension": "Theme Isolation",
+        "sensitivity_resid_mean": 0.0903578508722543
+      },
+      {
+        "dimension": "Analytical Framing",
+        "sensitivity_resid_mean": 0.04681877768471901
+      },
+      {
+        "dimension": "Role Based",
+        "sensitivity_resid_mean": 0.028035649678198278
+      },
+      {
+        "dimension": "Audience Perspective",
+        "sensitivity_resid_mean": 0.004299462156273186
+      },
+      {
+        "dimension": "Completeness Framing",
+        "sensitivity_resid_mean": -0.00361656169461905
+      },
+      {
+        "dimension": "Tone Register",
+        "sensitivity_resid_mean": -0.0036366024785118947
+      },
+      {
+        "dimension": "Emphasis Focus",
+        "sensitivity_resid_mean": -0.02016629907968327
+      },
+      {
+        "dimension": "Persona / Tone",
+        "sensitivity_resid_mean": -0.020748287956858097
+      },
+      {
+        "dimension": "Direct Command",
+        "sensitivity_resid_mean": -0.03633582399533093
+      },
+      {
+        "dimension": "Lexical Filter",
+        "sensitivity_resid_mean": -0.037633254771229634
+      },
+      {
+        "dimension": "Output Format",
+        "sensitivity_resid_mean": -0.1343709830443679
+      },
+      {
+        "dimension": "Constraint Based",
+        "sensitivity_resid_mean": -0.13939212612729107
+      }
+    ]
+  },
+  "mixed_model": {
+    "converged": true,
+    "lrt_dimension_chi2": 30.77864322275309,
+    "lrt_dimension_df": 13,
+    "lrt_dimension_p": 0.0036320423983618186,
+    "var_seed": 0.002243704341303416,
+    "var_article": 0.0063041602605144005,
+    "var_residual": 0.01587091032093441,
+    "interpretation": "dimension fixed effect is significant controlling for crossed seed+article random intercepts",
+    "note": "Random-intercept variances: seed captures per-prompt idiosyncrasy WITHIN a dimension; article captures content effects. A significant LRT means dimension explains sensitivity beyond those."
+  },
+  "dimension_robustness": {
+    "min_seeds_threshold": 2,
+    "thin_dimensions_dropped": [
+      "Meta-reflection"
+    ],
+    "n_dimensions_all": 14,
+    "n_dimensions_kept": 13,
+    "eta2_dimension_all": 0.1929562633606909,
+    "eta2_dimension_kept": 0.18708662201608592,
+    "mixed_lrt_p_kept": 0.003920445207561577,
+    "spearman_ranking_all_vs_kept": 1.0,
+    "interpretation": "dimension effect is ROBUST to dropping single-seed dimensions"
+  }
+}

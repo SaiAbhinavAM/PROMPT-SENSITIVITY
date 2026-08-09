@@ -5,6 +5,23 @@
 
 ---
 
+## [2026-08-09] — Production 30-article run with SOTA scorers (result: dimension finding held & strengthened)
+
+**Files Modified:** `gensens/crossed/run_crossed_h100.sh`; **Added:** `gensens/crossed/results_30article_bestscorers/`
+
+**What Changed:**
+- Added a `FAITH_WHOLE_SUMMARY` env passthrough to the runner. MiniCheck per-sentence scoring is ~4x slower (each summary → many doc/claim pairs; ~4.5 h for the faithfulness pass alone at 30 articles on an A30), so the production run used **whole-summary** mode (`FAITH_WHOLE_SUMMARY=1`): each summary scored as ONE claim by the same SOTA MiniCheck deberta-v3-large model. Minimal granularity loss on 3–4 sentence news summaries; the faithfulness pass dropped to ~40 min.
+- Executed the full crossed-design 30-article benchmark on a Jarvis Labs A30, **reusing the existing 8,970 responses** (`--phases 2,3,4,5,6`, generation skipped — identical greedy outputs, saved ~1 h GPU) with MiniCheck faithfulness + BERTScore correctness + the PPL pass ON (full 6-metric composite incl. the de-confounded `pc_stab_cv`). Results committed under `results_30article_bestscorers/`.
+
+**Why:**
+- Validate the v2 composite + best scorers on the real crossed grid, and confirm the dimension finding is not an artifact of the (previously weaker) faithfulness/correctness scorers.
+
+**Impact:**
+- **The dimension finding HELD and strengthened.** Mixed-effects dimension test **p=0.0036** (was 0.011 with the old-scorer v2), dimension η²=19.3% vs pool 1.7% (~11×), seed-aggregated Kruskal now significant (p=0.036, was 0.063), robust to quality (Spearman 0.94) and to dropping single-seed dimensions (η² 0.187 vs 0.193, p=0.004). Ranking unchanged (Meta-reflection / Question Form / Theme Isolation most; Output Format / Constraint Based least). Sensitivity by pool A=0.485 / B=0.535 ≈ old-scorer v2 (0.488/0.529) — robust to the scorer upgrade. The finding now survives THREE scorer configurations (legacy → v2 → v2+SOTA).
+- **PRI absolute values dropped** (Pool A 0.756→0.579, B 0.713→0.539): expected, because BERTScore-rescaled correctness and MiniCheck faithfulness are more calibrated/stricter than the old SBERT-cosine + weak-NLI. Not a regression — the Sensitivity headline is unaffected. PRI values are only comparable within the same scorer set.
+
+---
+
 ## [2026-08-09] — Best-in-class scorers: MiniCheck faithfulness + BERTScore correctness (pre-GPU-run quality upgrade)
 
 **Files Modified:** `gensens/crossed/scripts/compute_cell_metrics.py`, `run_crossed_h100.sh`, `requirements_crossed.txt`
