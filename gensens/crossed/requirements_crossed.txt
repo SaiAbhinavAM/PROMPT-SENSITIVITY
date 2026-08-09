@@ -7,3 +7,11 @@
 #   pip install -r ../../requirements_gpu.txt -r requirements_crossed.txt
 # ─────────────────────────────────────────────────────────────
 bert-score>=0.3.13
+
+# Faithfulness backend (method.md 2026-08-09). MiniCheck = SOTA fact-checking
+# (EMNLP 2024), deterministic, chunks long docs internally. It is a git install;
+# if it conflicts with the pinned transformers/torch on your box, install it in a
+# SEPARATE step so it can't block bert-score etc., and the code will fall back to
+# the NLI backend automatically at runtime (--faithfulness_backend nli):
+#   pip install "minicheck @ git+https://github.com/Liyan06/MiniCheck.git@main"
+minicheck @ git+https://github.com/Liyan06/MiniCheck.git@main

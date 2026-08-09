@@ -35,11 +35,20 @@ MAX_TOKENS="${MAX_TOKENS:-512}"
 GPU_MEM_FRAC="${GPU_MEM_FRAC:-0.88}"
 CHECKPOINT_EVERY="${CHECKPOINT_EVERY:-2000}"
 PHASES="${PHASES:-1,2,3,4,5,6}"
-# PPL/branching-factor pass. RECOMMENDED DEFAULT = 1 (skip): ppl_var and
-# pc_stab_var correlate r=0.68 (redundant), added ~30 min, and did NOT change
-# the 30-article conclusion (method.md 2026-07-14). Set to 0 only if you
-# specifically want the full 5-metric composite.
-SKIP_PPL_ENTROPY="${SKIP_PPL_ENTROPY:-1}"
+# PPL/branching-factor pass. DEFAULT = 0 (RUN it) for the production benchmark:
+# it yields the full 6-metric composite and activates the de-confounded pc_stab_cv
+# (method.md 2026-08-09). Costs ~30 min + reloads the 8B model (the most OOM-prone
+# step — scorer models are now freed before it loads). Set to 1 to skip for a
+# faster/cheaper 4-metric run (ppl_var/pc_stab_var correlate r=0.68 and did not
+# change the 30-article conclusion — method.md 2026-07-14).
+SKIP_PPL_ENTROPY="${SKIP_PPL_ENTROPY:-0}"
+# Faithfulness + correctness scorers (method.md 2026-08-09). Defaults use the
+# best deterministic scorers: MiniCheck (deberta-v3-large) for faithfulness and
+# BERTScore for correctness-vs-gold. Fall back to the NLI backend by setting
+# FAITHFULNESS_BACKEND=nli if the minicheck package can't be installed.
+FAITHFULNESS_BACKEND="${FAITHFULNESS_BACKEND:-minicheck}"
+FAITHFULNESS_MODEL="${FAITHFULNESS_MODEL:-deberta-v3-large}"
+BERTSCORE_MODEL="${BERTSCORE_MODEL:-roberta-large}"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -90,7 +99,9 @@ if has_phase 2; then
     if [[ "$SKIP_PPL_ENTROPY" == "1" ]]; then
         EXTRA_ARGS+=(--skip_ppl_entropy)
     fi
-    python3 "$SCRIPTS/compute_cell_metrics.py" --model "$MODEL_ID" --results_dir "$RESULTS" "${EXTRA_ARGS[@]}" \
+    python3 "$SCRIPTS/compute_cell_metrics.py" --model "$MODEL_ID" --results_dir "$RESULTS" \
+        --faithfulness_backend "$FAITHFULNESS_BACKEND" --faithfulness_model "$FAITHFULNESS_MODEL" \
+        --bertscore_model "$BERTSCORE_MODEL" "${EXTRA_ARGS[@]}" \
         2>&1 | tee -a "$LOGS/phase2_cell_metrics.log"
 fi
 

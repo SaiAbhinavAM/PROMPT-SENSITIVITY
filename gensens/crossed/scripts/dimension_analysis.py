@@ -89,6 +89,12 @@ def main():
     # ── 2. Mixed-effects model: Sensitivity ~ dimension + (1|seed)+(1|article)
     out["mixed_model"] = _fit_mixed(df)
 
+    # ── 2b. Thin-dimension robustness: does the dimension effect survive dropping
+    # dimensions backed by only ONE seed? A 1-seed dimension conflates "dimension"
+    # with that single prompt, so the honest check is whether the effect holds
+    # without them (method.md 2026-08-09 audit).
+    out["dimension_robustness"] = _thin_dimension_robustness(df)
+
     out_path = results_dir / "dimension_analysis.json"
     out_path.write_text(json.dumps(out, indent=2))
     log.info(f"Wrote {out_path}")
@@ -97,6 +103,56 @@ def main():
     rr = out["residualized"]["dimension_ranking_residualized"]
     for r in rr[:3] + [{"dimension": "...", "sensitivity_resid_mean": 0.0}] + rr[-3:]:
         print("  %-22s %+.3f" % (r["dimension"], r["sensitivity_resid_mean"]))
+
+
+def _eta2_dimension(df: pd.DataFrame) -> float:
+    """Fraction of Sensitivity variance explained by dimension (between-group SS
+    / total SS) on the given cells."""
+    s = df["sensitivity"].to_numpy(dtype=float)
+    grand = s.mean()
+    ss_total = float(((s - grand) ** 2).sum())
+    if ss_total <= 0:
+        return float("nan")
+    ss_between = sum(len(g) * (g["sensitivity"].mean() - grand) ** 2 for _, g in df.groupby("dimension"))
+    return float(ss_between / ss_total)
+
+
+def _thin_dimension_robustness(df: pd.DataFrame, min_seeds: int = 2) -> dict:
+    """Re-run the dimension effect after dropping dimensions supported by fewer
+    than `min_seeds` seeds (which conflate the dimension with one specific
+    prompt). Reports eta^2 and the mixed-model LRT with and without them, plus
+    the Spearman of the surviving dimensions' ranking between the two fits — if
+    the effect and ranking hold, the dimension finding is not driven by a thin,
+    single-prompt dimension."""
+    from scipy.stats import spearmanr
+
+    seeds_per_dim = df.groupby("dimension")["seed_id"].nunique()
+    thin = sorted(seeds_per_dim[seeds_per_dim < min_seeds].index.tolist())
+    kept = df[~df["dimension"].isin(thin)].copy()
+
+    eta_all = _eta2_dimension(df)
+    eta_kept = _eta2_dimension(kept) if kept["dimension"].nunique() >= 2 else float("nan")
+
+    # Ranking stability on the dimensions retained in BOTH fits.
+    common_dims = sorted(set(kept["dimension"]))
+    rank_all = df[df["dimension"].isin(common_dims)].groupby("dimension")["sensitivity"].mean()
+    rank_kept = kept.groupby("dimension")["sensitivity"].mean()
+    rho = float(spearmanr(rank_all.loc[common_dims], rank_kept.loc[common_dims]).statistic) if len(common_dims) >= 2 else float("nan")
+
+    mixed_kept = _fit_mixed(kept) if kept["dimension"].nunique() >= 2 else {"converged": False, "error": "too few dimensions after drop"}
+    return {
+        "min_seeds_threshold": min_seeds,
+        "thin_dimensions_dropped": thin,
+        "n_dimensions_all": int(df["dimension"].nunique()),
+        "n_dimensions_kept": int(kept["dimension"].nunique()),
+        "eta2_dimension_all": eta_all,
+        "eta2_dimension_kept": eta_kept,
+        "mixed_lrt_p_kept": mixed_kept.get("lrt_dimension_p"),
+        "spearman_ranking_all_vs_kept": rho,
+        "interpretation": ("dimension effect is ROBUST to dropping single-seed dimensions"
+                           if (not np.isnan(eta_kept) and abs(eta_all - eta_kept) < 0.02) else
+                           "dimension effect changes when thin dimensions are dropped — inspect"),
+    }
 
 
 def _fit_mixed(df: pd.DataFrame) -> dict:

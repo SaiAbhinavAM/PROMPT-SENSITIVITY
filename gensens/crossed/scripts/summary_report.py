@@ -64,11 +64,34 @@ def main():
     lines.append(f"- Complete cells scored: **{len(cells)}** (expected {n_articles * common.N_SEEDS_EXPECTED})\n")
 
     lines.append("## 2. SENSITIVITY by pool (headline result)")
-    lines.append("| Pool | n_cells | Sensitivity mean | 95% CI |")
-    lines.append("|---|---|---|---|")
+    lines.append("*Sensitivity = rank-normalized composite (relative WITHIN this run — a value of "
+                 "0.5 means 'median cell here', not an absolute level). `SBERT drift (abs)` is the "
+                 "raw 1−mean-pairwise-cosine anchor: run-independent and comparable across models/runs. "
+                 "`Resid` = Sensitivity with quality (cs/faith) regressed out (#8) — a mean-zero "
+                 "'pure spread' with the quality confound removed.*")
+    has_anchor = "sms_drift_mean" in by_pool.columns
+    has_resid = "sensitivity_resid_mean" in by_pool.columns
+    hdr = "| Pool | n_cells | Sensitivity mean | 95% CI |"
+    if has_anchor:
+        hdr += " SBERT drift (abs) |"
+    if has_resid:
+        hdr += " Resid (quality-adj) |"
+    lines.append(hdr)
+    lines.append("|---|---|---|---|" + ("---|" if has_anchor else "") + ("---|" if has_resid else ""))
     for _, row in by_pool.iterrows():
-        lines.append(f"| {row['pool']} | {int(row['n_cells'])} | {row['sensitivity_mean']:.4f} | "
+        cells_str = (f"| {row['pool']} | {int(row['n_cells'])} | {row['sensitivity_mean']:.4f} | "
                      f"[{row['sensitivity_ci_low']:.4f}, {row['sensitivity_ci_high']:.4f}] |")
+        if has_anchor:
+            cells_str += f" {row['sms_drift_mean']:.4f} |"
+        if has_resid:
+            cells_str += f" {row['sensitivity_resid_mean']:+.4f} |"
+        lines.append(cells_str)
+    lines.append("")
+    lines.append("> ⚠️ **Pool-B caveat (#9):** Pool B prompts add a *constraint* (e.g. 'no proper nouns', "
+                 "'isolate one theme'). Some cross-paraphrase output variation there reflects the "
+                 "*legitimate degrees of freedom in satisfying the constraint*, not model fragility — "
+                 "constrained tasks simply admit more valid answers. Read Pool-B sensitivity as an "
+                 "upper bound on fragility, not pure fragility.")
     lines.append("")
 
     lines.append("## 3. PRI (quality-gated robustness) by pool")
@@ -119,6 +142,14 @@ def main():
         lines.append(f"  - _robust to quality:_ dimension ranking is Spearman "
                      f"{rz['spearman_dim_ranking_raw_vs_resid']:.2f} between raw and "
                      f"quality-residualized Sensitivity (not a quality artifact).")
+    if dan and dan.get("dimension_robustness"):
+        dr = dan["dimension_robustness"]
+        thin = ", ".join(dr.get("thin_dimensions_dropped", [])) or "none"
+        p_kept = dr.get("mixed_lrt_p_kept")
+        p_str = f"{p_kept:.4g}" if p_kept is not None else "n/a"
+        lines.append(f"  - _robust to thin dimensions:_ dropping single-seed dimensions ({thin}) leaves "
+                     f"η²={dr['eta2_dimension_kept']:.3f} (vs {dr['eta2_dimension_all']:.3f} with all), "
+                     f"mixed-model p={p_str} — {dr.get('interpretation','')}.")
     lines.append("")
     lines.append("### Per-dimension sensitivity ranking")
     dim_rows = significance.get("dimension_ranking", [])

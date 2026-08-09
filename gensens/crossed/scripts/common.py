@@ -348,6 +348,35 @@ def rank_normalize(values: List[Optional[float]]) -> List[Optional[float]]:
     return out
 
 
+def coeff_of_variation(std: float, mean: float, eps: float = 1e-6, cap: float = 5.0) -> float:
+    """Level-normalized spread = std / mean (a.k.a. coefficient of variation),
+    capped and mean-guarded. Used to de-confound the spread of a bounded quality
+    score (cs, faith) from its LEVEL: raw variance of a [0,1] score is
+    mechanically tied to the mean (it is squeezed toward 0 as the mean nears a
+    bound), so cells that happen to score higher/lower look artificially more/less
+    'sensitive'. Dividing by the mean removes that level dependence and makes
+    cs/faith spread consistent with ppl_var, which already used std/mean.
+    Returns 0.0 when the mean is ~0 (no meaningful relative spread)."""
+    if mean is None or std is None:
+        return None
+    if mean <= eps:
+        return 0.0
+    return float(min(std / mean, cap))
+
+
+def ols_residual(y: List[float], *predictors: List[float]) -> np.ndarray:
+    """Residual of y after an OLS fit on the given predictor columns (intercept
+    added automatically) — pure numpy, no statsmodels. Used to strip the quality
+    covariates (cs_mean, faith_mean) out of Sensitivity so the residual is a
+    'pure spread' signal not confounded by 'less stable prompts are also slightly
+    worse'. Returns y minus its fitted value (mean-zero by construction)."""
+    y = np.asarray(y, dtype=float)
+    cols = [np.ones(len(y))] + [np.asarray(p, dtype=float) for p in predictors]
+    A = np.column_stack(cols)
+    beta, *_ = np.linalg.lstsq(A, y, rcond=None)
+    return y - A @ beta
+
+
 def set_all_seeds(seed: int) -> None:
     random.seed(seed)
     np.random.seed(seed)

@@ -5,6 +5,58 @@
 
 ---
 
+## [2026-08-09] — Best-in-class scorers: MiniCheck faithfulness + BERTScore correctness (pre-GPU-run quality upgrade)
+
+**Files Modified:** `gensens/crossed/scripts/compute_cell_metrics.py`, `run_crossed_h100.sh`, `requirements_crossed.txt`
+
+**What Changed (two scorer upgrades chosen to maximize result validity before a paid production run):**
+
+1. **Faithfulness → MiniCheck (default), NLI kept as fallback (`compute_cell_metrics.py`).** Replaced the `deberta-base` NLI cross-encoder (lightweight, the weakest link) with **MiniCheck** (`lytang/MiniCheck-DeBERTa-v3-Large`, EMNLP 2024) — a dedicated fact-checking model, SOTA on the LLM-AggreFact leaderboard, deterministic, and it **chunks long documents internally**. This eliminates the premise-truncation hack and the "output too long → default neutral 0.5" fallbacks entirely. Multi-sentence summaries are scored **per sentence** (MiniCheck's recommended usage, via a dependency-free regex splitter) and averaged; empty generations default to neutral 0.5. New flags: `--faithfulness_backend {minicheck,nli}` (default `minicheck`), `--faithfulness_model` (default `deberta-v3-large`), `--faith_whole_summary`, `--minicheck_cache_dir`. If the `minicheck` package can't be imported on the box, the code logs a clear install hint and **auto-falls back** to the NLI backend (`compute_faithfulness_nli`, the previous logic) — the run never fakes or crashes on a missing optional dep.
+
+2. **Correctness-vs-gold → BERTScore (`compute_cell_metrics.py`).** The `cs` metric was `0.5·SBERT-cosine-to-gold + 0.5·entity-coverage`. BERTScore was already being computed but **discarded**. `cs` now = `0.5·BERTScore-F1-to-gold + 0.5·entity-coverage` — BERTScore's token-level match to a reference is exactly what it was designed for, and this gives the previously-wasted BERTScore pass a real purpose. SBERT is now used **only** for output-to-output `sms_drift` (its designed purpose), removing the double-use. Added `--bertscore_model` (default `roberta-large`, can be `microsoft/deberta-xlarge-mnli`) and `rescale_with_baseline=True` by default (spreads BERTScore from the compressed ~0.85–0.95 band to a usable [0,1] range); `--no_bertscore_rescale` to disable. Gold-summary SBERT embeddings are no longer computed (dead work removed).
+
+**Why:**
+- For a *sensitivity* benchmark, the best scorer is one that is both accurate AND deterministic — an LLM-judge would inject its own variance into the very quantity being measured, so it was deliberately avoided. Faithfulness was the least-reliable metric and feeds the composite; MiniCheck is the strongest deterministic option and also fixes long-article handling. BERTScore was redundant with SBERT for drift but is the right tool for reference-based correctness, so it was moved there instead of deleted.
+
+**Impact:**
+- Changes `faith_mean`/`faith_var` (→ `faith_cv`) and `cs_mean`/`cs_var` (→ `cs_cv`), therefore the Sensitivity composite, PRI, and diagnosis — a quality improvement, **re-baseline on the next run**. These do NOT retrofit onto existing `cell_metrics.jsonl` (per-output faith/BERTScore were never stored), so they take effect only when Phase 2 is re-run on the GPU; the completed 30-article result is unchanged and predates this.
+- New dependency: `minicheck` (git install, added to `requirements_crossed.txt` with a note to install separately if it conflicts with the pinned transformers/torch — the NLI fallback covers that case). Verified locally: all scripts parse, `--help` exposes the new flags, and the custom logic (regex sentence-splitting, per-output averaging, whole-summary mode, empty→0.5, flat doc/output alignment) passed injected-mock unit tests. The MiniCheck/BERTScore model paths themselves are GPU-only and must be validated in the pre-flight smoke run (`N_ARTICLES=2 --phases 1,2`) before the full run — the smoke will surface any install/API/OOM issue in minutes.
+
+**Follow-on (same day) — PPL pass re-enabled by default + Phase-2 memory hygiene (`run_crossed_h100.sh`, `compute_cell_metrics.py`):**
+- `SKIP_PPL_ENTROPY` default flipped **1 → 0**: the production benchmark now RUNS the PPL/branching-factor pass, yielding the full 6-metric composite and activating the de-confounded `pc_stab_cv` (2026-08-09 composite-v2 entry). This reverses the 2026-07-14 "retired by default" decision for the production run (still overridable with `SKIP_PPL_ENTROPY=1` for a faster 4-metric run). No metric math changes — it only controls whether ppl_var/pc_stab_var are computed.
+- Because Phase 2 now stacks SBERT + MiniCheck + BERTScore's roberta-large + the 8B PPL model on one card, each scorer is explicitly `del`-eted and `torch.cuda.empty_cache()`-d in its own scope before the next loads (`_empty_gpu_cache`; the earlier draft freed a function *parameter*, which does not drop the caller's binding — fixed). Pure infra: no numerical change, reduces OOM risk on the (most OOM-prone) PPL step.
+
+---
+
+## [2026-08-09] — Sensitivity composite v2: de-confounded quality spread, lexical drift, absolute anchor, first-class quality-residual
+
+**Files Modified:** `gensens/crossed/scripts/common.py`, `aggregate_scores.py`, `summary_report.py`
+
+**What Changed (five measurement fixes found by auditing the completed 30-article result; all pure-CPU, re-run on existing `cell_metrics.jsonl` with no re-inference):**
+
+1. **#6 De-confound the quality spreads (`aggregate_scores.py`, `common.py`).** `cs_var` / `faith_var` were RAW variance of a bounded [0,1] score, which is mechanically entangled with the score's mean — on the 30-article data `faith_var` vs `faith_mean` was Spearman **+0.45** (and `cs_var` vs `cs_mean` −0.21), while `ppl_var` already used std/mean. The composite now uses **coefficient of variation** `cs_cv = std/cs_mean`, `faith_cv = std/faith_mean` (new `common.coeff_of_variation`, mean-guarded, capped at 5.0), derived from the stored per-cell var+mean. This removes the level dependence and makes cs/faith consistent with ppl_var.
+
+2. **#5 Broaden beyond embedding space (`aggregate_scores.py`).** SBERT drift (`sms_drift`) and lexical drift (`rougeL_var`, already computed but unused) correlate only **Spearman 0.15** on the 30-article data — the old composite was nearly blind to pure word-choice variation. `rougeL_var` is now a first-class spread component. New composite: `Sensitivity = 0.25·sms_drift + 0.20·rougeL_var + 0.15·cs_cv + 0.15·faith_cv + 0.125·ppl_var + 0.125·pc_stab_var` (rank-normalized per component, weights renormalized when any metric is absent — verified on the `skipppl` run, which correctly renormalizes to 4 metrics: sms 0.333 / rougeL 0.267 / cs_cv 0.20 / faith_cv 0.20). SBERT's dominance of the ranking dropped from Spearman 0.755 → **0.703** (composite now genuinely multi-signal). Legacy composite kept behind `--composite legacy` for ablation/reproducing prior runs.
+
+3. **#8 First-class quality-adjusted "pure spread" (`aggregate_scores.py`, `common.py`).** New `common.ols_residual` (pure numpy, no statsmodels) computes `sensitivity_resid` = Sensitivity with `cs_mean + faith_mean` regressed out; every per-seed / per-pool / per-dimension aggregate now reports `sensitivity_resid_mean`. Raw-vs-residualized dimension ranking is **Spearman 0.96** (was 0.93), confirming the finding is not a quality artifact.
+
+4. **#7 Absolute, run-independent anchor (`aggregate_scores.py`, `summary_report.py`).** The rank-normalized Sensitivity is relative WITHIN a run (0.5 = median cell), so it is not comparable across runs/models. Aggregates now also report raw `sms_drift_mean` (1 − mean pairwise cosine), which has a fixed meaning and IS cross-run comparable; the report labels the composite as relative and prints the anchor + residual columns.
+
+5. **#9 Pool-B constraint-satisfaction caveat (`summary_report.py`).** Added an explicit note that Pool-B prompts impose a constraint (no proper nouns / theme isolation), so some cross-paraphrase variation is legitimate degrees of freedom in satisfying the constraint, not model fragility — Pool-B sensitivity is an upper bound on fragility.
+
+6. **Finish the de-confound for branching-factor spread (`compute_cell_metrics.py`, `aggregate_scores.py`).** `pc_stab_var` was the last spread metric still using RAW variance (of an unbounded quantity, so entangled with its magnitude). `compute_cell_metrics.py` now also stores `pc_stab_mean`, and the v2 composite uses `pc_stab_cv = std/mean` (via `common.coeff_of_variation`). Runs generated BEFORE this field existed have no `pc_stab_mean`, so `aggregate_scores.py` falls back to the raw variance value — verified the 30-article `Sensitivity` is byte-for-byte identical (Pool A 0.4878 / Pool B 0.5285). The de-confounded `pc_stab_cv` activates automatically on the next run that regenerates `cell_metrics.jsonl` (needs the GPU PPL pass).
+
+7. **Log the thin-dimension robustness check (`dimension_analysis.py`, `summary_report.py`).** A dimension backed by a single seed conflates "dimension" with one specific prompt (only Meta-reflection, n_seeds=1). `dimension_analysis.py` now emits a `dimension_robustness` block that re-computes η² and the mixed-model LRT after dropping <2-seed dimensions, plus the surviving-dimension ranking Spearman; the report prints it. **Result: dropping Meta-reflection leaves η²=0.172 (vs 0.176 all) and mixed-model p=0.011 — the dimension effect is robust to thin dimensions.**
+
+**Why:**
+- These are measurement-validity flaws sitting on top of a conceptually sound design. Raw-variance-of-a-bounded-score confounds spread with quality (#6); a single embedding metric misses lexical variation (#5); a purely relative composite cannot be compared across runs (#7); the sensitivity↔quality entanglement (r=−0.24) needed to be shown removable, not just asserted (#8); and constrained prompts inflate apparent fragility (#9).
+
+**Impact:**
+- Sensitivity composite VALUES change (new formula + de-confound), but the **headline is unchanged and now better supported**: dimension ranking is **Spearman 0.95** vs the legacy composite (Question Form / Theme Isolation / Meta-reflection most sensitive; Output Format / Constraint Based least). Mixed-effects dimension test stays significant: **LRT χ²=27.4, df=13, p=0.011** (was p=0.006). η²: dimension 17.6% vs pool 1.1%. Pool A/B seed-level Mann-Whitney stays non-significant (p=0.22). Re-baseline any downstream artifacts to the v2 numbers.
+- Re-ran the full analysis chain (aggregate → diagnosis → dimension_analysis → significance → summary_report) on BOTH `results_30article_full/` and `results_30article_skipppl/`; before-state backed up to `/tmp/preV2/`. No GPU / re-generation needed — `cell_metrics.jsonl` already stored the per-cell var, mean, and rougeL_var. **Still outstanding (unchanged by this entry):** thin per-dimension seed support (Meta-reflection = 1 seed), single-model/single-task scope, and B12's missing variant.
+
+---
+
 ## [2026-07-14] — Dimension-first analysis: mixed-effects model, residualized sensitivity, seed-level dimension test, PPL retired by default
 
 **Files Modified:** `gensens/crossed/scripts/significance.py`, `summary_report.py`, `run_crossed_h100.sh`; **Added:** `gensens/crossed/scripts/dimension_analysis.py`
