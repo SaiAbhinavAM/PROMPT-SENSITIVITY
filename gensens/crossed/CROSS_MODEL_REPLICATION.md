@@ -37,6 +37,36 @@ mixed p=0.019), and Pool A/B is null in both (Llama seed-MWU p=0.16, Qwen p=0.47
 - Middle-rank ordering (e.g. Tone Register: Llama #10 → Qwen #3) is model-specific,
   consistent with the overlapping mid-rank CIs already noted for both runs.
 
+## Critical caveat — Qwen's effect is weaker (added 2026-08-10)
+
+The 0.70 replication is in **direction/ranking**, not **strength**. Under strict,
+assumption-free testing Qwen's dimension effect does NOT clear significance:
+- Qwen **permutation test p = 0.071** (not significant); seed-Kruskal p = 0.156.
+- It is significant only in the parametric mixed model (p = 0.019).
+- Llama, by contrast, passes the permutation test (p = 0.022).
+- Excluding the 4.5% of cells with a degenerate/refusal output did **not** rescue
+  it (permutation p 0.071 → 0.066) — the weakness is intrinsic, not a data glitch.
+
+So the effect **strength is model-dependent**: strong in Llama, borderline in Qwen.
+
+## Which model is more sensitive (absolute measures)
+
+The rank-normalized composite is relative within a run and cannot compare models.
+Using the run-independent absolute spreads on the same 1,500 cells:
+
+| Drift across paraphrases | Llama | Qwen | More sensitive |
+|---|---|---|---|
+| Meaning (SMS drift) | 0.0941 | 0.0953 | ≈ tie (p=0.10) |
+| Wording (ROUGE-L var) | 0.0009 | 0.0011 | Qwen (p=6e-10) |
+| Correctness var | 0.0041 | 0.0046 | Qwen (p=4e-6) |
+| BERTScore var | 0.0032 | 0.0038 | Qwen (p=2e-7) |
+| Faithfulness var | 0.0399 | 0.0383 | Llama (n.s.) |
+
+**Qwen is slightly more sensitive overall — but in wording, not meaning** (meaning-drift
+is a tie). So Qwen is moodier on average yet **less organized by dimension**, while Llama
+is calmer overall but more clearly dimension-driven. "More sensitive" and "more
+dimension-explained" are different axes.
+
 ## Defensible claim
 > Across two different model families (Llama-3.1-8B, Qwen2.5-7B), instruction
 > dimension drives prompt sensitivity far more than the Pool split (both p<0.02,

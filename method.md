@@ -5,6 +5,21 @@
 
 ---
 
+## [2026-08-10] — Findings report (PDF) + post-hoc rigor: Qwen effect is weaker, cross-model sensitivity comparison
+
+**Files Added:** `gensens/crossed/FINDINGS_REPORT.md` + `FINDINGS_REPORT.pdf`; **Updated:** `CROSS_MODEL_REPLICATION.md`
+
+**What Changed / found (analysis on existing data, no re-scoring):**
+- **Qwen assumption-free significance:** ran `validate_robustness.py` on the Qwen run — length confound 0.99 (clean), split-half 0.90 (reliable), but **permutation p = 0.071 (NOT significant)** and seed-Kruskal p = 0.156. Qwen's dimension effect is significant only parametrically (mixed-model p = 0.019). So the effect **strength is model-dependent** (Llama permutation p = 0.022 passes; Qwen borderline).
+- **Degenerate-output sensitivity check:** ~1% of Qwen outputs are degenerate/refusal; 68 cells (4.5%) contained one. Dropping those cells and re-normalizing the composite moved Qwen's permutation p only 0.071 → 0.066 — the weakness is **intrinsic**, not a data-quality artifact.
+- **Cross-model sensitivity level (absolute anchors, paired over 1,500 cells):** Qwen slightly MORE sensitive overall, significantly so in wording (ROUGE-L var p=6e-10), correctness var, BERTScore var; meaning-drift (SMS) is a tie (p=0.10); faithfulness var slightly higher for Llama (n.s.). Interpretation: Qwen is moodier on average but LESS organized by dimension than Llama.
+- **FINDINGS_REPORT.pdf** (5 pp, generated via python-markdown → styled HTML → headless Chrome) consolidates methodology, Llama result, validation, Qwen replication, the model-dependent-strength caveat, sensitivity comparison, output-quality audit, honest limitations, and defensible claims.
+
+**Why / Impact:**
+- No score changes. Reframes the replication honestly: **coarse pattern replicates (ranking Spearman 0.70, identical extremes) but effect strength is model-dependent (borderline in Qwen).** Paper claims must match this; a third model is the recommended tie-breaker.
+
+---
+
 ## [2026-08-10] — Cross-model replication run (Qwen2.5-7B): finding REPLICATES
 
 **Files Added:** `gensens/crossed/results_qwen/`, `gensens/crossed/CROSS_MODEL_REPLICATION.md`
