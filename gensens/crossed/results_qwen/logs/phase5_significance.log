@@ -1,0 +1,213 @@
+[14:34:46] INFO Wrote significance results to /root/PROMPT-SENSITIVITY/gensens/crossed/results/significance.json
+{
+  "n_articles": 30,
+  "warnings": [],
+  "pool_comparison": {
+    "unit": "per_seed",
+    "n_pool_a": 35,
+    "n_pool_b": 15,
+    "u_statistic": 297.0,
+    "p_value": 0.47165533205819643,
+    "rank_biserial_effect_size": -0.13142857142857145,
+    "pool_b_median": 0.4976128530131198,
+    "pool_a_median": 0.4910384700911719,
+    "direction": "Pool B more sensitive",
+    "low_power_warning": "smaller group has 15 units; test is valid but underpowered."
+  },
+  "pool_comparison_percell_ref": {
+    "unit": "per_cell",
+    "n_pool_a": 1050,
+    "n_pool_b": 450,
+    "u_statistic": 260115.5,
+    "p_value": 0.0019074304772716004,
+    "rank_biserial_effect_size": -0.10101798941798945,
+    "pool_b_median": 0.5173115410273516,
+    "pool_a_median": 0.49029352901934625,
+    "direction": "Pool B more sensitive",
+    "note": "PSEUDOREPLICATED \u2014 cells sharing a seed/article are correlated; p-value is anticonservative. Not for inference; use per_seed."
+  },
+  "pool_comparison_note": "Headline uses per-seed means (n_A=35 seeds, n_B=15 seeds). Per-cell test retained under pool_comparison_percell_ref for reference only.",
+  "dimension_effect": {
+    "eta2_dimension_cells": 0.1494624263562266,
+    "eta2_pool_cells": 0.008152476846621515,
+    "interpretation": "dimension explains ~18x more sensitivity variance than pool",
+    "kruskal_seedlevel_H": 18.03984313725485,
+    "kruskal_seedlevel_p": 0.15601249320470126,
+    "kruskal_note": "seed-aggregated (each of the 50 seeds = 1 value); valid non-pseudoreplicated dimension test"
+  },
+  "dimension_ranking": [
+    {
+      "dimension": "Theme Isolation",
+      "n_cells": 150,
+      "n_seeds": 5,
+      "sensitivity_mean": 0.6462036913497887,
+      "ci_low": 0.6226823271069603,
+      "ci_high": 0.6696529908828107
+    },
+    {
+      "dimension": "Question Form",
+      "n_cells": 120,
+      "n_seeds": 4,
+      "sensitivity_mean": 0.5449245330220146,
+      "ci_low": 0.5120730139537469,
+      "ci_high": 0.5772896166889038
+    },
+    {
+      "dimension": "Tone Register",
+      "n_cells": 120,
+      "n_seeds": 4,
+      "sensitivity_mean": 0.5427005503669112,
+      "ci_low": 0.5215334215866133,
+      "ci_high": 0.5639196304480766
+    },
+    {
+      "dimension": "Analytical Framing",
+      "n_cells": 120,
+      "n_seeds": 4,
+      "sensitivity_mean": 0.5353845619301757,
+      "ci_low": 0.5056252397431621,
+      "ci_high": 0.5656398710251279
+    },
+    {
+      "dimension": "Emphasis Focus",
+      "n_cells": 90,
+      "n_seeds": 3,
+      "sensitivity_mean": 0.520865762360092,
+      "ci_low": 0.4835278426358313,
+      "ci_high": 0.559167407901564
+    },
+    {
+      "dimension": "Audience Perspective",
+      "n_cells": 90,
+      "n_seeds": 3,
+      "sensitivity_mean": 0.5096632940478837,
+      "ci_low": 0.4756619968868135,
+      "ci_high": 0.5434113019790971
+    },
+    {
+      "dimension": "Meta-reflection",
+      "n_cells": 30,
+      "n_seeds": 1,
+      "sensitivity_mean": 0.4976128530131198,
+      "ci_low": 0.45523932621747826,
+      "ci_high": 0.5429132338225483
+    },
+    {
+      "dimension": "Completeness Framing",
+      "n_cells": 90,
+      "n_seeds": 3,
+      "sensitivity_mean": 0.49595359869542655,
+      "ci_low": 0.46201085909124595,
+      "ci_high": 0.5295060364316951
+    },
+    {
+      "dimension": "Persona / Tone",
+      "n_cells": 180,
+      "n_seeds": 6,
+      "sensitivity_mean": 0.4641462827069898,
+      "ci_low": 0.44346822881921283,
+      "ci_high": 0.4847880670446965
+    },
+    {
+      "dimension": "Role Based",
+      "n_cells": 120,
+      "n_seeds": 4,
+      "sensitivity_mean": 0.4625667111407605,
+      "ci_low": 0.43702644123860357,
+      "ci_high": 0.4879130844173893
+    },
+    {
+      "dimension": "Lexical Filter",
+      "n_cells": 90,
+      "n_seeds": 3,
+      "sensitivity_mean": 0.44540378771032535,
+      "ci_low": 0.416127223704692,
+      "ci_high": 0.4759237732562448
+    },
+    {
+      "dimension": "Output Format",
+      "n_cells": 90,
+      "n_seeds": 3,
+      "sensitivity_mean": 0.4408186939441109,
+      "ci_low": 0.40783040545548876,
+      "ci_high": 0.47307599974056774
+    },
+    {
+      "dimension": "Direct Command",
+      "n_cells": 120,
+      "n_seeds": 4,
+      "sensitivity_mean": 0.42780436957971985,
+      "ci_low": 0.398644068267734,
+      "ci_high": 0.4565961057371581
+    },
+    {
+      "dimension": "Constraint Based",
+      "n_cells": 90,
+      "n_seeds": 3,
+      "sensitivity_mean": 0.3982842265213846,
+      "ci_low": 0.3648113371877548,
+      "ci_high": 0.4322737380475874
+    }
+  ],
+  "most_sensitive_dimension": "Theme Isolation",
+  "least_sensitive_dimension": "Constraint Based",
+  "most_vs_least_sensitive_seed": {
+    "most_sensitive_seed": "B04",
+    "most_sensitive_mean": 0.8153274405158994,
+    "least_sensitive_seed": "A01",
+    "least_sensitive_mean": 0.3000194574160551,
+    "n_paired_articles": 30,
+    "wilcoxon_statistic": 0.0,
+    "p_value": 1.862645149230957e-09,
+    "cohens_dz": 2.4518415520653636
+  }
+}
+[14:34:46] INFO Loaded 1500 cells, 50 seeds, 30 articles.
+[14:34:47] INFO Residualized: dimension ranking raw-vs-resid Spearman = 0.974 (high => dimension effect is not a quality artifact)
+/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/statsmodels/regression/mixed_linear_model.py:2237: ConvergenceWarning: The MLE may be on the boundary of the parameter space.
+  warnings.warn(msg, ConvergenceWarning)
+/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/statsmodels/regression/mixed_linear_model.py:2237: ConvergenceWarning: The MLE may be on the boundary of the parameter space.
+  warnings.warn(msg, ConvergenceWarning)
+/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/statsmodels/regression/mixed_linear_model.py:2237: ConvergenceWarning: The MLE may be on the boundary of the parameter space.
+  warnings.warn(msg, ConvergenceWarning)
+/root/miniconda3/envs/py3.10/lib/python3.10/site-packages/statsmodels/regression/mixed_linear_model.py:2237: ConvergenceWarning: The MLE may be on the boundary of the parameter space.
+  warnings.warn(msg, ConvergenceWarning)
+[14:34:47] INFO Wrote /root/PROMPT-SENSITIVITY/gensens/crossed/results/dimension_analysis.json
+{
+  "n_cells": 1500,
+  "n_seeds": 50,
+  "n_articles": 30,
+  "mixed_model": {
+    "converged": true,
+    "lrt_dimension_chi2": 25.70368416789279,
+    "lrt_dimension_df": 13,
+    "lrt_dimension_p": 0.018626406132045723,
+    "var_seed": 0.002675281158840831,
+    "var_article": 0.005819378457177727,
+    "var_residual": 0.015905508942528467,
+    "interpretation": "dimension fixed effect is significant controlling for crossed seed+article random intercepts",
+    "note": "Random-intercept variances: seed captures per-prompt idiosyncrasy WITHIN a dimension; article captures content effects. A significant LRT means dimension explains sensitivity beyond those."
+  },
+  "dimension_robustness": {
+    "min_seeds_threshold": 2,
+    "thin_dimensions_dropped": [
+      "Meta-reflection"
+    ],
+    "n_dimensions_all": 14,
+    "n_dimensions_kept": 13,
+    "eta2_dimension_all": 0.14946242635622664,
+    "eta2_dimension_kept": 0.15098660285103424,
+    "mixed_lrt_p_kept": 0.013942812437531624,
+    "spearman_ranking_all_vs_kept": 1.0,
+    "interpretation": "dimension effect is ROBUST to dropping single-seed dimensions"
+  }
+}
+
+Residualized dimension ranking (quality-adjusted, top/bottom 3):
+  Theme Isolation        +0.128
+  Tone Register          +0.056
+  Question Form          +0.036
+  ...                    +0.000
+  Output Format          -0.056
+  Direct Command         -0.060
+  Constraint Based       -0.092

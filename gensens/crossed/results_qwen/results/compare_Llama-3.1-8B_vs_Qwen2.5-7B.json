@@ -1,0 +1,74 @@
+{
+  "label_a": "Llama-3.1-8B",
+  "label_b": "Qwen2.5-7B",
+  "n_cells_a": 1500,
+  "n_cells_b": 1500,
+  "dimension_ranking": {
+    "n": 14,
+    "spearman": 0.7010989010989012,
+    "spearman_p": 0.005211861769946944,
+    "pearson": 0.7393745005989486
+  },
+  "dimension_ranking_on_sms_drift_anchor": {
+    "n": 14,
+    "spearman": 0.8153846153846154,
+    "spearman_p": 0.00037913223820058227,
+    "pearson": 0.856010905055383
+  },
+  "seed_ranking": {
+    "n": 50,
+    "spearman": 0.7371428571428571,
+    "spearman_p": 1.0323023847618733e-09,
+    "pearson": 0.7745125254203723
+  },
+  "top3_overlap": {
+    "k": 3,
+    "top": true,
+    "a": [
+      "Meta-reflection",
+      "Question Form",
+      "Theme Isolation"
+    ],
+    "b": [
+      "Question Form",
+      "Theme Isolation",
+      "Tone Register"
+    ],
+    "shared": [
+      "Question Form",
+      "Theme Isolation"
+    ],
+    "jaccard": 0.5
+  },
+  "bottom3_overlap": {
+    "k": 3,
+    "top": false,
+    "a": [
+      "Constraint Based",
+      "Direct Command",
+      "Output Format"
+    ],
+    "b": [
+      "Constraint Based",
+      "Direct Command",
+      "Output Format"
+    ],
+    "shared": [
+      "Constraint Based",
+      "Direct Command",
+      "Output Format"
+    ],
+    "jaccard": 1.0
+  },
+  "pool_sensitivity": {
+    "Llama-3.1-8B": {
+      "A": 0.48512238317608564,
+      "B": 0.5347144392558002
+    },
+    "Qwen2.5-7B": {
+      "A": 0.4900079894532863,
+      "B": 0.5233146912756653
+    }
+  },
+  "verdict": "REPLICATES \u2014 same dimensions sensitive in both models"
+}

@@ -5,6 +5,22 @@
 
 ---
 
+## [2026-08-10] — Cross-model replication run (Qwen2.5-7B): finding REPLICATES
+
+**Files Added:** `gensens/crossed/results_qwen/`, `gensens/crossed/CROSS_MODEL_REPLICATION.md`
+
+**What Changed:**
+- Ran the identical crossed grid (same 30 articles + 50 seeds + pipeline + config: v2 composite, whole-summary MiniCheck, BERTScore, PPL on) on **Qwen2.5-7B-Instruct** (fresh A30, no code change — just `MODEL_ID=Qwen/Qwen2.5-7B-Instruct`). Results in `results_qwen/`.
+
+**Why:**
+- Close the single biggest validity gap (single-model scope) — test whether the dimension-drives-sensitivity finding generalizes beyond Llama-3.1-8B.
+
+**Impact:**
+- **The finding REPLICATES across model families.** Dimension-ranking Spearman(Llama, Qwen) = **0.70 (p=0.005)**, seed-ranking 0.74 (p=1e-9), sms_drift-anchor 0.82. Qwen independently reproduces the structure: dimension η²=14.9% vs pool 0.8%, mixed-model **p=0.019**, Pool A/B null (seed-MWU p=0.47). **Question Form + Theme Isolation top-2 in both; Constraint Based / Direct Command / Output Format bottom-3 in both (identical set, Jaccard 1.00).**
+- **Honest nuance:** Meta-reflection (the 1-seed dimension) moved #1→#7 across models — its divergence is exactly what the thin-seed caveat predicted (the analysis flagged its own weak point). Mid-rank ordering is model-specific (overlapping CIs). Full side-by-side in `CROSS_MODEL_REPLICATION.md`. MiniCheck ran clean (no fallback) once `accelerate` + nltk `punkt_tab` were pre-installed on the fresh box.
+
+---
+
 ## [2026-08-10] — Cross-model replication analyzer (compare_models.py)
 
 **Files Added:** `gensens/crossed/scripts/compare_models.py`
