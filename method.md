@@ -5,6 +5,21 @@
 
 ---
 
+## [2026-08-10] — Cross-model replication analyzer (compare_models.py)
+
+**Files Added:** `gensens/crossed/scripts/compare_models.py`
+
+**What Changed:**
+- New pure-CPU `compare_models.py`: given two completed runs (same articles+seeds, different generation model), reports whether the sensitivity findings replicate — **dimension-ranking Spearman** (headline), seed-level ranking Spearman (finer, 50 prompts), the same on the run-independent `sms_drift` anchor, top-k/bottom-k set overlap, per-pool sensitivity, and a side-by-side per-dimension table. All comparisons are RANK-based because the Sensitivity composite is rank-normalized within each run (only order is cross-run comparable).
+
+**Why:**
+- Prep for the Phase-2 cross-model replication (Qwen2.5-7B-Instruct vs Llama-3.1-8B). The single remaining validity gap is single-model scope; this script turns a second run into a one-command replication verdict.
+
+**Impact:**
+- No score changes. Verified on the two existing Llama runs (new vs old scorers): dimension Spearman 0.943, seed Spearman 0.967, identical top-3/bottom-3 — which also incidentally confirms scorer-robustness. Awaiting the Qwen run to test true cross-MODEL replication.
+
+---
+
 ## [2026-08-09] — Robustness validation script + cross-checks on the 30-article run (all passed)
 
 **Files Added:** `gensens/crossed/scripts/validate_robustness.py`, `results_30article_bestscorers/VALIDATION.md`, `.../results/validation.json`
