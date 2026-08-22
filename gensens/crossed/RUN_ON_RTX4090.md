@@ -38,11 +38,26 @@ wsl --install -d Ubuntu
 Install the NVIDIA CUDA-on-WSL driver on the **Windows** side (not inside WSL);
 `nvidia-smi` should then work inside Ubuntu.
 
-### Path B: **native Windows (PowerShell)**
-vLLM will **not** install. You can still run **paraphrase generation** with the
-HF-transformers backend (`--backend llama`), but **Phase-1 response collection
-(`run_inference_crossed.py`) currently requires vLLM** — see "Known limitations"
-at the bottom. Use Path A unless you can't.
+### Path B: **native Windows (PowerShell)** — fully supported
+vLLM will **not** install, but the whole pipeline now runs on the
+**HF-transformers backend**: paraphrase generation uses `--backend llama`, and
+Phase-1 response collection uses `--backend hf` (auto-selected when vLLM is
+absent). One command runs everything — see the **Windows quick-start** below.
+It is slower than vLLM but correct on a single 4090.
+
+#### Windows quick-start (one script, all 3 models)
+```powershell
+# from the repo root, with your venv active and huggingface-cli login done:
+powershell -ExecutionPolicy Bypass -File gensens\crossed\run_crossed_windows.ps1
+
+# more articles + skip the OOM-prone PPL pass:
+$env:N_ARTICLES=100; $env:SKIP_PPL_ENTROPY="1"; `
+  powershell -ExecutionPolicy Bypass -File gensens\crossed\run_crossed_windows.ps1
+```
+`run_crossed_windows.ps1` generates the dataset (if missing), runs all 6 phases
+for Llama-3.1-8B → Qwen2.5-7B → Mistral-7B into `results_llama/`,
+`results_qwen_new/`, `results_mistral/`, then the cross-model comparison and
+robustness validation. **Every step is resumable — just re-run the script.**
 
 ---
 
@@ -145,8 +160,8 @@ export FAITH_WHOLE_SUMMARY=1      # ~4× faster MiniCheck, minimal accuracy loss
 ```bash
 # pairwise replication comparison (repeat for each pair):
 python gensens/crossed/scripts/compare_models.py \
-    --a gensens/crossed/results_llama   --label_a Llama-3.1-8B \
-    --b gensens/crossed/results_qwen    --label_b Qwen2.5-7B
+    --run_a gensens/crossed/results_llama   --label_a Llama-3.1-8B \
+    --run_b gensens/crossed/results_qwen    --label_b Qwen2.5-7B
 
 # assumption-free robustness (length confound / split-half / permutation / paraphrase equivalence):
 python gensens/crossed/scripts/validate_robustness.py --results_dir gensens/crossed/results_mistral
@@ -166,10 +181,13 @@ Qwen-weak permutation result — that's the whole reason for this run.
 
 ## 7. Known limitations / open items
 
-1. **Native Windows can't run Phase-1 response collection yet.**
-   `run_inference_crossed.py` imports vLLM with no HF fallback. Options: use WSL2
-   (Path A), or add an HF-transformers backend to that script (planned). Paraphrase
-   generation already has the `--backend llama` (HF) path.
+1. **HF backend is slower than vLLM.** `run_inference_crossed.py --backend hf`
+   generates un-batched-through-a-server (micro-batched in-process instead), so a
+   full 3-model × 100-article run takes meaningfully longer than on vLLM/WSL2.
+   For the biggest runs, WSL2 (Path A) is faster; for correctness on native
+   Windows, the HF path is fine. The HF path is **not** bit-identical to vLLM
+   (different kernels/kv-cache), so don't mix backends within one comparison —
+   run all 3 models on the same backend.
 2. **Crossed pipeline is summarization-only.** QA / Dialogue / Creative datasets
    generate fine (`generate_dataset.py --task all`), but the crossed
    response+metric pipeline currently consumes the summarization seed schema

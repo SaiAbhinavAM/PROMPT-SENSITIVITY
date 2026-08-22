@@ -32,6 +32,20 @@ log = logging.getLogger("run_inference_crossed")
 DEFAULT_MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 
 
+def select_backend(pref: str) -> str:
+    """Resolve the requested backend to a concrete one. 'auto' prefers vLLM
+    (faster, batched) and falls back to HF transformers when vLLM cannot be
+    imported — the native-Windows / no-vLLM path."""
+    if pref in ("vllm", "hf"):
+        return pref
+    try:
+        import vllm  # noqa: F401
+        return "vllm"
+    except Exception as e:
+        log.warning(f"vLLM unavailable ({e}); falling back to HF transformers backend.")
+        return "hf"
+
+
 def check_hf_auth() -> None:
     """Best-effort `huggingface-cli whoami` — logs the result, never fatal
     (some environments authenticate via HF_TOKEN env var without a cached
@@ -89,6 +103,17 @@ def main():
     ap.add_argument("--max_model_len", type=int, default=8192)
     ap.add_argument("--gpu_mem_frac", type=float, default=0.88)
     ap.add_argument("--checkpoint_every", type=int, default=2000)
+    ap.add_argument(
+        "--backend", default="auto", choices=["auto", "vllm", "hf"],
+        help="Inference backend. 'auto' uses vLLM if importable, else falls back "
+             "to HF transformers (native-Windows / no-vLLM path). 'hf' forces "
+             "transformers.",
+    )
+    ap.add_argument(
+        "--hf_batch_size", type=int, default=4,
+        help="HF backend only: micro-batch size for generation (lower if OOM on "
+             "24 GB; 4 is safe for an 8B model at max_tokens=512).",
+    )
     ap.add_argument("--limit_seeds", type=int, default=None, help="Debug: only use the first K seeds")
     ap.add_argument("--limit_articles", type=int, default=None, help="Debug: only use the first K articles")
     ap.add_argument(
@@ -142,25 +167,43 @@ def main():
         log.info("Nothing to do — all tasks already completed.")
         return
 
-    from vllm import LLM, SamplingParams
+    backend = select_backend(args.backend)
     from transformers import AutoTokenizer
 
-    log.info(f"Loading tokenizer + vLLM engine for {args.model} ...")
+    log.info(f"Loading tokenizer + {backend} engine for {args.model} ...")
     tok = AutoTokenizer.from_pretrained(args.model)
-    llm = LLM(
-        model=args.model,
-        tensor_parallel_size=1,
-        gpu_memory_utilization=args.gpu_mem_frac,
-        max_model_len=args.max_model_len,
-        dtype="auto",
-        trust_remote_code=True,
-    )
-    sampling_params = SamplingParams(temperature=0.0, max_tokens=args.max_tokens)
 
-    n_done_this_run = 0
-    t0 = time.time()
-    for chunk_start in range(0, len(pending), args.checkpoint_every):
-        chunk = pending[chunk_start: chunk_start + args.checkpoint_every]
+    if backend == "vllm":
+        from vllm import LLM, SamplingParams
+        llm = LLM(
+            model=args.model,
+            tensor_parallel_size=1,
+            gpu_memory_utilization=args.gpu_mem_frac,
+            max_model_len=args.max_model_len,
+            dtype="auto",
+            trust_remote_code=True,
+        )
+        sampling_params = SamplingParams(temperature=0.0, max_tokens=args.max_tokens)
+    else:  # hf transformers (native-Windows / no-vLLM path)
+        import torch
+        from transformers import AutoModelForCausalLM
+        if tok.pad_token_id is None:
+            tok.pad_token = tok.eos_token
+        tok.padding_side = "left"  # required for correct decoder-only batched gen
+        device = (
+            "cuda" if torch.cuda.is_available()
+            else "mps" if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available()
+            else "cpu"
+        )
+        log.info(f"HF backend device={device}, micro-batch={args.hf_batch_size}")
+        model = AutoModelForCausalLM.from_pretrained(
+            args.model, torch_dtype=torch.float16, device_map=device,
+            trust_remote_code=True,
+        )
+        model.eval()
+
+    def generate_chunk(chunk):
+        """Return a list[str] of greedy outputs for the chunk, backend-agnostic."""
         chat_prompts = [
             tok.apply_chat_template(
                 [{"role": "user", "content": t["full_prompt"]}],
@@ -168,9 +211,35 @@ def main():
             )
             for t in chunk
         ]
-        outs = llm.generate(chat_prompts, sampling_params)
+        if backend == "vllm":
+            outs = llm.generate(chat_prompts, sampling_params)
+            return [o.outputs[0].text.strip() for o in outs]
+        # HF: micro-batch to bound memory; greedy; decode only new tokens.
+        texts = []
+        for i in range(0, len(chat_prompts), args.hf_batch_size):
+            sub = chat_prompts[i: i + args.hf_batch_size]
+            enc = tok(
+                sub, return_tensors="pt", padding=True, truncation=True,
+                max_length=args.max_model_len,
+            ).to(model.device)
+            with torch.no_grad():
+                gen = model.generate(
+                    **enc, max_new_tokens=args.max_tokens,
+                    do_sample=False, pad_token_id=tok.pad_token_id,
+                )
+            prompt_len = enc["input_ids"].shape[1]
+            for j in range(gen.shape[0]):
+                new_tokens = gen[j, prompt_len:]
+                texts.append(tok.decode(new_tokens, skip_special_tokens=True).strip())
+        return texts
+
+    n_done_this_run = 0
+    t0 = time.time()
+    for chunk_start in range(0, len(pending), args.checkpoint_every):
+        chunk = pending[chunk_start: chunk_start + args.checkpoint_every]
+        outputs = generate_chunk(chunk)
         rows = []
-        for t, o in zip(chunk, outs):
+        for t, out_text in zip(chunk, outputs):
             rows.append({
                 "article_id": t["article_id"],
                 "seed_id": t["seed_id"],
@@ -178,7 +247,7 @@ def main():
                 "dimension": t["dimension"],
                 "variant_idx": t["variant_idx"],
                 "full_prompt": t["full_prompt"],
-                "output": o.outputs[0].text.strip(),
+                "output": out_text,
                 "gold_summary": t["gold_summary"],
                 "article_word_count": t["article_word_count"],
             })

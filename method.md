@@ -21,6 +21,11 @@
 - `gensens/crossed/scripts/common.py`: `SEED_FILE_DEFAULT` → the new 10para file; `N_VARIANTS_PER_SEED` 6 → **11** (1 base + 10); `load_seed_prompts` now **propagates `strategy_family`** (the axis label) into each normalized variant (base variant tagged `"base"`) so downstream per-axis analysis is possible.
 - Added runbook `gensens/crossed/RUN_ON_RTX4090.md` (24 GB constraints, WSL2 vs native-Windows paths, 3-model run, OOM knobs, resumability, open items).
 
+**Native-Windows / no-vLLM inference backend:**
+- `gensens/crossed/scripts/run_inference_crossed.py`: added `--backend {auto,vllm,hf}` (default `auto`: prefer vLLM, fall back to HF transformers) and `--hf_batch_size`. The HF path loads `AutoModelForCausalLM` (fp16, left-padded), micro-batches greedy generation (`do_sample=False`), and decodes only new tokens — same greedy decoding and identical output-row schema as the vLLM path. This unblocks the full crossed pipeline on native Windows (only Phase 1 was vLLM-coupled; all scorers are already HF).
+- **Not bit-identical to vLLM** (different kernels/KV-cache) — a caveat is documented; do not mix backends within a single cross-model comparison.
+- Added `gensens/crossed/run_crossed_windows.ps1` — one-shot PowerShell runner (dataset → 6 phases × 3 models → compare + robustness), fully resumable, HF backend.
+
 **Why:**
 - Per-axis sensitivity ("which *rewrite type* is each model most sensitive to") is a claimed contribution; it requires **balanced** coverage of all axes on equal n. The prior scheme was unbalanced (pragmatic/length under-sampled) and had **no FORMAT axis at all** — yet formatting/surface-form is one of the largest documented sources of prompt sensitivity, so the benchmark was systematically undercounting it.
 - Standardizes the same 5-axis design across all four tasks (summarization, QA, dialogue, creative) so sensitivity is comparable across tasks.
