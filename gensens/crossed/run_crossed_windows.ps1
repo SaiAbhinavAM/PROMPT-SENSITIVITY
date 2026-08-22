@@ -59,6 +59,16 @@ function Section($msg) {
     Write-Host ("=" * 74) -ForegroundColor Cyan
 }
 
+# ── Pre-flight: Hugging Face token (Llama-3.1 + Mistral are gated) ────────────
+# Only the presence of a token is checked here; the value is never printed or
+# stored. Each subject model's real access is verified fail-fast in Phase 1.
+if (-not $env:HF_TOKEN -and -not $env:HUGGING_FACE_HUB_TOKEN) {
+    Write-Host "WARNING: HF_TOKEN is not set. Gated models (Llama-3.1-8B, Mistral-7B) will fail to download." -ForegroundColor Yellow
+    Write-Host "         Set it first:  setx HF_TOKEN `"hf_...`"  (reopen PowerShell)  or  `$env:HF_TOKEN=`"hf_...`"" -ForegroundColor Yellow
+} else {
+    Write-Host "HF_TOKEN detected in environment (value hidden)." -ForegroundColor Green
+}
+
 # ── Step 1 — paraphrase dataset (balanced 5-axis x 2 = 10/seed) ──────────────
 if (-not (Test-Path $Dataset)) {
     Section "Step 1 — Generate balanced 10-paraphrase summarization dataset (Llama-8B, HF)"

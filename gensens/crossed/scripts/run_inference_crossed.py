@@ -46,21 +46,56 @@ def select_backend(pref: str) -> str:
         return "hf"
 
 
-def check_hf_auth() -> None:
-    """Best-effort `huggingface-cli whoami` — logs the result, never fatal
-    (some environments authenticate via HF_TOKEN env var without a cached
-    login, and gated-model access is validated for real at model load time
-    regardless)."""
+def check_hf_auth(model_id: str) -> None:
+    """Pre-flight Hugging Face auth check — fails fast on gated-model access
+    problems instead of dying opaquely deep inside model load.
+
+    Reads the token from the environment (HF_TOKEN / HUGGING_FACE_HUB_TOKEN /
+    HF_API_TOKEN) or a cached `huggingface-cli login`. The token VALUE is never
+    logged — only whether one is present. If `model_id` is a gated repo the
+    current credentials cannot access, exits with an actionable message.
+    """
+    import os
+    token = (
+        os.environ.get("HF_TOKEN")
+        or os.environ.get("HUGGING_FACE_HUB_TOKEN")
+        or os.environ.get("HF_API_TOKEN")
+    )
+    if token:
+        log.info("HF auth: token found in environment (value hidden).")
+    else:
+        log.info("HF auth: no token env var found; relying on cached "
+                 "huggingface-cli login, if any.")
+
     try:
-        out = subprocess.run(
-            ["huggingface-cli", "whoami"], capture_output=True, text=True, timeout=30
-        )
-        if out.returncode == 0:
-            log.info(f"huggingface-cli whoami: {out.stdout.strip()}")
-        else:
-            log.warning(f"huggingface-cli whoami failed (rc={out.returncode}): {out.stderr.strip()}")
+        from huggingface_hub import HfApi
+        from huggingface_hub.utils import GatedRepoError, RepositoryNotFoundError
     except Exception as e:
-        log.warning(f"Could not run huggingface-cli whoami: {e}")
+        log.warning(f"huggingface_hub not importable for the pre-flight check ({e}); "
+                    f"access will be validated at model load instead.")
+        return
+
+    try:
+        HfApi().model_info(model_id, token=token)
+        log.info(f"HF auth OK — access to '{model_id}' confirmed.")
+    except GatedRepoError:
+        log.error(
+            f"GATED MODEL '{model_id}' is not accessible with your credentials.\n"
+            f"  Fix: (1) set a token   ->  setx HF_TOKEN \"hf_...\"   (reopen the shell), and\n"
+            f"       (2) accept the license at  https://huggingface.co/{model_id}\n"
+            f"  then re-run."
+        )
+        raise SystemExit(2)
+    except RepositoryNotFoundError:
+        log.error(
+            f"Model repo '{model_id}' not found, or private with no access for this "
+            f"token. Check the id and that your token can see it."
+        )
+        raise SystemExit(2)
+    except Exception as e:
+        # Network / transient issue — don't block; real access is validated at load.
+        log.warning(f"Could not pre-verify access to '{model_id}' ({e}); continuing — "
+                    f"access will be validated at model load.")
 
 
 def build_task_list(articles, seeds):
@@ -128,7 +163,7 @@ def main():
     results_dir.mkdir(parents=True, exist_ok=True)
     responses_path = results_dir / "responses_crossed.jsonl"
 
-    check_hf_auth()
+    check_hf_auth(args.model)
 
     seeds = common.load_seed_prompts(args.seed_file)
     log.info(f"Loaded {len(seeds)} seeds (expected {common.N_SEEDS_EXPECTED}).")

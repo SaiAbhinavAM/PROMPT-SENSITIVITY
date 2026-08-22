@@ -77,8 +77,12 @@ pip install -r requirements_gpu.txt -r gensens/crossed/requirements_crossed.txt
 # falls back to the NLI faithfulness backend automatically:
 pip install "minicheck @ git+https://github.com/Liyan06/MiniCheck.git@main"
 
-# Gated Llama weights need a HF login:
-huggingface-cli login
+# Gated weights (Llama-3.1, Mistral) need auth. A token is enough — no
+# `huggingface-cli login` required. On Windows PowerShell:
+#   setx HF_TOKEN "hf_..."      # persists to new terminals (reopen PowerShell)
+# The token account must also have ACCEPTED the license on each gated model page
+# (huggingface.co/meta-llama/... and .../mistralai/...). Phase 1 verifies access
+# fail-fast and prints an actionable message if a gated model is unreachable.
 ```
 
 > **Native Windows only:** skip `vllm` from `requirements_gpu.txt`
