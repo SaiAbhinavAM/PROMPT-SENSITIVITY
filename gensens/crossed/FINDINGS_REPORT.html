@@ -1,0 +1,287 @@
+<!doctype html><html><head><meta charset='utf-8'><style>
+@page { size: A4; margin: 18mm 16mm; }
+body { font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1a1a1a; }
+h1 { font-size: 20pt; color: #0b3d63; border-bottom: 3px solid #0b3d63; padding-bottom: 6px; margin-bottom: 4px; }
+h2 { font-size: 14pt; color: #0b3d63; margin-top: 22px; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; page-break-after: avoid; }
+h3 { font-size: 11.5pt; color: #334155; margin-top: 14px; }
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 9.5pt; page-break-inside: avoid; }
+th, td { border: 1px solid #cbd5e1; padding: 5px 8px; text-align: left; vertical-align: top; }
+th { background: #eef4f9; color: #0b3d63; font-weight: 600; }
+tr:nth-child(even) td { background: #f8fafc; }
+code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-size: 9pt; }
+blockquote { border-left: 4px solid #0b3d63; background: #f5f9fc; margin: 10px 0; padding: 8px 14px; font-style: italic; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 16px 0; }
+strong { color: #0b3d63; }
+ul, ol { margin: 6px 0; } li { margin: 2px 0; }
+</style></head><body><h1>Prompt Sensitivity in Summarization — Findings Report</h1>
+<p><strong>Crossed-design benchmark · Llama-3.1-8B-Instruct &amp; Qwen2.5-7B-Instruct · CNN/DailyMail</strong>
+<em>Generated 2026-08-10</em></p>
+<hr />
+<h2>1. Executive summary</h2>
+<p>We measure <strong>prompt sensitivity</strong> — how much a model's output changes when an instruction is reworded but its meaning is preserved — on a crossed design of <strong>30 articles × 50 prompt "seeds" × ~6 meaning-equivalent paraphrases</strong> (8,970 generations per model). Sensitivity is defined as the <strong>spread</strong> of a cell's outputs; quality is the <strong>mean</strong>, kept strictly separate.</p>
+<p><strong>Headline finding:</strong> <em>Which rhetorical </em><em>dimension</em><em> an instruction uses (question-form, theme-isolation, output-format, …) drives prompt sensitivity far more than the coarse Pool A/B split.</em> This holds in Llama-3.1-8B (dimension explains ~19% of sensitivity variance vs ~2% for pool; permutation p = 0.022) and <strong>replicates in direction</strong> in Qwen2.5-7B (Spearman 0.70, p = 0.005), with the most- and least-sensitive dimension classes <strong>identical</strong> across the two models.</p>
+<p><strong>Honest qualifier:</strong> the effect is <strong>strong in Llama but weaker/borderline in Qwen</strong> (Qwen mixed-model p = 0.019 but assumption-free permutation p = 0.071), and only the <strong>coarse</strong> ranking replicates — the exact 14-way order is model-specific.</p>
+<hr />
+<h2>2. Methodology</h2>
+<ul>
+<li><strong>Design:</strong> every seed applied to the same 30 CNN/DailyMail articles (instance-fixed, prompt-varied), following POSIX/ProSA/PromptBench convention. A <strong>cell</strong> = one (article, seed) → its ~6 paraphrase outputs.</li>
+<li><strong>Sensitivity = spread, Quality = mean.</strong> Every metric that takes a mean across a cell's outputs also reports its variance; the variance is the sensitivity signal.</li>
+<li><strong>Sensitivity composite (v2), rank-normalized within a run:</strong> <code>0.25·SMS-drift + 0.20·ROUGE-L-var + 0.15·CS-cv + 0.15·faith-cv + 0.125·PPL-var + 0.125·PC-stab-cv</code>. Spread of bounded quality scores is level-normalized (coefficient of variation) to de-confound spread from quality level; lexical drift (ROUGE-L) is included so the score is not purely embedding-based.</li>
+<li><strong>Scorers (deterministic, SOTA):</strong> SMS drift via Sentence-BERT (meaning drift); <strong>MiniCheck-DeBERTa-v3-large</strong> for faithfulness (SOTA fact-checking, whole-summary mode); <strong>BERTScore</strong> (rescaled) for correctness vs the gold summary; real teacher-forced perplexity / branching-factor for confidence spread. An LLM-judge was deliberately avoided — its own stochasticity would contaminate a variance benchmark.</li>
+<li><strong>Decoding:</strong> greedy (temperature 0), to isolate the prompt effect from sampling noise.</li>
+<li><strong>Paraphrase equivalence</strong> was validated in the dataset by <strong>bidirectional NLI entailment</strong>, not just similarity (see §6).</li>
+</ul>
+<hr />
+<h2>3. Main finding — Llama-3.1-8B</h2>
+<p><strong>Dimension is the primary axis.</strong> Instruction dimension explains <strong>19.3%</strong> of sensitivity variance vs <strong>1.7%</strong> for the Pool A/B split (~11×). Mixed-effects test <code>sensitivity ~ dimension + (1|seed) + (1|article)</code>: <strong>χ²=30.8, p=0.0036</strong>. Pool A/B is not significant (seed-level Mann-Whitney p = 0.16).</p>
+<p><strong>Sensitivity by pool:</strong> A = 0.485 [0.475, 0.496], B = 0.535 [0.519, 0.550].</p>
+<p><strong>Per-dimension ranking (most → least sensitive):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>Dimension</th>
+<th>Sensitivity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Meta-reflection*</td>
+<td>0.620</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Question Form</td>
+<td>0.614</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Theme Isolation</td>
+<td>0.611</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Analytical Framing</td>
+<td>0.561</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Role Based</td>
+<td>0.520</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Persona / Tone</td>
+<td>0.490</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Audience Perspective</td>
+<td>0.487</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Emphasis Focus</td>
+<td>0.485</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Completeness Framing</td>
+<td>0.483</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Tone Register</td>
+<td>0.480</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Lexical Filter</td>
+<td>0.468</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Direct Command</td>
+<td>0.446</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Output Format</td>
+<td>0.358</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Constraint Based</td>
+<td>0.352</td>
+</tr>
+</tbody>
+</table>
+<p>* Meta-reflection is backed by only <strong>1 seed</strong> — treat it as a single-prompt observation, not a stable dimension estimate (see §8).</p>
+<hr />
+<h2>4. Robustness validation (Llama)</h2>
+<p>Every internal cross-check passed.</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Question</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Different scorers (×3 configs)</td>
+<td>Is the ranking scorer-dependent?</td>
+<td>Spearman 0.94 — stable</td>
+</tr>
+<tr>
+<td>Quality confound</td>
+<td>Is sensitivity just low quality?</td>
+<td>residualized ranking Spearman 0.94</td>
+</tr>
+<tr>
+<td><strong>Length confound</strong></td>
+<td>Is it just an output-length effect?</td>
+<td>corr −0.07; length-adjusted ranking <strong>0.97</strong></td>
+</tr>
+<tr>
+<td><strong>Split-half replication</strong></td>
+<td>Does it replicate within the study?</td>
+<td><strong>mean Spearman 0.87</strong> over 300 splits</td>
+</tr>
+<tr>
+<td><strong>Permutation test</strong></td>
+<td>Significant with no normality assumption?</td>
+<td><strong>p = 0.022</strong></td>
+</tr>
+<tr>
+<td><strong>Paraphrase equivalence</strong></td>
+<td>Do the paraphrases truly mean the same?</td>
+<td>bidirectional NLI <strong>0.98 / 0.97</strong>, 100% passed, token overlap 0.36</td>
+</tr>
+</tbody>
+</table>
+<p>The <strong>assumption-free permutation p = 0.022</strong> is the most defensible significance value (the parametric mixed-model p = 0.0036 assumes a normality the rank-normalized composite lacks).</p>
+<hr />
+<h2>5. Cross-model replication — Qwen2.5-7B</h2>
+<p>Identical grid and pipeline, only the generation model changed.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Result</th>
+<th>Reading</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dimension-ranking Spearman (Llama vs Qwen)</td>
+<td><strong>0.70</strong> (p = 0.005)</td>
+<td>ranking correlates across families</td>
+</tr>
+<tr>
+<td>Seed-ranking Spearman (50 prompts)</td>
+<td>0.74 (p = 1e-9)</td>
+<td>individual prompts rank alike</td>
+</tr>
+<tr>
+<td>SMS-drift anchor cross-check</td>
+<td>0.82</td>
+<td>even higher on the run-independent measure</td>
+</tr>
+<tr>
+<td><strong>Bottom-3 dimension overlap</strong></td>
+<td><strong>Jaccard 1.00 (identical)</strong></td>
+<td>least-sensitive set is the same</td>
+</tr>
+<tr>
+<td>Top-3 dimension overlap</td>
+<td>Jaccard 0.50</td>
+<td>Question Form + Theme Isolation shared</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Qwen independently reproduces the structure:</strong> dimension η² = 14.9% vs pool 0.8% (~18×); mixed-model <strong>p = 0.019</strong>; Pool A/B null (seed-MWU p = 0.47).</p>
+<p><strong>The critical caveat — Qwen's effect is weaker.</strong> Under the strict, assumption-free tests, Qwen's dimension effect does <strong>not</strong> clear significance: <strong>permutation p = 0.071</strong>, seed-level Kruskal p = 0.156. It is significant only in the parametric mixed model. Excluding the ~4.5% of cells that contained a degenerate/refusal output did <strong>not</strong> rescue it (permutation p 0.071 → 0.066), so the weakness is <strong>intrinsic</strong>, not a data-quality artifact.</p>
+<p><strong>What replicates vs. what doesn't:</strong></p>
+<ul>
+<li>✅ <strong>Replicates:</strong> Question Form &amp; Theme Isolation among the most sensitive; Constraint Based, Direct Command, Output Format among the least — in <strong>both</strong> models. The "dimension &gt;&gt; pool" structure.</li>
+<li>❌ <strong>Does not replicate:</strong> the exact ranking. The middle reshuffles (Meta-reflection #1→#7, Tone Register #10→#3, Role Based #5→#10), and the <strong>effect strength is model-dependent</strong> (strong in Llama, borderline in Qwen).</li>
+</ul>
+<hr />
+<h2>6. Which model is more sensitive?</h2>
+<p>The rank-normalized composite cannot answer this (relative within each run). Using the <strong>absolute, run-independent</strong> spreads on the same 1,500 cells:</p>
+<table>
+<thead>
+<tr>
+<th>What drifts across paraphrases</th>
+<th>Llama</th>
+<th>Qwen</th>
+<th>More sensitive</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Meaning (SMS drift)</td>
+<td>0.0941</td>
+<td>0.0953</td>
+<td>≈ tie (p = 0.10)</td>
+</tr>
+<tr>
+<td>Wording (ROUGE-L spread)</td>
+<td>0.0009</td>
+<td>0.0011</td>
+<td>Qwen (p = 6e-10)</td>
+</tr>
+<tr>
+<td>Correctness spread</td>
+<td>0.0041</td>
+<td>0.0046</td>
+<td>Qwen (p = 4e-6)</td>
+</tr>
+<tr>
+<td>BERTScore spread</td>
+<td>0.0032</td>
+<td>0.0038</td>
+<td>Qwen (p = 2e-7)</td>
+</tr>
+<tr>
+<td>Faithfulness spread</td>
+<td>0.0399</td>
+<td>0.0383</td>
+<td>Llama (n.s.)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Qwen is slightly more sensitive overall — but the edge is in <em>wording<em>, not </em>meaning</em></strong> (meaning-drift is a statistical tie). Output lengths are similar (Llama 209, Qwen 200 words), so this is not a length artifact.</p>
+<p>Note the nuance vs §5: Qwen is <strong>moodier on average but less organized by dimension</strong> — its sensitivity is spread more evenly across prompt styles, whereas Llama's is more clearly tied to which style is used. "More sensitive overall" and "sensitivity more explained by dimension" are different axes.</p>
+<hr />
+<h2>7. Output-quality audit</h2>
+<p>Scanning all 8,970 Qwen generations: <strong>0 empty</strong>, 0 ultra-short; <strong>~1% degenerate repetition</strong> (84 outputs), <strong>0.32% refusal-like</strong> (29), <strong>1.6% near the 512-token cap</strong> (possible truncation), <strong>3.4%</strong> still carrying a "summary…:" preamble the (Llama-tuned) stripper missed. None are large; the degenerate/refusal cells were shown not to drive the result (§5). Some very-short Qwen outputs were <strong>correct</strong> constraint-following (e.g. "no financial content mentioned" for a Theme-Isolation prompt on an off-topic article), not degeneracy.</p>
+<hr />
+<h2>8. Flaws &amp; limitations (honest)</h2>
+<ol>
+<li><strong>Effect strength is model-dependent.</strong> Strong in Llama, borderline in Qwen (permutation p = 0.071). The direction/coarse ranking replicates; the strength does not.</li>
+<li><strong>Only the coarse pattern replicates.</strong> The exact 14-way ranking is model-specific; only the extremes are stable across models.</li>
+<li><strong>Thin, unbalanced dimensions.</strong> Meta-reflection = 1 seed; its #1→#7 move across models confirms single-seed dimensions are unreliable. Several dimensions have only 3 seeds.</li>
+<li><strong>Narrow model/task slice.</strong> Two ~7–8B instruction-tuned models, one task (summarization), one dataset (CNN/DM). No scale contrast (70B), no format/surface perturbations, no non-summarization task.</li>
+<li><strong>No human validation</strong> of the drift metric — face validity only.</li>
+<li><strong>Post-hoc dimension pivot.</strong> The pre-registered Pool A/B hypothesis failed (null in both models); dimension emerged from the data.</li>
+<li><strong>Composite still SMS-leaning</strong> (SMS-drift is the strongest single component, rho ~0.72); faithfulness contributes least.</li>
+<li><strong>Minor:</strong> ~1% degenerate outputs, whole-summary (not per-sentence) MiniCheck for speed, regex entity-coverage, B12 seed has 5 variants not 6.</li>
+</ol>
+<hr />
+<h2>9. Defensible claims</h2>
+<blockquote>
+<p>Across two model families (Llama-3.1-8B, Qwen2.5-7B), instruction <strong>dimension</strong> drives prompt sensitivity far more than the Pool split (both mixed-model p &lt; 0.02, ~11–18× more variance), and the dimension <strong>rankings agree significantly</strong> (Spearman 0.70, p = 0.005), with <strong>identical most- and least-sensitive dimension classes</strong>. Question-form and theme-isolation phrasings are reliably the most sensitive; format- and constraint-based phrasings the least. However, the <strong>effect strength is model-dependent</strong> — strong in Llama, borderline in Qwen under assumption-free testing — and the fine-grained ranking is model-specific. The result is best described as a <strong>robust coarse pattern</strong>, not an exact cross-model law.</p>
+</blockquote>
+<p><strong>Do not claim:</strong> that it holds for all LLMs, that the precise 14-way ranking replicates, or that Meta-reflection specifically is most sensitive.</p>
+<hr />
+<h2>10. Recommended next steps</h2>
+<ol>
+<li><strong>A third model</strong> (highest value) — resolves whether Qwen's weakness is an outlier or the effect is genuinely fragile. Mistral-7B (another family, same scale) or Llama-3.1-70B (scale contrast).</li>
+<li><strong>Balance thin dimensions</strong> — add seeds so no dimension rests on 1 prompt.</li>
+<li><strong>~50-pair human validation</strong> of the drift metric.</li>
+<li><strong>Format/surface perturbations</strong> as a second axis, or scope the paper explicitly to semantic-paraphrase sensitivity.</li>
+</ol></body></html>

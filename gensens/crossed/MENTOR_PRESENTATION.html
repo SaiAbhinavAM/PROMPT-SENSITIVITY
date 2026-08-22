@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Prompt Sensitivity — Progress Update</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm; }
+  :root{
+    --ink:#1a1d24; --muted:#5b6472; --line:#e3e7ee; --soft:#f5f7fa;
+    --brand:#2b5cff; --brand-d:#173a9e; --good:#0f9d58; --warn:#c77700; --bad:#c0392b;
+    --accent:#7b3fe4;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); line-height:1.5; font-size:11px; margin:0;
+  }
+  h1,h2,h3{ line-height:1.2; }
+  h2{
+    font-size:15px; margin:22px 0 10px; padding-bottom:5px;
+    border-bottom:2px solid var(--brand); color:var(--brand-d);
+  }
+  h3{ font-size:12px; margin:14px 0 6px; color:var(--ink); }
+  p{ margin:6px 0; }
+  .muted{ color:var(--muted); }
+  small{ font-size:9.5px; }
+
+  /* Cover */
+  .cover{
+    background:linear-gradient(135deg,#173a9e 0%,#2b5cff 55%,#7b3fe4 100%);
+    color:#fff; border-radius:14px; padding:30px 30px 26px; margin-bottom:20px;
+  }
+  .cover .eyebrow{ text-transform:uppercase; letter-spacing:.14em; font-size:9.5px; opacity:.85; }
+  .cover h1{ font-size:27px; margin:8px 0 6px; }
+  .cover .sub{ font-size:12.5px; opacity:.95; max-width:640px; }
+  .cover .meta{ margin-top:16px; font-size:10px; opacity:.9; display:flex; gap:22px; flex-wrap:wrap; }
+  .cover .meta b{ display:block; font-size:12px; opacity:1; }
+
+  /* Cards / grid */
+  .grid{ display:grid; gap:10px; }
+  .g2{ grid-template-columns:1fr 1fr; }
+  .g3{ grid-template-columns:1fr 1fr 1fr; }
+  .g4{ grid-template-columns:repeat(4,1fr); }
+  .card{
+    border:1px solid var(--line); border-radius:10px; padding:12px 13px; background:#fff;
+  }
+  .card.soft{ background:var(--soft); }
+  .kpi .n{ font-size:22px; font-weight:700; color:var(--brand-d); line-height:1; }
+  .kpi .l{ font-size:9.5px; color:var(--muted); margin-top:4px; }
+
+  /* Callouts */
+  .callout{ border-left:4px solid var(--brand); background:var(--soft); padding:10px 13px; border-radius:0 8px 8px 0; margin:10px 0; }
+  .callout.good{ border-color:var(--good); }
+  .callout.warn{ border-color:var(--warn); }
+
+  /* Tables */
+  table{ width:100%; border-collapse:collapse; margin:8px 0; font-size:10px; }
+  th,td{ text-align:left; padding:5px 8px; border-bottom:1px solid var(--line); }
+  th{ background:var(--soft); font-weight:600; color:var(--ink); border-bottom:1.5px solid var(--line); }
+  td.num,th.num{ text-align:right; font-variant-numeric:tabular-nums; }
+  tr:nth-child(even) td{ background:#fbfcfe; }
+  .tag{ display:inline-block; padding:1px 7px; border-radius:20px; font-size:8.5px; font-weight:600; }
+  .t-good{ background:#e4f4ea; color:var(--good); }
+  .t-warn{ background:#fbeede; color:var(--warn); }
+  .t-bad{ background:#fbe6e3; color:var(--bad); }
+  .t-neu{ background:#e9eefb; color:var(--brand-d); }
+
+  ul{ margin:6px 0 6px 0; padding-left:18px; }
+  li{ margin:3px 0; }
+  .pill{ display:inline-block; background:#eef2ff; color:var(--brand-d); border:1px solid #d6e0ff;
+    border-radius:20px; padding:3px 10px; font-size:9.5px; margin:2px 3px 2px 0; font-weight:600; }
+  .pill.a{ background:#f2ecfd; color:#5a27b8; border-color:#e0d3fb; }
+  .pill.g{ background:#e7f6ee; color:#0b7a44; border-color:#cdeddb; }
+  .section{ page-break-inside:avoid; }
+  .pb{ page-break-before:always; }
+  .foot{ margin-top:18px; padding-top:8px; border-top:1px solid var(--line); color:var(--muted); font-size:9px; }
+  .bar{ height:8px; background:#eef1f6; border-radius:5px; overflow:hidden; }
+  .bar > span{ display:block; height:100%; background:linear-gradient(90deg,#2b5cff,#7b3fe4); }
+  code{ background:#eef1f6; padding:1px 5px; border-radius:4px; font-size:9.5px; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="eyebrow">Research Progress Update · Prompt Sensitivity</div>
+  <h1>Does <i>how you phrase</i> an instruction decide how much an LLM's output wobbles?</h1>
+  <div class="sub">A crossed-design benchmark measuring prompt sensitivity in summarization, replicated across two model families — Llama-3.1-8B &amp; Qwen2.5-7B.</div>
+  <div class="meta">
+    <div><span>Task</span><b>Summarization (CNN/DailyMail)</b></div>
+    <div><span>Scale</span><b>2 models × 8,970 generations</b></div>
+    <div><span>Design</span><b>30 articles × 50 seeds × ~6 paraphrases</b></div>
+    <div><span>Date</span><b>Aug 2026</b></div>
+  </div>
+</div>
+
+<!-- ONE-LINE STORY -->
+<div class="section">
+<h2>The one-sentence takeaway</h2>
+<div class="callout">
+  <b>Which rhetorical <i>dimension</i> an instruction uses</b> — question-form, theme-isolation, output-format, and so on —
+  drives prompt sensitivity <b>far more</b> than the coarse Pool&nbsp;A/B split we originally hypothesised.
+  This holds strongly in Llama-3.1-8B and <b>replicates in direction</b> in Qwen2.5-7B, with the most- and least-sensitive
+  dimension classes <b>identical</b> across both models.
+</div>
+
+<div class="grid g4" style="margin-top:12px">
+  <div class="card kpi"><div class="n">~11×</div><div class="l">Dimension explains more sensitivity variance than Pool split (Llama: 19.3% vs 1.7%)</div></div>
+  <div class="card kpi"><div class="n">0.70</div><div class="l">Cross-model dimension-ranking agreement (Spearman, p = 0.005)</div></div>
+  <div class="card kpi"><div class="n">0.87</div><div class="l">Split-half replication within the study (mean over 300 splits)</div></div>
+  <div class="card kpi"><div class="n">17,940</div><div class="l">Total generations analysed across both models</div></div>
+</div>
+</div>
+
+<!-- WHAT & WHY -->
+<div class="section">
+<h2>What problem are we studying?</h2>
+<div class="grid g2">
+  <div class="card soft">
+    <h3 style="margin-top:0">Prompt sensitivity</h3>
+    <p>LLMs give <b>inconsistent outputs</b> when a prompt is reworded but its <b>meaning is preserved</b>.
+    That fragility undermines reproducibility and trust. We ask: <b>is this fragility random, or is it structured by
+    the <i>style</i> of instruction?</b></p>
+  </div>
+  <div class="card soft">
+    <h3 style="margin-top:0">Our clean definition</h3>
+    <p><b>Sensitivity = spread</b> of a cell's outputs. <b>Quality = mean</b>. We keep the two strictly separate
+    so a prompt can't look "sensitive" just because it's low-quality.</p>
+    <p class="muted"><small>A <b>cell</b> = one (article, seed) → its ~6 meaning-equivalent paraphrase outputs.</small></p>
+  </div>
+</div>
+</div>
+
+<!-- MAIN FINDING -->
+<div class="section">
+<h2>Main finding — Llama-3.1-8B</h2>
+<div class="grid g2" style="align-items:start">
+  <div>
+    <p><b>Dimension is the primary axis.</b> Instruction dimension explains <b>19.3%</b> of sensitivity variance
+    vs just <b>1.7%</b> for the Pool A/B split (~11×). Mixed-effects test
+    <code>sensitivity ~ dimension + (1|seed) + (1|article)</code>: <b>χ² = 30.8, p = 0.0036</b>.
+    The Pool A/B split is <b>not</b> significant (Mann-Whitney p = 0.16).</p>
+    <div class="callout warn" style="margin-top:10px">
+      <b>Honest qualifier:</b> the effect is <b>strong in Llama</b> but <b>weaker/borderline in Qwen</b>
+      (assumption-free permutation p = 0.071). Only the <b>coarse</b> ranking replicates — the exact 14-way order is model-specific.
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Per-dimension sensitivity ranking</h3>
+    <table>
+      <tr><th>Dimension</th><th class="num">Sens.</th><th></th></tr>
+      <tr><td>Meta-reflection <small class="muted">*1 seed</small></td><td class="num">0.620</td><td><span class="tag t-bad">most</span></td></tr>
+      <tr><td>Question Form</td><td class="num">0.614</td><td><span class="tag t-bad">most</span></td></tr>
+      <tr><td>Theme Isolation</td><td class="num">0.611</td><td><span class="tag t-bad">most</span></td></tr>
+      <tr><td>Analytical Framing</td><td class="num">0.561</td><td></td></tr>
+      <tr><td>Role Based</td><td class="num">0.520</td><td></td></tr>
+      <tr><td>Persona / Tone</td><td class="num">0.490</td><td></td></tr>
+      <tr><td>Audience Perspective</td><td class="num">0.487</td><td></td></tr>
+      <tr><td>Emphasis Focus</td><td class="num">0.485</td><td></td></tr>
+      <tr><td>Completeness Framing</td><td class="num">0.483</td><td></td></tr>
+      <tr><td>Tone Register</td><td class="num">0.480</td><td></td></tr>
+      <tr><td>Lexical Filter</td><td class="num">0.468</td><td></td></tr>
+      <tr><td>Direct Command</td><td class="num">0.446</td><td><span class="tag t-good">least</span></td></tr>
+      <tr><td>Output Format</td><td class="num">0.358</td><td><span class="tag t-good">least</span></td></tr>
+      <tr><td>Constraint Based</td><td class="num">0.352</td><td><span class="tag t-good">least</span></td></tr>
+    </table>
+    <small class="muted">* Meta-reflection rests on 1 seed — treat as a single-prompt observation, not a stable estimate.</small>
+  </div>
+</div>
+</div>
+
+<!-- ROBUSTNESS -->
+<div class="section pb">
+<h2>Robustness validation (Llama) — every internal check passed</h2>
+<table>
+  <tr><th>Check</th><th>Question</th><th>Result</th><th></th></tr>
+  <tr><td>Different scorers (×3 configs)</td><td>Is the ranking scorer-dependent?</td><td>Spearman 0.94</td><td><span class="tag t-good">stable</span></td></tr>
+  <tr><td>Quality confound</td><td>Is sensitivity just low quality?</td><td>residualized 0.94</td><td><span class="tag t-good">passed</span></td></tr>
+  <tr><td>Length confound</td><td>Just an output-length effect?</td><td>corr −0.07; adj. 0.97</td><td><span class="tag t-good">passed</span></td></tr>
+  <tr><td>Split-half replication</td><td>Does it replicate within the study?</td><td>mean Spearman 0.87 (300 splits)</td><td><span class="tag t-good">passed</span></td></tr>
+  <tr><td>Permutation test</td><td>Significant with no normality assumption?</td><td>p = 0.022</td><td><span class="tag t-good">passed</span></td></tr>
+  <tr><td>Paraphrase equivalence</td><td>Do paraphrases truly mean the same?</td><td>bidir. NLI 0.98 / 0.97, 100% passed</td><td><span class="tag t-good">passed</span></td></tr>
+</table>
+<div class="callout good">
+  The <b>assumption-free permutation p = 0.022</b> is the most defensible significance value — it makes no normality
+  assumption that the rank-normalized composite would violate.
+</div>
+</div>
+
+<!-- CROSS MODEL -->
+<div class="section">
+<h2>Cross-model replication — Qwen2.5-7B</h2>
+<p class="muted">Identical grid and pipeline; only the generation model changed. This is the headline result for the mentor: <b>the structure is not a Llama artifact.</b></p>
+<div class="grid g2" style="align-items:start">
+  <div class="card">
+    <h3 style="margin-top:0">What replicates</h3>
+    <table>
+      <tr><th>Metric</th><th class="num">Result</th></tr>
+      <tr><td>Dimension-ranking Spearman</td><td class="num"><b>0.70</b> <small class="muted">(p=.005)</small></td></tr>
+      <tr><td>Seed-ranking Spearman (50 prompts)</td><td class="num">0.74 <small class="muted">(p=1e-9)</small></td></tr>
+      <tr><td>SMS-drift anchor cross-check</td><td class="num">0.82</td></tr>
+      <tr><td>Bottom-3 dimension overlap</td><td class="num">Jaccard 1.00</td></tr>
+      <tr><td>Top-3 dimension overlap</td><td class="num">Jaccard 0.50</td></tr>
+    </table>
+    <p><small><span class="pill g">✓ Question Form</span><span class="pill g">✓ Theme Isolation</span> most sensitive in both.
+    <span class="pill">Constraint</span><span class="pill">Direct Command</span><span class="pill">Output Format</span> least sensitive in both — <b>identical set.</b></small></p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">The critical caveat (we report it honestly)</h3>
+    <p>The 0.70 replication is in <b>direction/ranking</b>, not <b>strength</b>. Under strict assumption-free tests Qwen's
+    dimension effect does <b>not</b> clear significance:</p>
+    <ul>
+      <li>Qwen <b>permutation p = 0.071</b> (borderline); seed-Kruskal p = 0.156.</li>
+      <li>Significant only in the parametric mixed model (p = 0.019).</li>
+      <li>Llama, by contrast, <b>passes</b> the permutation test (p = 0.022).</li>
+      <li>Excluding the ~4.5% degenerate/refusal cells did <b>not</b> rescue it (0.071 → 0.066) — the weakness is <b>intrinsic</b>.</li>
+    </ul>
+    <p class="muted"><small>So effect <b>strength is model-dependent</b>: strong in Llama, borderline in Qwen.</small></p>
+  </div>
+</div>
+
+<h3>Per-dimension, side by side (sorted by Llama rank)</h3>
+<table>
+  <tr><th>Dimension</th><th class="num">Llama sens (rank)</th><th class="num">Qwen sens (rank)</th><th>Agreement</th></tr>
+  <tr><td>Meta-reflection <small class="muted">*1 seed</small></td><td class="num">0.620 (1)</td><td class="num">0.498 (7)</td><td><span class="tag t-warn">moved</span></td></tr>
+  <tr><td>Question Form</td><td class="num">0.614 (2)</td><td class="num">0.545 (2)</td><td><span class="tag t-good">stable</span></td></tr>
+  <tr><td>Theme Isolation</td><td class="num">0.611 (3)</td><td class="num">0.646 (1)</td><td><span class="tag t-good">stable</span></td></tr>
+  <tr><td>Analytical Framing</td><td class="num">0.561 (4)</td><td class="num">0.535 (4)</td><td><span class="tag t-good">stable</span></td></tr>
+  <tr><td>Role Based</td><td class="num">0.520 (5)</td><td class="num">0.463 (10)</td><td><span class="tag t-warn">moved</span></td></tr>
+  <tr><td>Persona / Tone</td><td class="num">0.490 (6)</td><td class="num">0.464 (9)</td><td></td></tr>
+  <tr><td>Audience Perspective</td><td class="num">0.487 (7)</td><td class="num">0.510 (6)</td><td></td></tr>
+  <tr><td>Emphasis Focus</td><td class="num">0.485 (8)</td><td class="num">0.521 (5)</td><td></td></tr>
+  <tr><td>Completeness Framing</td><td class="num">0.483 (9)</td><td class="num">0.496 (8)</td><td></td></tr>
+  <tr><td>Tone Register</td><td class="num">0.480 (10)</td><td class="num">0.543 (3)</td><td><span class="tag t-warn">moved</span></td></tr>
+  <tr><td>Lexical Filter</td><td class="num">0.468 (11)</td><td class="num">0.445 (11)</td><td><span class="tag t-good">stable</span></td></tr>
+  <tr><td>Direct Command</td><td class="num">0.446 (12)</td><td class="num">0.428 (13)</td><td><span class="tag t-good">stable</span></td></tr>
+  <tr><td>Output Format</td><td class="num">0.358 (13)</td><td class="num">0.441 (12)</td><td><span class="tag t-good">stable</span></td></tr>
+  <tr><td>Constraint Based</td><td class="num">0.352 (14)</td><td class="num">0.398 (14)</td><td><span class="tag t-good">stable</span></td></tr>
+</table>
+</div>
+
+<!-- WHICH MODEL MORE SENSITIVE -->
+<div class="section">
+<h2>Which model is more sensitive? (absolute measures)</h2>
+<p class="muted">The rank-normalized composite is relative within a run, so we use the run-independent absolute spreads on the same 1,500 cells.</p>
+<table>
+  <tr><th>What drifts across paraphrases</th><th class="num">Llama</th><th class="num">Qwen</th><th>More sensitive</th></tr>
+  <tr><td>Meaning (SMS drift)</td><td class="num">0.0941</td><td class="num">0.0953</td><td><span class="tag t-neu">≈ tie (p=.10)</span></td></tr>
+  <tr><td>Wording (ROUGE-L spread)</td><td class="num">0.0009</td><td class="num">0.0011</td><td><span class="tag t-warn">Qwen (p=6e-10)</span></td></tr>
+  <tr><td>Correctness spread</td><td class="num">0.0041</td><td class="num">0.0046</td><td><span class="tag t-warn">Qwen (p=4e-6)</span></td></tr>
+  <tr><td>BERTScore spread</td><td class="num">0.0032</td><td class="num">0.0038</td><td><span class="tag t-warn">Qwen (p=2e-7)</span></td></tr>
+  <tr><td>Faithfulness spread</td><td class="num">0.0399</td><td class="num">0.0383</td><td>Llama (n.s.)</td></tr>
+</table>
+<div class="callout">
+  <b>Qwen is slightly more sensitive overall — but the edge is in <i>wording</i>, not <i>meaning</i></b> (meaning-drift is a tie).
+  So Qwen is "moodier on average but less organized by dimension," while Llama is calmer overall but more clearly dimension-driven.
+  <b>"More sensitive" and "more dimension-explained" are different axes.</b>
+</div>
+</div>
+
+<!-- METHODOLOGY -->
+<div class="section pb">
+<h2>Methodology in brief</h2>
+<div class="grid g2">
+  <div class="card">
+    <h3 style="margin-top:0">Design</h3>
+    <ul>
+      <li><b>Crossed grid:</b> every seed applied to the same 30 CNN/DM articles (instance-fixed, prompt-varied) — POSIX / ProSA / PromptBench convention.</li>
+      <li><b>Decoding:</b> greedy (temperature 0), to isolate the prompt effect from sampling noise.</li>
+      <li><b>Paraphrase equivalence</b> validated by <b>bidirectional NLI entailment</b>, not just similarity.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Sensitivity composite (v2), rank-normalized within a run</h3>
+    <p><small><code>0.25·SMS-drift + 0.20·ROUGE-L-var + 0.15·CS-cv + 0.15·faith-cv + 0.125·PPL-var + 0.125·PC-stab-cv</code></small></p>
+    <p><small>Spread of bounded quality scores is level-normalized (coefficient of variation) to de-confound spread from quality level;
+    lexical drift (ROUGE-L) keeps the score from being purely embedding-based.</small></p>
+  </div>
+</div>
+<h3>Scorers — deterministic &amp; SOTA (no LLM-judge, on purpose)</h3>
+<div class="grid g4">
+  <div class="card soft"><b>SMS drift</b><br><small class="muted">Sentence-BERT — meaning drift</small></div>
+  <div class="card soft"><b>MiniCheck-DeBERTa-v3-large</b><br><small class="muted">SOTA faithfulness / fact-checking (EMNLP 2024)</small></div>
+  <div class="card soft"><b>BERTScore (rescaled)</b><br><small class="muted">Correctness vs gold summary</small></div>
+  <div class="card soft"><b>Teacher-forced PPL / BF</b><br><small class="muted">Model-confidence spread</small></div>
+</div>
+<p><small class="muted">An LLM-judge was deliberately avoided — its own stochasticity would contaminate a <i>variance</i> benchmark.</small></p>
+</div>
+
+<!-- TECH STACK -->
+<div class="section">
+<h2>Tech stack</h2>
+<div class="grid g3">
+  <div class="card">
+    <h3 style="margin-top:0">Models &amp; generation</h3>
+    <span class="pill">Llama-3.1-8B-Instruct</span>
+    <span class="pill">Qwen2.5-7B-Instruct</span>
+    <span class="pill a">vLLM (inference)</span>
+    <span class="pill a">HuggingFace Transformers</span>
+    <span class="pill a">PyTorch</span>
+    <span class="pill">H100 GPU</span>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Scoring &amp; metrics</h3>
+    <span class="pill g">Sentence-BERT (all-mpnet)</span>
+    <span class="pill g">MiniCheck-DeBERTa-v3-large</span>
+    <span class="pill g">BERTScore</span>
+    <span class="pill g">ROUGE-score</span>
+    <span class="pill g">NLI entailment</span>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Analysis &amp; stats</h3>
+    <span class="pill">NumPy / Pandas</span>
+    <span class="pill">SciPy</span>
+    <span class="pill">statsmodels (mixed-effects)</span>
+    <span class="pill">Permutation / bootstrap</span>
+    <span class="pill">Split-half replication</span>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Data</h3>
+    <span class="pill">CNN/DailyMail</span>
+    <span class="pill">HF Datasets</span>
+    <span class="pill">JSONL pipeline</span>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Statistical tests used</h3>
+    <span class="pill">Mixed-effects LRT (χ²)</span>
+    <span class="pill">Permutation test</span>
+    <span class="pill">Mann-Whitney / Kruskal</span>
+    <span class="pill">Spearman ρ</span>
+    <span class="pill">η² variance decomposition</span>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Reproducibility</h3>
+    <span class="pill a">Git-tracked runs</span>
+    <span class="pill a">Fixed seeds</span>
+    <span class="pill a">Deterministic scorers</span>
+    <span class="pill a">compare_models.py</span>
+  </div>
+</div>
+</div>
+
+<!-- LIMITATIONS + NEXT -->
+<div class="section">
+<h2>Honest limitations &amp; what's next</h2>
+<div class="grid g2" style="align-items:start">
+  <div class="card">
+    <h3 style="margin-top:0">Limitations we're not hiding</h3>
+    <ul>
+      <li><b>Effect strength is model-dependent</b> — strong in Llama, borderline in Qwen.</li>
+      <li>Only the <b>coarse</b> pattern replicates; the exact 14-way order is model-specific.</li>
+      <li><b>Thin dimensions</b> — Meta-reflection = 1 seed; several have only 3.</li>
+      <li><b>Narrow slice</b> — two 7–8B models, one task, one dataset; no 70B, no non-summarization task.</li>
+      <li><b>Post-hoc pivot</b> — the pre-registered Pool A/B hypothesis failed; dimension emerged from the data.</li>
+      <li>No human validation of the drift metric yet (face validity only).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Recommended next steps</h3>
+    <ul>
+      <li><b>A third model (highest value)</b> — resolves whether Qwen's weakness is an outlier or the effect is genuinely fragile. Mistral-7B (new family) or Llama-3.1-70B (scale contrast).</li>
+      <li><b>Balance thin dimensions</b> — add seeds so no dimension rests on a single prompt.</li>
+      <li><b>~50-pair human validation</b> of the drift metric.</li>
+      <li><b>Format/surface perturbations</b> as a second axis, or scope the paper explicitly to semantic-paraphrase sensitivity.</li>
+    </ul>
+  </div>
+</div>
+<div class="callout good" style="margin-top:12px">
+  <b>Defensible claim for the write-up:</b> Across two model families, instruction <b>dimension</b> drives prompt sensitivity
+  far more than the Pool split (both mixed-model p &lt; 0.02, ~11–18× more variance), and the dimension rankings agree significantly
+  (Spearman 0.70, p = 0.005) with identical most/least-sensitive classes. Question-form &amp; theme-isolation phrasings are reliably
+  the most sensitive; format &amp; constraint phrasings the least. Effect <b>strength is model-dependent</b> and the fine-grained
+  ranking is model-specific — best described as a <b>robust coarse pattern</b>, not an exact cross-model law.
+</div>
+</div>
+
+<div class="foot">
+  Prompt Sensitivity — Adaptive Prompt Sensitivity in Complex LLM Tasks · Crossed-design benchmark · Llama-3.1-8B-Instruct &amp; Qwen2.5-7B-Instruct on CNN/DailyMail · Progress update generated Aug 2026.
+</div>
+
+</body>
+</html>

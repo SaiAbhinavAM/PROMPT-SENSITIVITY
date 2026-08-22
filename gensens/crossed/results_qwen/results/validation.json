@@ -1,0 +1,51 @@
+{
+  "n_cells": 1500,
+  "length_confound": {
+    "pearson_sensitivity_length": 0.08295061808183475,
+    "spearman_sensitivity_length": 0.08315324031187041,
+    "dim_ranking_spearman_raw_vs_lengthresid": 0.9868131868131869,
+    "verdict": "length is NOT the driver"
+  },
+  "split_half": {
+    "n_splits": 300,
+    "mean_spearman": 0.8997655677655678,
+    "median_spearman": 0.9032967032967033,
+    "ci90": [
+      0.8189010989010989,
+      0.9604395604395607
+    ],
+    "frac_above_0.7": 1.0,
+    "verdict": "ranking replicates within-study"
+  },
+  "permutation": {
+    "unit": "seed",
+    "n_seeds": 50,
+    "n_perm": 20000,
+    "observed_eta2": 0.4041283404948415,
+    "null_mean_eta2": 0.26563219480607225,
+    "null_p95_eta2": 0.4219134873239119,
+    "perm_p_value": 0.07084645767711614,
+    "verdict": "not significant (assumption-free)"
+  },
+  "paraphrase_equivalence": {
+    "n_paraphrases": 249,
+    "sbert_similarity": {
+      "mean": 0.8594714859437751,
+      "min": 0.8201
+    },
+    "nli_entail_forward": {
+      "mean": 0.9836915662650603,
+      "min": 0.6235
+    },
+    "nli_entail_backward": {
+      "mean": 0.9726261044176706,
+      "min": 0.5642
+    },
+    "token_overlap_to_base": {
+      "mean": 0.36287550200803215,
+      "min": 0.1364
+    },
+    "nli_passed_rate": 1.0,
+    "verdict": "equivalent meaning (high bidirectional NLI) + different wording (low token overlap)"
+  }
+}
