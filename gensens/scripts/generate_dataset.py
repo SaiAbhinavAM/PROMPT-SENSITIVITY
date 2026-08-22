@@ -392,7 +392,8 @@ def main():
         help="Task to generate (default: all)",
     )
     parser.add_argument("--n_instances", type=int, default=200, help="Instances per task")
-    parser.add_argument("--n_variants", type=int, default=8, help="Variants per instance")
+    parser.add_argument("--n_variants", type=int, default=10, help="Variants per instance "
+                        "(balanced 5-axis × 2 per axis = 10; method.md 2026-08-22)")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument("--checkpoint_every", type=int, default=20, help="Checkpoint frequency")
     parser.add_argument(
@@ -405,8 +406,8 @@ def main():
             "'llama' = HF transformers Llama 8B (single-seq, slower)"
         ),
     )
-    parser.add_argument("--model-id", type=str, default=None,
-                        help="HF repo id for the vLLM backend (e.g. Qwen/Qwen2.5-7B-Instruct)")
+    parser.add_argument("--model-id", type=str, default="meta-llama/Llama-3.1-8B-Instruct",
+                        help="HF repo id for the paraphraser (default: Llama-3.1-8B-Instruct)")
     parser.add_argument("--quantization", type=str, default=None,
                         help="vLLM quantization, e.g. awq_marlin / gptq_marlin (None for bf16)")
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.90,
@@ -415,10 +416,12 @@ def main():
                         help="vLLM max model sequence length (default: 4096)")
     parser.add_argument("--similarity-threshold", type=float, default=0.82,
                         help="lower SBERT band edge")
-    parser.add_argument("--similarity-upper", type=float, default=0.98,
-                        help="upper SBERT band edge (reject near-identical)")
-    parser.add_argument("--max-token-overlap", type=float, default=0.85,
-                        help="reject candidates above this lexical (Jaccard) overlap")
+    parser.add_argument("--similarity-upper", type=float, default=0.92,
+                        help="upper SBERT band edge (spec §9 Gate 1: reject near-copies "
+                             ">0.92; FORMAT axis exempt)")
+    parser.add_argument("--max-token-overlap", type=float, default=0.70,
+                        help="reject candidates above this lexical (Jaccard) overlap "
+                             "(spec §9 Gate 3: diversity ≥0.3; FORMAT axis exempt)")
     parser.add_argument("--max-per-strategy", type=int, default=2,
                         help="cap variants contributed by any single strategy "
                              "(legacy — superseded by --max-per-family from §6.6)")

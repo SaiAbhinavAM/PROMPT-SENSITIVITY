@@ -100,6 +100,13 @@ STRATEGY_INSTRUCTIONS: List[str] = [
     "Rewrite the following using simpler, everyday vocabulary while preserving the exact meaning.",
     "Rewrite the following by splitting it into shorter sentences if possible, while preserving the exact meaning.",
     "Rewrite the following by merging phrases into longer, flowing sentences while preserving the exact meaning.",
+    # ── FORMAT axis (surface form of the REQUEST, not the requested output) ──
+    # These deliberately keep the wording and meaning and change only the
+    # surface presentation. They are near-copies by design; the format axis
+    # is exempted from the similarity-ceiling / token-overlap gates below.
+    "Rewrite the following changing ONLY surface formatting — capitalization, punctuation, and spacing (e.g., alter casing, swap or add dashes/colons/em-dashes) — keeping every word and the exact meaning the same.",
+    "Rewrite the following by converting it into a bulleted or numbered list style (or, if it is already a list, into flowing prose), keeping the same words and exact meaning as closely as possible.",
+    "Rewrite the following by changing separators and layout — add line breaks, a leading label such as 'Task:' or 'Instruction:', or restyle delimiters — while keeping the same words and the exact meaning.",
 ]
 
 STRATEGY_NAMES: List[str] = [
@@ -107,9 +114,10 @@ STRATEGY_NAMES: List[str] = [
     "concise", "different_structure", "different_opening", "role_prefix",
     "passive_voice", "question_form", "imperative", "elaborated",
     "technical_vocab", "simple_vocab", "split_sentences", "merged_sentences",
+    "reformat_surface", "bulletize", "separator_style",
 ]
 
-assert len(STRATEGY_INSTRUCTIONS) == len(STRATEGY_NAMES) == 16
+assert len(STRATEGY_INSTRUCTIONS) == len(STRATEGY_NAMES) == 19
 
 # ─────────────────────────────────────────────────────────────
 # Strategy families (PUBLICATION_SPEC §6.6)
@@ -142,22 +150,36 @@ STRATEGY_FAMILY: Dict[str, str] = {
     # Length-manipulation family
     "concise":             "length",
     "elaborated":          "length",
+    # Format family: surface form of the request (punctuation/caps/layout)
+    "reformat_surface":    "format",
+    "bulletize":           "format",
+    "separator_style":     "format",
 }
 assert set(STRATEGY_FAMILY) == set(STRATEGY_NAMES), \
     "STRATEGY_FAMILY must cover all STRATEGY_NAMES"
 
-# Per-family budget: total = 2+2+1+1+2 = 8 variants when back-translation is
-# enabled. Slots 7–8 (the `back_translation` family) are populated by
-# `back_translation_family.py` as a post-hoc augmentation pass — see
-# PUBLICATION_SPEC §7.2. The cap is registered here so per-family logic in
-# the main generator does not double-count.
+# Balanced 5-axis budget (method.md 2026-08-22): 2 variants per axis =
+# 10 variants/seed. This replaces the earlier unbalanced 2+2+1+1 (=6) scheme
+# and adds the FORMAT axis, so per-axis sensitivity is measured on equal n
+# across all four tasks. The `back_translation` family remains a separate
+# post-hoc augmentation pass (`back_translation_family.py`, PUBLICATION_SPEC
+# §7.2); its cap is registered here only so per-family logic does not
+# double-count it — it is NOT part of the 10-variant balanced budget.
 MAX_PER_FAMILY: Dict[str, int] = {
     "lexical":          2,
     "syntactic":        2,
-    "pragmatic":        1,
-    "length":           1,
+    "pragmatic":        2,
+    "length":           2,
+    "format":           2,
     "back_translation": 2,
 }
+
+# Axes exempt from the similarity-ceiling and token-overlap diversity gates.
+# FORMAT perturbations (caps/punctuation/layout) are near-copies BY DESIGN —
+# the whole point is that a trivial surface change still perturbs output — so
+# the standard diversity gates would reject every candidate. They still must
+# pass the LOWER SBERT bound and bidirectional NLI (meaning preserved).
+DIVERSITY_EXEMPT_FAMILIES: set = {"format"}
 
 # ─────────────────────────────────────────────────────────────
 # Per-task strategy whitelist
@@ -169,22 +191,26 @@ STRATEGY_BY_TASK: Dict[str, List[str]] = {
         "concise", "different_structure", "different_opening", "role_prefix",
         "passive_voice", "imperative", "elaborated",
         "technical_vocab", "simple_vocab", "split_sentences", "merged_sentences",
+        "reformat_surface", "bulletize", "separator_style",
     ],
     "creative": [
         "formal_tone", "casual_tone", "reordered_clauses", "synonyms",
         "different_structure", "different_opening",
         "passive_voice", "elaborated",
         "technical_vocab", "simple_vocab", "split_sentences", "merged_sentences",
+        "reformat_surface", "bulletize", "separator_style",
     ],
     "dialogue": [
         "formal_tone", "casual_tone", "reordered_clauses", "synonyms",
         "different_structure", "different_opening",
         "elaborated", "technical_vocab", "simple_vocab",
+        "reformat_surface", "bulletize", "separator_style",
     ],
     "qa": [
         "formal_tone", "casual_tone", "reordered_clauses", "synonyms",
         "different_structure", "different_opening",
         "elaborated", "technical_vocab", "simple_vocab",
+        "reformat_surface", "bulletize", "separator_style",
     ],
 }
 
@@ -1007,6 +1033,10 @@ class ParaphraseGenerator:
                 if family_counts.get(family, 0) >= self.max_per_family.get(family, 999):
                     reject_counts["family_budget_exceeded"] += 1
                     continue
+                # FORMAT axis is near-copy by design → skip the diversity gates
+                # (upper SBERT bound, token-overlap, semantic/signature dedup).
+                # It must still clear the lower SBERT bound + bidirectional NLI.
+                diversity_exempt = family in DIVERSITY_EXEMPT_FAMILIES
 
                 try:
                     # §6.5 — best-of-N generation: ask for n candidates,
@@ -1026,7 +1056,7 @@ class ParaphraseGenerator:
                             reject_counts["identical_to_base"] += 1
                             continue
                         sig = self._first_n_words_sig(candidate)
-                        if sig in seen_sigs:
+                        if not diversity_exempt and sig in seen_sigs:
                             reject_counts["duplicate_sig"] += 1
                             continue
 
@@ -1036,31 +1066,42 @@ class ParaphraseGenerator:
                             reject_counts["length_ratio_oob"] += 1
                             continue
 
-                        # SBERT band (existing; per-task threshold honoured)
+                        # SBERT band. The LOWER bound (meaning preserved) always
+                        # applies; the UPPER ceiling is a diversity gate, skipped
+                        # for the near-copy FORMAT axis.
                         similarity = self._compute_similarity(base_text, candidate)
-                        if similarity < effective_threshold or similarity > self.similarity_upper:
+                        if similarity < effective_threshold:
+                            reject_counts["out_of_sbert_band"] += 1
+                            continue
+                        if not diversity_exempt and similarity > self.similarity_upper:
                             reject_counts["out_of_sbert_band"] += 1
                             continue
 
                         # Token Jaccard floor vs base + accepted variants
+                        # (diversity gate → skipped for the FORMAT axis).
                         tov_base = self._token_overlap(candidate, base_text)
-                        if tov_base > self.max_token_overlap:
-                            reject_counts["too_high_token_overlap"] += 1
-                            continue
-                        if any(
-                            self._token_overlap(candidate, v["paraphrased_text"]) > self.max_token_overlap
-                            for v in valid_paraphrases
-                        ):
-                            reject_counts["too_high_token_overlap"] += 1
-                            continue
+                        if not diversity_exempt:
+                            if tov_base > self.max_token_overlap:
+                                reject_counts["too_high_token_overlap"] += 1
+                                continue
+                            if any(
+                                self._token_overlap(candidate, v["paraphrased_text"]) > self.max_token_overlap
+                                for v in valid_paraphrases
+                            ):
+                                reject_counts["too_high_token_overlap"] += 1
+                                continue
 
                         # §6.3 — SBERT semantic dedup vs accepted variants
-                        dedup_ok, max_cos = self._passes_semantic_dedup(
-                            candidate, valid_paraphrases
-                        )
-                        if not dedup_ok:
-                            reject_counts["semantic_dedup_collision"] += 1
-                            continue
+                        # (diversity gate → skipped for the FORMAT axis).
+                        if diversity_exempt:
+                            max_cos = 0.0
+                        else:
+                            dedup_ok, max_cos = self._passes_semantic_dedup(
+                                candidate, valid_paraphrases
+                            )
+                            if not dedup_ok:
+                                reject_counts["semantic_dedup_collision"] += 1
+                                continue
 
                         # §6.1 + §7.1 — bidirectional NLI gate on ALL tasks
                         nli_ok, p_fwd, p_bwd, nli_ensemble_audit = (

@@ -29,12 +29,14 @@ SCRIPTS_DIR = Path(__file__).resolve().parent
 CROSSED_DIR = SCRIPTS_DIR.parent
 GENSENS_DIR = CROSSED_DIR.parent
 
-SEED_FILE_DEFAULT = GENSENS_DIR / "data" / "gensens_summ_50seed_5para.jsonl"
+SEED_FILE_DEFAULT = GENSENS_DIR / "data" / "gensens_summ_50seed_10para.jsonl"
 RESULTS_DIR_DEFAULT = CROSSED_DIR / "results"
 LOGS_DIR_DEFAULT = CROSSED_DIR / "logs"
 
 N_SEEDS_EXPECTED = 50
-N_VARIANTS_PER_SEED = 6  # target: 1 base (variant_idx=-1) + 5 paraphrases (0..4)
+# Balanced 5-axis × 2 = 10 paraphrases/seed (method.md 2026-08-22):
+# 1 base (variant_idx=-1) + 10 paraphrases (0..9).
+N_VARIANTS_PER_SEED = 11
 MIN_VARIANTS_PER_SEED = 4  # floor below which a seed is unusable, not just short
 
 # KNOWN DATA-QUALITY FLAW (see method.md 2026-07-06 entry / gensens/data/fix_changelog.json):
@@ -127,6 +129,7 @@ def load_seed_prompts(path=None) -> List[Dict]:
             "text": seed["base_text"],
             "full_prompt": base_prompt,
             "strategy": "base",
+            "strategy_family": "base",
         }]
         paraphrases = seed.get("variants", [])
         for v in paraphrases:
@@ -141,6 +144,8 @@ def load_seed_prompts(path=None) -> List[Dict]:
                 "text": v["paraphrased_text"],
                 "full_prompt": fp,
                 "strategy": v.get("strategy", "unknown"),
+                # Axis label for per-axis sensitivity analysis (method.md 2026-08-22)
+                "strategy_family": v.get("strategy_family", "unknown"),
             })
 
         if len(variants) < MIN_VARIANTS_PER_SEED:

@@ -5,6 +5,33 @@
 
 ---
 
+## [2026-08-22] — Balanced 5-axis paraphrase taxonomy (adds FORMAT axis) + spec-aligned gates + Llama-8B paraphraser default
+
+**Files Modified:** `gensens/scripts/paraphrase_generator.py`, `gensens/scripts/generate_dataset.py`
+
+**What Changed:**
+- **Added the FORMAT axis.** Three new strategies — `reformat_surface` (caps/punctuation/spacing), `bulletize` (list↔prose), `separator_style` (line breaks / leading labels / delimiters) — added to `STRATEGY_INSTRUCTIONS`/`STRATEGY_NAMES` (16 → 19) and mapped to a new `"format"` family in `STRATEGY_FAMILY`. Added to all four task whitelists in `STRATEGY_BY_TASK`.
+- **Rebalanced the per-axis budget to 2-per-axis × 5 axes = 10 variants/seed.** `MAX_PER_FAMILY` changed from unbalanced `{lexical:2, syntactic:2, pragmatic:1, length:1}` (=6) to balanced `{lexical:2, syntactic:2, pragmatic:2, length:2, format:2}` (=10). `back_translation:2` remains a *separate* post-hoc augmentation, not part of the 10.
+- **FORMAT axis exempted from the diversity gates.** New `DIVERSITY_EXEMPT_FAMILIES = {"format"}`. In the accept loop, format candidates skip the upper-SBERT ceiling, the token-overlap-vs-base/accepted checks, the semantic-dedup check, and the first-n-words signature dedup. They STILL must pass the lower SBERT bound (meaning preserved) and bidirectional NLI. Rationale: format perturbations are near-copies by construction, so the standard diversity gates would reject all of them.
+- **Tightened non-format gates to the paraphrasing spec (§9).** `generate_dataset.py` defaults: `--similarity-upper` 0.98 → **0.92** (Gate 1: reject near-copies), `--max-token-overlap` 0.85 → **0.70** (Gate 3: diversity ≥ 0.3). These apply to the 4 lexical/syntactic/pragmatic/length axes; FORMAT is exempt (see above).
+- **Paraphraser defaults:** `--n_variants` 8 → **10**; `--model-id` default `None` → **`meta-llama/Llama-3.1-8B-Instruct`** (Llama-3.1-8B is now the default paraphraser model for both backends).
+
+**Crossed-pipeline integration (so the 10-variant dataset is consumed correctly):**
+- `gensens/scripts/generate_summ_paraphrases.py`: `--n-variants` default 5 → **10**; output filename → `gensens_summ_50seed_10para.jsonl` (new file, old 5-paraphrase dataset preserved).
+- `gensens/crossed/scripts/common.py`: `SEED_FILE_DEFAULT` → the new 10para file; `N_VARIANTS_PER_SEED` 6 → **11** (1 base + 10); `load_seed_prompts` now **propagates `strategy_family`** (the axis label) into each normalized variant (base variant tagged `"base"`) so downstream per-axis analysis is possible.
+- Added runbook `gensens/crossed/RUN_ON_RTX4090.md` (24 GB constraints, WSL2 vs native-Windows paths, 3-model run, OOM knobs, resumability, open items).
+
+**Why:**
+- Per-axis sensitivity ("which *rewrite type* is each model most sensitive to") is a claimed contribution; it requires **balanced** coverage of all axes on equal n. The prior scheme was unbalanced (pragmatic/length under-sampled) and had **no FORMAT axis at all** — yet formatting/surface-form is one of the largest documented sources of prompt sensitivity, so the benchmark was systematically undercounting it.
+- Standardizes the same 5-axis design across all four tasks (summarization, QA, dialogue, creative) so sensitivity is comparable across tasks.
+
+**Impact:**
+- **Breaking for dataset generation.** New runs produce 10 variants/seed across 5 balanced axes with a `format` family; the schema gains no new fields (format variants carry `strategy_family="format"`, `max_cos_to_accepted=0.0`). Existing datasets are NOT rewritten.
+- **Requires regeneration + re-run.** The current summarization dataset (`gensens_summ_50seed_5para.jsonl`, 4-axis unbalanced, no FORMAT) and the crossed results built on it (Llama + Qwen) do **not** match the new scheme. To use the balanced design, summarization must be regenerated and the crossed benchmark re-run for all subject models.
+- Tighter non-format gates (0.92 / 0.70) will reject more candidates than before; best-of-N + retries absorb most of this, but per-seed yield on the thinnest axes should be monitored in the first run.
+
+---
+
 ## [2026-08-10] — Findings report (PDF) + post-hoc rigor: Qwen effect is weaker, cross-model sensitivity comparison
 
 **Files Added:** `gensens/crossed/FINDINGS_REPORT.md` + `FINDINGS_REPORT.pdf`; **Updated:** `CROSS_MODEL_REPLICATION.md`

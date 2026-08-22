@@ -57,8 +57,10 @@ logger = logging.getLogger(__name__)
 
 DATA_DIR = _GENSENS_ROOT / "data"
 DEFAULT_SEED_FILE   = DATA_DIR / "gensens_summ_50_seed_prompts.jsonl"
-DEFAULT_OUTPUT      = DATA_DIR / "gensens_summ_50seed_5para.jsonl"
-DEFAULT_CHECKPOINT  = DATA_DIR / "gensens_summ.checkpoint.jsonl"
+# Balanced 5-axis × 2 = 10 paraphrases/seed (method.md 2026-08-22). New
+# filename preserves the old 5-paraphrase dataset untouched.
+DEFAULT_OUTPUT      = DATA_DIR / "gensens_summ_50seed_10para.jsonl"
+DEFAULT_CHECKPOINT  = DATA_DIR / "gensens_summ_10para.checkpoint.jsonl"
 DEFAULT_STATS       = DATA_DIR / "gensens_summ_stats.json"
 
 # 8B generator, bf16, single-card — no AWQ quantization or tensor-parallel
@@ -323,7 +325,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--model-id",   default=DEFAULT_MODEL_ID,
                    help="HF model id for the vLLM backend "
                         f"(default: {DEFAULT_MODEL_ID})")
-    p.add_argument("--n-variants", type=int, default=5)
+    p.add_argument("--n-variants", type=int, default=10)
     p.add_argument("--seed-file",  default=str(DEFAULT_SEED_FILE))
     p.add_argument("--output",     default=str(DEFAULT_OUTPUT))
     p.add_argument("--checkpoint", default=str(DEFAULT_CHECKPOINT))
